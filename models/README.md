@@ -2,6 +2,8 @@
 
 ## Integrated BLIP export
 
+The integrated checkpoint is versioned with Git LFS. After cloning, run `git lfs install` and `git lfs pull` to retrieve `blip_vizwiz/model.safetensors`. Processor/tokenizer configuration is stored in normal Git. The original ZIP remains ignored; do not import it over an existing checkout of the checkpoint.
+
 `visionbridge_model_only.zip` contains a Hugging Face `BlipForQuestionAnswering` export and tokenizer/processor files. Import it with `python -m utils.checkpoint_import`; the app automatically selects `models/blip_vizwiz/` when available. Transformers 4.57.6 matches the exported version. Model weights are loaded locally with safetensors and checked for missing/unexpected keys. Use the UI model selector to switch back to pretrained BLIP. This checkpoint is independent of the future adapter contracts below.
 
 Put trusted checkpoints and an `adapter.py` in `models/qges/`, `models/fusion/`, or `models/answerability/`. No custom weights are supplied. Set `Config.enable_trained = True` and select custom adapters in the UI. Missing adapters produce warnings and fall back to BLIP; an absent gate never produces a probability.

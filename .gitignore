@@ -5,10 +5,10 @@ __pycache__/
 outputs/*
 !outputs/.gitkeep
 models/cache/
-models/blip_vizwiz/
 models/**/*.pt
 models/**/*.pth
 models/**/*.safetensors
+!models/blip_vizwiz/model.safetensors
 *.log
 
 # Local credentials and editor state
