@@ -1,0 +1,40 @@
+.venv/
+.deps/
+__pycache__/
+.pytest_cache/
+outputs/*
+!outputs/.gitkeep
+models/cache/
+models/**/*.pt
+models/**/*.pth
+models/**/*.safetensors
+*.log
+
+# Local credentials and editor state
+.env
+.env.*
+!.env.example
+.aws/
+.codex/
+.agents/
+.vscode/
+.idea/
+
+# Python build artifacts and notebook checkpoints
+*.py[cod]
+.ipynb_checkpoints/
+build/
+dist/
+*.egg-info/
+
+# Downloaded and future trained model artifacts (keep documentation/adapters)
+models/**/*.bin
+models/**/*.onnx
+models/**/*.ckpt
+models/**/*.zip
+models/**/*.incomplete
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store

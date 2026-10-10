@@ -1,0 +1,4 @@
+-r requirements.txt
+ultralytics==8.4.41
+easyocr==1.7.2
+opencv-python-headless==4.11.0.86

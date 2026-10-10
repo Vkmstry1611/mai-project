@@ -1,0 +1,18 @@
+[
+  {"image":"cats.png","question":"What animals are in the image?","reference_answer":"cats","category":"object recognition"},
+  {"image":"cats.png","question":"How many cats are visible?","reference_answer":"two","category":"counting"},
+  {"image":"cats.png","question":"What color is the couch?","reference_answer":"pink","category":"color"},
+  {"image":"cats.png","question":"What objects are next to the cats?","reference_answer":"remote controls","category":"object recognition"},
+  {"image":"bus.jpg","question":"What large vehicle is in the image?","reference_answer":"bus","category":"object recognition"},
+  {"image":"bus.jpg","question":"What color is the lower side of the bus?","reference_answer":"blue","category":"color"},
+  {"image":"bus.jpg","question":"Are there people in front of the bus?","reference_answer":"yes","category":"spatial relationship"},
+  {"image":"people.jpg","question":"How many people are in the foreground?","reference_answer":"two","category":"counting"},
+  {"image":"people.jpg","question":"What is the person on the left doing with his arm?","reference_answer":"pointing","category":"action"},
+  {"image":"people.jpg","question":"What color are their jackets?","reference_answer":"black","category":"color"},
+  {"image":"stop_sign.png","question":"What word is written on the sign?","reference_answer":"STOP","category":"OCR"},
+  {"image":"stop_sign.png","question":"What color is the sign?","reference_answer":"red","category":"color"},
+  {"image":"stop_sign.png","question":"What shape is the sign?","reference_answer":"octagon","category":"shape"},
+  {"image":"cats.png","question":"What are the names of these cats?","reference_answer":null,"category":"unanswerable","expected_behavior":"The image does not establish their names. A reliable system should abstain; the current BLIP baseline may guess."},
+  {"image":"bus.jpg","question":"At what exact time will this bus arrive at its next stop?","reference_answer":null,"category":"unanswerable","expected_behavior":"The arrival time cannot be determined from this image. The current baseline has no calibrated answerability gate."},
+  {"image":"stop_sign.png","question":"What is printed on the back of this sign?","reference_answer":null,"category":"unanswerable","expected_behavior":"The back is not visible. A reliable system should abstain; the current BLIP baseline may guess."}
+]
