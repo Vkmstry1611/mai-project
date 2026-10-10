@@ -19,7 +19,7 @@ def test_baseline_and_missing_checkpoints():
     pipeline.config.enable_trained = True
     with patch('modules.vqa.answer', return_value='bottle'):
         answer, audio, status, debug, image = pipeline.run(Image.new('RGB', (30, 30)), 'what is here?', speak=False, enhanced=True)
-    assert 'bottle' in answer and 'reliability' in answer
+    assert answer == 'bottle'
     assert audio is None and image is not None
     assert debug['grounded'] is False and debug['answerability']['probability'] is None
     assert len(debug['warnings']) == 3

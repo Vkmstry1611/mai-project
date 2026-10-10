@@ -1,7 +1,7 @@
 # Python 3.10 or 3.11. Torch and torchvision must remain a matched pair.
 torch==2.4.1
 torchvision==0.19.1
-transformers==4.44.0
+transformers==4.57.6
 gradio==6.13.0
 faster-whisper==1.2.1
 pyttsx3==2.99

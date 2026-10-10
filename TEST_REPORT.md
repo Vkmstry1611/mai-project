@@ -1,5 +1,24 @@
 # Local verification — 10 October 2026
 
+## Reliability safeguards
+
+Added configurable conservative rules and automatic YOLO presence checks for object categories named in questions. These are heuristic checks, not a trained gate or calibrated answer-confidence estimate. All weather questions deliberately abstain; outdoor weather interpretation is not enabled. Detector non-observation is qualified because it cannot prove absence.
+
+- **22 automated tests passed**, including weather abstention before VQA, spoken safeguard responses, absent objects, supported presence, low detector scores, detector failure, aliases/phrase boundaries, disabling safeguards and distinguishing object naming from personal identity.
+- Real trained-model Gradio test on sample/cats.png: cat-count answer remained `2`; a weather question returned `I can't determine the weather from this image.`; a bottle-color question returned `I can't see that item in this image (bottle). It may be obscured or too small to recognize.`
+- No training, reliability calibration or held-out accuracy evaluation was performed. Named categories outside YOLO's supported vocabulary, detector misses and remaining VQA hallucinations still require evaluation.
+
+## Trained checkpoint integration
+
+The supplied `models/visionbridge_model_only.zip` was inspected and its eight Hugging Face BLIP export files imported into `models/blip_vizwiz/`. No training ran. Transformers was upgraded within the project virtual environment from 4.44.0 to 4.57.6, matching the export; 4.44.0 could not correctly restore a tied decoder weight. The 4.57.6 loader passed strict checks for missing, unexpected and mismatched keys.
+
+- Expanded automated tests: **14 passed**, including automatic/explicit model selection, missing trained files, request-specific selection, archive path rejection and handling of the model's `unanswerable` output.
+- Real trained-model CPU inference: returned `2` for “How many cats are visible?” with sample/cats.png. This is a smoke check, not an accuracy benchmark.
+- Real Gradio trained-model integration: uploaded sample/cats.png, selected trained BLIP, received the answer and a valid spoken WAV, and transcribed that WAV with Whisper. Completed successfully.
+- Extracted checkpoint and ZIP are ignored by Git. Original checkpoint files, ZIP and notebook are preserved.
+
+The local trained BLIP is now available. Separate learned QGES, fusion and answerability adapter checkpoints remain absent; no reliability calibration or grounding claim is added. The earlier baseline checks below record the original environment before this integration.
+
 Environment: Windows, Python 3.10.11, torch 2.4.1+cpu, torchvision 0.19.1+cpu, transformers 4.44.0, Gradio 6.13.0. No CUDA was available. Missing speech/OCR packages were installed in the project virtual environment. Pretrained weights were cached locally; no training or dataset download ran.
 
 - Automated tests: **10 passed**. Covered module imports, missing image, empty question, RGB normalization, lexical selection, CPU fallback, absent custom checkpoints, negative gate behavior using a fixture, optional extractor/TTS failures, speech/silence handling and Gradio construction.

@@ -8,6 +8,8 @@ ROOT = Path(__file__).resolve().parent
 class Config:
     device: str = field(default_factory=lambda: os.getenv('VISIONBRIDGE_DEVICE', 'auto'))
     blip_model: str = 'Salesforce/blip-vqa-base'
+    trained_blip_dir: Path = ROOT / 'models' / 'blip_vizwiz'
+    vqa_mode: str = field(default_factory=lambda: os.getenv('VISIONBRIDGE_VQA_MODE', 'auto'))
     whisper_model: str = 'tiny.en'
     clip_model: str = 'openai/clip-vit-base-patch32'
     yolo_model: str = str(ROOT / 'models' / 'yolov8n.pt')
@@ -18,4 +20,6 @@ class Config:
     answerability_checkpoint: Path = ROOT / 'models' / 'answerability'
     enable_trained: bool = False
     enable_qges: bool = True
+    enable_reliability_checks: bool = True
+    object_presence_threshold: float = 0.35
     max_regions: int = 5

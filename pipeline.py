@@ -1,6 +1,7 @@
 import logging
+from dataclasses import replace
 from config import Config
-from modules import vqa, speech_to_text, text_to_speech, object_detection, ocr, visual_features, qges, fusion, answerability
+from modules import vqa, speech_to_text, text_to_speech, object_detection, ocr, visual_features, qges, fusion, answerability, reliability
 from modules.custom_models import load_adapter
 from utils.image_utils import normalize_image, annotate
 from utils.model_loader import resolve_device
@@ -27,7 +28,7 @@ class Pipeline:
             import gradio as gr
             return gr.skip(), gr.skip(), f'Transcription failed: {error}. You can type your question.'
 
-    def run(self, image, question, use_objects=False, use_ocr=False, use_clip=False, speak=True, enhanced=False):
+    def run(self, image, question, use_objects=False, use_ocr=False, use_clip=False, speak=True, enhanced=False, vqa_mode=None, reliability_checks=None):
         debug = {'mode': 'BLIP baseline', 'grounded': False, 'answerability': answerability.unavailable().__dict__,
                  'components': {}, 'evidence': [], 'selected_evidence': [], 'warnings': []}
         try:
@@ -37,7 +38,14 @@ class Pipeline:
                 raise ValueError('Please type a question or transcribe a recording.')
             if len(question) > 1000:
                 raise ValueError('Please keep the question under 1000 characters.')
-            for name, enabled, component in [('objects', use_objects, object_detection), ('ocr', use_ocr, ocr)]:
+            request_config = replace(self.config, vqa_mode=vqa_mode or self.config.vqa_mode)
+            checks_enabled = self.config.enable_reliability_checks if reliability_checks is None else reliability_checks
+            safeguard = reliability.question_check(question) if checks_enabled else reliability.Check('disabled')
+            source, label = vqa.model_source(request_config)
+            debug['mode'] = label
+            debug['components']['vqa'] = {'model': source, 'status': 'selected'}
+            check_presence = checks_enabled and safeguard.response is None and bool(safeguard.targets)
+            for name, enabled, component in [('objects', use_objects or check_presence, object_detection), ('ocr', use_ocr, ocr)]:
                 debug['components'][name] = 'disabled'
                 if enabled:
                     try:
@@ -45,6 +53,10 @@ class Pipeline:
                         debug['components'][name] = 'active'
                     except Exception as error:
                         debug['components'][name] = f'unavailable: {error}'
+            if check_presence:
+                safeguard = reliability.check_objects(safeguard.targets, debug['evidence'],
+                    debug['components']['objects'] == 'active', self.config.object_presence_threshold)
+            debug['reliability_checks'] = safeguard.__dict__
             features = {}
             debug['components']['clip'] = 'disabled'
             if use_clip:
@@ -68,10 +80,13 @@ class Pipeline:
                 except Exception as error:
                     debug['warnings'].append(f'Answerability unavailable: {error}')
             debug['answerability'] = gate.__dict__
-            if gate.answerable is False:
+            if safeguard.response:
+                final = safeguard.response
+            elif gate.answerable is False:
                 final = 'I cannot answer this image reliably. Please take a clearer photo or ask another question.'
             else:
-                inputs.baseline_answer = vqa.answer(image, question, self.config)
+                inputs.baseline_answer = vqa.answer(image, question, request_config)
+                debug['components']['vqa']['status'] = 'active'
                 result = fusion.baseline(inputs)
                 if enhanced and self.config.enable_trained:
                     try:
@@ -83,8 +98,8 @@ class Pipeline:
                 elif enhanced:
                     debug['warnings'].append('Trained components disabled; using BLIP baseline.')
                 final = result.answer or 'I could not generate an answer. Try a clearer image or a different question.'
-                if gate.answerable is None and result.answer:
-                    final = f'Possible answer: {final}. I cannot assess its reliability.'
+                if result.answer.strip().lower() == 'unanswerable':
+                    final = 'The VQA model returned unanswerable. Please try a clearer image or a different question.'
             audio = None
             if speak:
                 try:

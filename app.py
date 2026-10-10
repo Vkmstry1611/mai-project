@@ -17,7 +17,9 @@ def build_app(pipeline=None):
     pipeline = pipeline or Pipeline()
     with gr.Blocks(title='VisionBridge — AI Visual Assistant') as demo:
         gr.Markdown('# VisionBridge — AI Visual Assistant\nUpload an image or take a photo. Type a question, or record and transcribe it. Then select **Ask about image**.')
-        gr.Markdown('**Active:** pretrained BLIP, Whisper on demand, offline system speech. **Optional:** YOLO, EasyOCR, CLIP and lexical QGES. **Pending:** trained fusion, learned QGES and answerability. Baseline answers may be incorrect; reliability is not calibrated.')
+        from modules.vqa import model_source
+        _, active_label = model_source(pipeline.config)
+        gr.Markdown(f'**Default VQA:** {active_label}. **Safeguards:** unsupported weather/identity questions are declined; YOLO checks recognized objects mentioned in questions. **Available:** Whisper and offline speech. **Pending:** trained fusion, learned QGES and a calibrated answerability gate. Answers may still be incorrect.')
         with gr.Row():
             with gr.Column():
                 image = gr.Image(label='Image — upload or camera', sources=['upload', 'webcam'], type='pil')
@@ -25,6 +27,10 @@ def build_app(pipeline=None):
                 transcribe = gr.Button('Transcribe recording', size='lg')
                 transcript = gr.Textbox(label='Recognized speech', interactive=False)
                 question = gr.Textbox(label='Question — type or correct transcription', lines=2)
+                vqa_model = gr.Dropdown(label='VQA model', choices=[('Automatic — use local trained checkpoint when available', 'auto'),
+                    ('Trained BLIP — local blip_vizwiz checkpoint', 'trained'),
+                    ('Original pretrained BLIP baseline', 'pretrained')], value=pipeline.config.vqa_mode)
+                reliability_checks = gr.Checkbox(label='Check question support before answering (recommended)', value=pipeline.config.enable_reliability_checks)
                 with gr.Accordion('Optional processing', open=False):
                     objects = gr.Checkbox(label='Detect objects with YOLO', value=False)
                     text = gr.Checkbox(label='Read visible text with EasyOCR', value=False)
@@ -40,7 +46,7 @@ def build_app(pipeline=None):
                     debug = gr.JSON(label='Evidence, warnings and active components')
                     annotated = gr.Image(label='Evidence bounding boxes', interactive=False)
         transcribe.click(pipeline.transcribe, recording, [transcript, question, status])
-        ask.click(pipeline.run, [image, question, objects, text, clip, speak, enhanced], [answer, audio, status, debug, annotated])
+        ask.click(pipeline.run, [image, question, objects, text, clip, speak, enhanced, vqa_model, reliability_checks], [answer, audio, status, debug, annotated])
     return demo
 
 if __name__ == '__main__':
