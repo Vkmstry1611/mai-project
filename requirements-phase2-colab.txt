@@ -1,0 +1,12 @@
+# Colab evaluation only: Section 3 constrains the installed Torch/torchvision,
+# NumPy and Pillow versions. Do not inherit Phase 1's NumPy/Pillow restrictions.
+# Do not use the local app's requirements.txt in Colab.
+transformers==4.57.6
+tokenizers==0.22.2
+huggingface-hub>=0.34,<1.0
+safetensors>=0.4.3,<0.9
+easyocr==1.7.2
+ultralytics==8.4.41
+# Both distributions provide cv2; keep their wheel versions consistent.
+opencv-python==4.11.0.86
+opencv-python-headless==4.11.0.86

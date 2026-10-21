@@ -1,0 +1,15 @@
+# Frozen Windows inference environment. Install the CUDA Torch pair first.
+# Do not install requirements.txt or requirements-evidence.txt into .venv-gpu.
+transformers==4.46.3
+tokenizers==0.20.3
+safetensors==0.8.0
+easyocr==1.7.2
+ultralytics==8.3.40
+scikit-learn==1.9.1
+scipy==1.17.1
+joblib==1.6.0
+numpy==2.4.6
+Pillow==12.3.0
+opencv-python==5.0.0.93
+opencv-python-headless==5.0.0.93
+pytest>=8,<10

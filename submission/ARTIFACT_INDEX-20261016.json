@@ -1,0 +1,164 @@
+{
+  "contains_dataset_images": false,
+  "contains_holdout_predictions": false,
+  "contains_original_split_manifest_and_development_annotations": true,
+  "files": [
+    {
+      "bytes": 1345,
+      "path": "models/blip_vizwiz_v2/config.json",
+      "sha256": "901e5144989d69958f57011897132efe7b9fd672472a2dac16ce3a65e6c04ce3"
+    },
+    {
+      "bytes": 136,
+      "path": "models/blip_vizwiz_v2/generation_config.json",
+      "sha256": "e97c77b48064b258e7a4faef22a4909aca3ea1a4958bee1e7611cf6aebb369b3"
+    },
+    {
+      "bytes": 1445022200,
+      "path": "models/blip_vizwiz_v2/model.safetensors",
+      "sha256": "9b6f315df6b4d81c1fc85a41e1882fa15279421317636f1bed20c33d88843c8c"
+    },
+    {
+      "bytes": 471,
+      "path": "models/blip_vizwiz_v2/preprocessor_config.json",
+      "sha256": "5f7d0489cdaa532133458be1585c9038f9ca3d9419426b4403d50e60c266c043"
+    },
+    {
+      "bytes": 695,
+      "path": "models/blip_vizwiz_v2/special_tokens_map.json",
+      "sha256": "5d5b662e421ea9fac075174bb0688ee0d9431699900b90662acd44b2a350503a"
+    },
+    {
+      "bytes": 1400,
+      "path": "models/blip_vizwiz_v2/tokenizer_config.json",
+      "sha256": "c6dfc599a9ad094c87fdfb33603469daf5d47ceb94b81e3589ff4f51fbfe23cd"
+    },
+    {
+      "bytes": 231508,
+      "path": "models/blip_vizwiz_v2/vocab.txt",
+      "sha256": "07eced375cec144d27c900241f3e339478dec958f92fddbc551f295c992038a3"
+    },
+    {
+      "bytes": 12301332,
+      "path": "reports/phase2_local_dev_evaluation/coverage-targeted-v1-20261012-021213/results/expanded_records.json",
+      "sha256": "11c20009ac0bb8e5d6935284b4332b746baf63d998af2c1d62261a6927cb7cb1"
+    },
+    {
+      "bytes": 10522638,
+      "path": "reports/phase2_local_dev_evaluation/drive_inputs/split_manifest.json",
+      "sha256": "6c90f77ee5c8dc54b52fca7706c58bf3f9e32bca1409d0f872039dd0439b026f"
+    },
+    {
+      "bytes": 1186598,
+      "path": "reports/phase2_local_dev_evaluation/run-local-20261011-193140-9b32cf49/inputs/run02-dev-only.json",
+      "sha256": "e3aec56ce69a42018eb8a8a6ab9be50adaceb30e0295cd22da43b23a903e2893"
+    },
+    {
+      "bytes": 83152330,
+      "path": "reports/phase2_local_dev_evaluation/run-local-20261011-193140-9b32cf49/model-cache/easyocr/craft_mlt_25k.pth",
+      "sha256": "4a5efbfb48b4081100544e75e1e2b57f8de3d84f213004b14b85fd4b3748db17"
+    },
+    {
+      "bytes": 15143997,
+      "path": "reports/phase2_local_dev_evaluation/run-local-20261011-193140-9b32cf49/model-cache/easyocr/english_g2.pth",
+      "sha256": "e2272681d9d67a04e2dff396b6e95077bc19001f8f6d3593c307b9852e1c29e8"
+    },
+    {
+      "bytes": 6549796,
+      "path": "reports/phase2_local_dev_evaluation/run-local-20261011-193140-9b32cf49/model-cache/yolov8n.pt",
+      "sha256": "f59b3d833e2ff32e194b5bb8e08d211dc7c5bdf144b90d2c8412c47ccfc83b36"
+    },
+    {
+      "bytes": 253477,
+      "path": "reports/phase3_answerability/plan-20261012-023211-3dbd1268/PHASE2_FREEZE.json",
+      "sha256": "9b4c1b6d56aa4f48d2c23da8595f600e24a8c934c0e7530c6169e3b10c3c7a25"
+    },
+    {
+      "bytes": 4595,
+      "path": "reports/phase3_answerability/run-local-20261012-v1/models/heads.joblib",
+      "sha256": "9ac285dcd45ef7b67ec91f17ca10a7dae4f50289574fbf0485d40876fc6417ae"
+    },
+    {
+      "bytes": 7132,
+      "path": "reports/phase3_answerability/run-local-20261012-v1/models/metadata.json",
+      "sha256": "ba831a57d8596207028ee588d2d19d0de5a809d1af33d591dcfdd16535862ace"
+    },
+    {
+      "bytes": 197,
+      "path": "reports/phase3_answerability/run-local-20261012-v1/selected-policy.json",
+      "sha256": "d03fdf90379b74b3f4ba4b9fffada7e077907bfb2281aecd695564adcf983e16"
+    },
+    {
+      "bytes": 1164,
+      "path": "reports/phase4_policy/run-local-20261013-v1/APPLICATION_FREEZE.json",
+      "sha256": "87cb2300f0f983eb7326998782c2ea0d77d5f1487bd106809a7d934cf6094a1c"
+    },
+    {
+      "bytes": 1835,
+      "path": "reports/phase4_policy/run-local-20261013-v1/POLICY_FREEZE.json",
+      "sha256": "19db1ae86a5a27ee59c13b5acd00c1f28f06428d936711a572dd0d080a2c4e21"
+    },
+    {
+      "bytes": 481795,
+      "path": "reports/phase4_policy/run-local-20261013-v1/development_summary.json",
+      "sha256": "ab9edeb2f942c10719ecefbe89ca04008173d215427cda99e2e6960ffa8099db"
+    },
+    {
+      "bytes": 2229,
+      "path": "reports/phase4_policy/run-local-20261013-v1/selected-policy.json",
+      "sha256": "9bd87b116cf123e9de333ce994de16918fb43265f00a3180e9637234cbb4d37f"
+    }
+  ],
+  "optional_whisper_weights_included": false,
+  "original_blip_checkpoint_included": false,
+  "policy_sha256": "9bd87b116cf123e9de333ce994de16918fb43265f00a3180e9637234cbb4d37f",
+  "privacy": "Private runtime bundle; do not upload to Git/public storage without review and approval.",
+  "release": "VisionBridge-frozen-runtime-20261016-v1",
+  "schema": 1,
+  "sklearn_version": "1.9.1",
+  "source_sha256": {
+    "app.py": "51d7bff5a280f9632efb63f8b4f131ab15c36b22aade7fdcd4f07e085902fad4",
+    "app_phase4.py": "9b742ed00a6932188cf653d6b023a59bd369076aba0b96e8cbb5db277abd24f7",
+    "config.py": "f0dddae92b85399e5d313becef088df2b21b0828a117aba1e563f3c7c0a647eb",
+    "evaluate_phase2_dev.py": "ef842a69aaa1a21c5448afddb8d57946c73b6a659694c9b782c1a387201efe4d",
+    "evaluate_phase3_dev.py": "4564c2e1cdb550c5e9ea0a1f9e00164065ac9b3f82fe360a61db538e435153e5",
+    "evaluate_vqa.py": "9fe835ae4a72cffeb3e8332fa97fe1017d9aab9ea0e11e7fb202b69ca1203c42",
+    "export_phase2_dev.py": "019d19bad1bdaa55579ad7569a24144f360446e4bbf3e03e6a7fc3b4fece4914",
+    "launch_phase4.py": "0d3c4de1d083eb196194f44ff0dfa0d1a622f2ad2875d95f48ea21d5b4ecaf79",
+    "launch_submission.py": "06d14a1eadd2147bfda7762404e5ec09844aba8934048297cc615cfe6fb8ac8f",
+    "modules/__init__.py": "4b40f64f1c35d0d7354065ba28211b3732835ded8f18e4673bb3312df6132151",
+    "modules/answerability.py": "2000921d0bc3a69ff4559bb81f13d2356f5656277a1b7f7ad403e61cc6e4021d",
+    "modules/answerability_features.py": "f805d8689f960709a52a30b54c4cb7acca44e71bda3900f1df332ab981d9bdca",
+    "modules/answerability_gate.py": "0675b67efd9097087a75805b68f0c8a96aa957e326ad13b01028f0c0602db42a",
+    "modules/custom_models.py": "8723a43b93b6cf9a0a2f81ac93188cd0b26086d327a647bf6c98ccca3f006b16",
+    "modules/evidence_decision.py": "ce816bb9ea35f33c30525f42174f163ded81066e609d3192ed015fe28d5b4e11",
+    "modules/evidence_store.py": "209fbf9c2239639f5c74f93fcc6b7f68b4ff306512d550bd914e34d6269faeab",
+    "modules/fusion.py": "c2f8261932d0c3103a2dd3275a508bc0e4bb7e065ab172d3e5d7870d99c69d5c",
+    "modules/object_detection.py": "a331d3f87cc599c344d92c303d66bdeac45443542bd7083dbb450d47ad850514",
+    "modules/ocr.py": "828d2ba7793aecfc59c466366a12843d2c6c9a7c8b5c21511ffdc8a92aaf637c",
+    "modules/ocr_phrases.py": "d9227f93d29d51d6edb3082dff9815c7bcbaee42d8eff8136f7bcd7edfb8964b",
+    "modules/qges.py": "19045100c931d75e0671c005b7e3d845c0a83113b101a60308f71111765a19ce",
+    "modules/question_intent.py": "ae6aa07a81d9a6702cd5153fb47ab2138826fc9cda3e37c345cca468a7c5c6b3",
+    "modules/reliability.py": "d2d1e0b519e2b2417c7566f3767854103d72ea6c69cac8c395b870768340a9ce",
+    "modules/speech_to_text.py": "d5b0e196587e0d4c3ae54a76adf4d5ab444eca6985e902edd45105db42eba6fd",
+    "modules/text_to_speech.py": "217df89ace87bca65a46025c26272f10a6b8df0b6f824a0b2fc948e2255983f0",
+    "modules/visual_features.py": "41eba5c4fe53a86d16ead45f587a1b4f3056f074726efa7075051f981a2d9e2c",
+    "modules/vqa.py": "bd3ab4ad9fe0cfafd833a60d87011ecd059c279001088c6531bf006cf0b90adb",
+    "phase3_common.py": "55fa481f06fab1867a5e9659fb2055163d35df5f626abe5fc9ab4d715ebf495f",
+    "phase3_pipeline.py": "85a0ca1b60b56451e4dd9b0714963b87f2d55e992c6cbd30d5c8cfe71448dafe",
+    "phase4_gpu_infer.py": "ab4f971eec791371a5cca9d9ed82ff946b423b6ac692b07f1949fd3254831723",
+    "phase4_holdout.py": "871e806ad16a0b63dae527e2eb0a2782574740804e1ffceebbe31599d7327515",
+    "phase4_infer.py": "d6f159a18d944841946066e0221c11f84114086206ea7fac493a4d7245493fb5",
+    "phase4_pipeline.py": "9c70dbb41e135f8b6abff4ec4eeffa7b062e3cfa79d48b9567bafe78db188b65",
+    "phase4_policy.py": "18293be6c61eadd542eac79f12a84b1f0fcc9879584d1c8b37ebcc7b82df3d6d",
+    "pipeline.py": "b036fa31786a5644f80c109840730d8b676d06d0b1937392b4c47321a62cd817",
+    "replay_phase2_dev.py": "b619251f33ffe44859885437d43ba2c23fd25deec1c59b52bb9bb00fdf93849d",
+    "submission_ui_helpers.py": "949fee17d917915140084e25f4588ea39722b214bb8e739f641a1654f826447a",
+    "train_answerability.py": "23d92df695e59921074a5f2a534183ce9b2d201ad98b78501e83f6c65372a350",
+    "utils/__init__.py": "5ded95c347d2288cebdbcf40c06631d0d210611c0071c19f3a6de14cb0b44097",
+    "utils/checkpoint_import.py": "47fb4596dbe529ccb834c7b032187996d2d5b76444d2e2269b043e2171456584",
+    "utils/image_utils.py": "9feaa6d016068d020aa7bddbc8bd2e345b93fef74997b677438c898acf0b2714",
+    "utils/model_loader.py": "626388f46f12b1aca247bb175320672c77ec3abaafbd8830206f3e22b2d28386"
+  },
+  "target": "Windows Python 3.11"
+}

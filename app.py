@@ -29,8 +29,10 @@ def build_app(pipeline=None):
                 question = gr.Textbox(label='Question — type or correct transcription', lines=2)
                 vqa_model = gr.Dropdown(label='VQA model', choices=[('Automatic — use local trained checkpoint when available', 'auto'),
                     ('Trained BLIP — local blip_vizwiz checkpoint', 'trained'),
+                    ('Improved BLIP v2 — requires separate checkpoint', 'v2'),
                     ('Original pretrained BLIP baseline', 'pretrained')], value=pipeline.config.vqa_mode)
                 reliability_checks = gr.Checkbox(label='Check question support before answering (recommended)', value=pipeline.config.enable_reliability_checks)
+                evidence_aware = gr.Checkbox(label='Phase 2: restricted OCR answer decisions (select Improved BLIP v2; bypasses legacy checks; answerability pending)', value=False)
                 with gr.Accordion('Optional processing', open=False):
                     objects = gr.Checkbox(label='Detect objects with YOLO', value=False)
                     text = gr.Checkbox(label='Read visible text with EasyOCR', value=False)
@@ -46,11 +48,20 @@ def build_app(pipeline=None):
                     debug = gr.JSON(label='Evidence, warnings and active components')
                     annotated = gr.Image(label='Evidence bounding boxes', interactive=False)
         transcribe.click(pipeline.transcribe, recording, [transcript, question, status])
-        ask.click(pipeline.run, [image, question, objects, text, clip, speak, enhanced, vqa_model, reliability_checks], [answer, audio, status, debug, annotated])
+        ask.click(pipeline.run, [image, question, objects, text, clip, speak, enhanced, vqa_model, reliability_checks, evidence_aware], [answer, audio, status, debug, annotated])
     return demo
 
 if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser(description='VisionBridge visual assistant')
+    parser.add_argument('--phase4-run', help='Use a verified frozen Phase 4 policy; original mode remains available')
+    arguments = parser.parse_args()
     logging.basicConfig(level=logging.INFO)
-    build_app().queue(default_concurrency_limit=1).launch(server_name='127.0.0.1', share=False,
+    if arguments.phase4_run:
+        from app_phase4 import build_app as build_phase4_app
+        demo = build_phase4_app(arguments.phase4_run)
+    else:
+        demo = build_app()
+    demo.queue(default_concurrency_limit=1).launch(server_name='127.0.0.1', share=False,
         theme=__import__('gradio').themes.Base(primary_hue='blue', neutral_hue='slate'),
         css='body, input, textarea {font-size:18px !important} button {min-height:48px !important} .gradio-container {max-width:1200px !important} button:focus-visible, input:focus-visible, textarea:focus-visible {outline:3px solid #2563eb !important; outline-offset:3px}')
