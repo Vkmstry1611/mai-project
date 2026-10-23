@@ -39,3 +39,38 @@ models/**/*.incomplete
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# Final submission: keep local environments, datasets, experiment state and
+# personal request logs on disk, but never stage them via `git add .`.
+.venv-gpu/
+.venv-*/
+.pytest-*/
+reports/
+private-artifacts/
+models/blip_vizwiz_v2/
+*.joblib
+*.partial
+*.download
+*.tmp
+
+# Prepared for optional, approved index-only cleanup; existing tracked files
+# remain tracked until explicitly removed from the index (local copies stay).
+sample/money.png
+sample/vqa-examples1 (1).jpg
+
+# Private runtime packages and transient speech/capture artifacts
+*.zip
+*.wav
+*.mp3
+*.m4a
+*.ogg
+*.flac
+*.webm
+*.partial.wav
+*.pem
+*.p12
+*.pfx
+credentials.json
+client_secret*.json
+.coverage
+htmlcov/
