@@ -12,46 +12,53 @@ ASSETS=ROOT/'assets/workspace'
 
 def theme():
     import gradio as gr
-    return gr.themes.Base(primary_hue='cyan',neutral_hue='slate',font=['Segoe UI','Arial','sans-serif'],font_mono=['Consolas','monospace']).set(
-        body_background_fill='#09111e',body_background_fill_dark='#09111e',body_text_color='#e4edf7',body_text_color_dark='#e4edf7',
-        block_background_fill='#111e30',block_background_fill_dark='#111e30',block_border_color='#2b4057',block_border_color_dark='#2b4057',
-        block_label_text_color='#b6c9db',block_label_text_color_dark='#b6c9db',input_background_fill='#0c192a',input_background_fill_dark='#0c192a',
+    return gr.themes.Base(primary_hue='blue',neutral_hue='slate',font=['Segoe UI','Arial','sans-serif'],font_mono=['Consolas','monospace']).set(
+        block_label_background_fill='#f0f1e9',block_label_background_fill_dark='#f0f1e9',
+        block_title_text_color='#232820',block_title_text_color_dark='#232820',
+        checkbox_background_color='#fbfaf6',checkbox_background_color_dark='#fbfaf6',
+        checkbox_background_color_selected='#254ddd',checkbox_background_color_selected_dark='#254ddd',
+        checkbox_label_background_fill='transparent',checkbox_label_background_fill_dark='transparent',
+        button_secondary_background_fill='#f0f1e9',button_secondary_background_fill_dark='#f0f1e9',
+        button_secondary_text_color='#232820',button_secondary_text_color_dark='#232820',
+        button_secondary_border_color='#cbd0c1',button_secondary_border_color_dark='#cbd0c1',
+        body_background_fill='#f5f4ef',body_background_fill_dark='#f5f4ef',body_text_color='#232820',body_text_color_dark='#232820',
+        block_background_fill='#fbfaf6',block_background_fill_dark='#fbfaf6',block_border_color='#d5d8cd',block_border_color_dark='#d5d8cd',
+        block_label_text_color='#62675c',block_label_text_color_dark='#62675c',input_background_fill='#fbfaf6',input_background_fill_dark='#fbfaf6',
         # Gradio 6.13 has no input_text_color theme token. Inputs inherit the
         # supported body text color; workspace CSS supplies the explicit color.
-        input_border_color='#38536e',input_border_color_dark='#38536e',
-        button_primary_background_fill='#8dd7df',button_primary_background_fill_dark='#8dd7df',button_primary_text_color='#09202e',button_primary_text_color_dark='#09202e')
+        input_border_color='#c9cdbf',input_border_color_dark='#c9cdbf',
+        button_primary_background_fill='#254ddd',button_primary_background_fill_dark='#254ddd',button_primary_text_color='#ffffff',button_primary_text_color_dark='#ffffff')
 
 
 def build_app(run_dir,session=None):
     import gradio as gr
     if session is None:
-        from full_text_session import FullTextSession
-        session=FullTextSession(run_dir)
+        session=create_session(run_dir)
     controller=WorkspaceController(session)
     def html(value,**kwargs):return gr.HTML(value,css_template=HTML_CSS,**kwargs)
     with gr.Blocks(title='VisionBridge — visual assistant workspace',analytics_enabled=False,delete_cache=(3600,3600)) as demo:
         prior=gr.State(None,time_to_live=3600)
-        with gr.Row(elem_id='vb-shell',equal_height=False):
-            with gr.Column(scale=0,min_width=150,elem_id='vb-sidebar'):
+        with gr.Column(elem_id='vb-shell'):
+            with gr.Row(elem_id='vb-sidebar',equal_height=False):
                 html(BRAND)
                 html(NAV)
-                larger=gr.Checkbox(label='Larger input & answer text',value=False,elem_id='vb-access')
-                mute=gr.Checkbox(label='Mute Spoken Answers',value=False,elem_id='vb-mute')
-                html('<div class="rail-note"><span class="eyebrow">On your laptop</span><p>Models stay initialized.<br>First use can take longer.</p><p style="margin-top:12px">A university AI/ML project.<br>Answers can still be wrong.</p></div>')
+                with gr.Column(elem_id='vb-preferences',scale=0,min_width=190):
+                    larger=gr.Checkbox(label='Larger input & answer text',value=False,elem_id='vb-access')
+                    mute=gr.Checkbox(label='Mute Spoken Answers',value=False,elem_id='vb-mute')
             with gr.Column(scale=1,min_width=320,elem_id='vb-main'):
                 html(HERO)
                 with gr.Row(elem_id='vb-workspace',equal_height=True):
                     with gr.Column(scale=6,min_width=300,elem_classes='vb-card',elem_id='vb-input-card'):
-                        html(section('01','Your visual context','A photo and a question are all you need.'))
-                        image=gr.Image(label='Image — upload or camera',sources=['upload','webcam'],type='pil',height=300,
+                        html(section('01','The image','Your starting point. Upload a photo or use your camera.'))
+                        image=gr.Image(label='Image — upload or camera',sources=['upload','webcam'],type='pil',height=340,
                             placeholder='Drop an image here, or choose Upload',elem_id='vb-photo')
                         gr.Markdown('Use a clear, upright photo. Avoid glare and keep the text in focus.',elem_classes='vb-note')
-                        question=gr.Textbox(label='Your question · type or review your transcript',lines=2,max_lines=5,
+                        question=gr.Textbox(label='What would you like to know?',lines=2,max_lines=5,
                             placeholder='What would you like to know about this image?',elem_id='vb-question')
                         if hasattr(session,'for_conversation'):
-                            gr.Markdown('Each question is a separate turn. The question box clears after a response; history stays below. Retake can reuse your last question.',elem_classes='vb-note')
-                            question_notice=html('<p role="status" aria-live="polite">Type or transcribe one question, review it, then select Analyze.</p>')
-                        with gr.Accordion('Speak your question',open=False,elem_classes='vb-inset'):
+                            gr.Markdown('Ask follow-ups about the same image. Your recent questions stay in the conversation.',elem_classes='vb-note')
+                            question_notice=html('<p role="status" aria-live="polite">Type a question, or open voice input below.</p>')
+                        with gr.Accordion('Voice input · record a question',open=False,elem_classes='vb-inset'):
                             recording=gr.Audio(label='Record or upload a spoken question',sources=['microphone','upload'],type='filepath',format='wav')
                             transcribe=gr.Button('Transcribe & review',size='sm')
                             speech_transcript=gr.Textbox(label='Recognized speech · review or copy if your newer draft was preserved',interactive=False,lines=2)
@@ -59,7 +66,7 @@ def build_app(run_dir,session=None):
                                 microphone_check=gr.Button('Check microphone access',size='sm')
                                 microphone_notice=gr.Textbox(label='Microphone access status',value='',interactive=False,lines=2)
                             gr.Markdown('Allow microphone access when your browser asks. Record, then stop; transcription starts automatically. Review and edit the question before analyzing. If nothing is captured, check the browser microphone permission or upload a WAV recording.',elem_classes='vb-note')
-                        with gr.Accordion('Advanced / Developer · optional manual overrides',open=False,elem_classes='vb-inset',elem_id='vb-developer'):
+                        with gr.Accordion('Advanced / Developer · optional manual overrides',open=False,elem_classes='vb-inset',elem_id='vb-developer',visible=not hasattr(session,'backend_label')):
                             choices=MODES+(['Full Text Reading (experimental)'] if hasattr(session,'full_request') else [])
                             mode=gr.Radio(choices,value=ASSISTANT,label='Processing override · leave Assistant selected for automatic routing',elem_id='vb-mode')
                             if hasattr(session,'set_engine'):
@@ -70,26 +77,26 @@ def build_app(run_dir,session=None):
                             with gr.Group(visible=False,elem_id='vb-rotation',elem_classes='vb-inset') as rotation_group:
                                 rotation=gr.Dropdown([('0° · upright','0'),('90° counterclockwise','90'),('180° · upside down','180'),('270° counterclockwise','270')],
                                     value='0',label='Rotate image for manual OCR',info='Only applied with a manual OCR override; automatic reading selects orientation itself.')
-                        analyze=gr.Button('Analyze Image',variant='primary',icon=ASSETS/'analyze.svg',elem_id='vb-analyze')
-                        retake=gr.Button('Retake / replace image · reuse last question',size='sm')
-                        clear=gr.Button('Clear image, question and conversation' if hasattr(session,'for_conversation') else 'Reset image, question and session comparison',size='sm')
+                        analyze=gr.Button('Analyze Image',variant='primary',elem_id='vb-analyze')
+                        retake=gr.Button('Replace image ↗',size='sm',elem_id='vb-retake')
+                        clear=gr.Button('Clear workspace',size='sm',elem_id='vb-clear')
                     with gr.Column(scale=5,min_width=280,elem_classes='vb-card',elem_id='vb-response-card'):
-                        html(section('02','The response','An answer, or a clear request for more information.'))
+                        html(section('02','The perspective','A closer look at what’s in front of you.'))
                         meta=html(EMPTY_RESPONSE)
-                        answer=gr.Textbox(label='Answer / transcription',value='',placeholder='No answer yet.',interactive=False,lines=5,max_lines=16,buttons=['copy'],elem_id='vb-answer')
-                        copy=gr.Button('Copy Text',size='sm')
-                        html('<p role="status" aria-live="polite">Copy Text copies the displayed response. If clipboard access is blocked, select the text and press Ctrl+C.</p>',elem_id='vb-copy-status')
+                        answer=gr.Textbox(label='Answer / transcription',value='',placeholder='',interactive=False,lines=5,max_lines=16,buttons=['copy'],elem_id='vb-answer')
+                        copy=gr.Button('Copy response',size='sm',elem_id='vb-copy')
+                        html('<p role="status" aria-live="polite">Copy the answer to keep it handy. You can also select text and press Ctrl+C.</p>',elem_id='vb-copy-status')
                         audio=gr.Audio(label='Play Answer · spoken response',autoplay=True,elem_id='vb-playback')
                         play=gr.Button('Play Answer',size='sm',elem_id='vb-play-answer')
                         gr.Markdown('Speech is generated by default. If your browser blocks autoplay, press Play Answer. Mute Spoken Answers stops playback and disables generation for new requests.',elem_classes='vb-note')
                         status=html(status_html('Ready when you are','Upload a photo, ask a question, then select Analyze Image.'),elem_id='vb-status')
-                        gr.Markdown('An OCR candidate or learned score is not proof that an answer is correct. Inspect the supporting evidence below.',elem_classes='vb-note')
+                        gr.Markdown('Answers are generated from your image. Verify important numbers, dates and conclusions.' if hasattr(session,'backend_label') else 'An OCR candidate or learned score is not proof that an answer is correct. Inspect the supporting evidence below.',elem_classes='vb-note')
                         conversation=None
                         if hasattr(session,'for_conversation'):
-                            with gr.Accordion('Recent questions · temporary image conversation',open=False):
+                            with gr.Accordion('Conversation · recent questions',open=False):
                                 conversation=html('<p>No earlier questions for this image.</p>',elem_id='vb-conversation')
-                with gr.Accordion('Technical Details · evidence, selected and excluded regions',open=False,elem_classes='vb-card',elem_id='vb-evidence'):
-                    html(section('03','Look at the evidence','Actual extracted candidates, with support distinguished from selection.'))
+                with gr.Accordion('Behind the answer · evidence & details',open=False,elem_classes='vb-card',elem_id='vb-evidence'):
+                    html(section('03','A closer look','Inspect the sources, selected regions and original model outputs.'))
                     with gr.Row(elem_id='vb-evidence-panels'):
                         annotated=gr.Image(label='Supporting evidence boxes · all raw and excluded boxes in details',interactive=False,height=285,elem_id='vb-annotated',scale=1,min_width=240)
                         with gr.Column(scale=1,min_width=240):evidence=html(EMPTY_EVIDENCE)
@@ -101,13 +108,9 @@ def build_app(run_dir,session=None):
                         details=gr.JSON(label='Original candidate, evidence and decision')
                         timings=gr.JSON(label='Persistent-worker request timings')
                         guidance=gr.JSON(label='Experimental capture quality and before/after comparison · not accuracy')
-                capability=('Explicit reading uses experimental Full Text Reading. Clearly labeled price, brand, expiry and manufacturing fields can be extracted when evidence is sufficient; this does not verify product safety. '
+                capability=getattr(session,'capability_text',None) or ('Explicit reading uses experimental Full Text Reading. Clearly labeled price, brand, expiry and manufacturing fields can be extracted when evidence is sufficient; this does not verify product safety. '
                     if hasattr(session,'full_request') else 'Explicit reading uses the experimental fragment reader. Reliable specific-field extraction is not enabled in this launcher. ')
-                html('<section class="guide"><h2>Ask VisionBridge in your own words</h2><p>Upload a photo and ask a question. '
-                     'General visual questions use the existing answer-or-abstain system; explicit reading requests use the experimental reader. '
-                     +capability+'Unclear requests prompt clarification. '
-                     'Manual processing choices remain in Advanced / Developer for testing. Speech is on by default; use Mute Spoken Answers to turn it off. Review transcriptions before submitting. '
-                     'The first request can take longer while models initialize. Stop this local server with Ctrl+C in its terminal to release the worker.</p></section>',elem_id='vb-guide')
+                html('<section class="guide"><h2>One image.<br>Many possibilities.</h2><p>Upload an image or take a photo, then ask in your own words. You can speak your question, review the transcript, and listen to the answer. Ask a follow-up to explore the same image, or replace it to start a new perspective. '+capability+' Your session is temporary.</p></section>',elem_id='vb-guide')
 
         outputs=[answer,audio,status,details,annotated,text,timings,meta,analyze,evidence,routing,guidance,prior]
         if conversation is not None:outputs.append(conversation)
@@ -223,10 +226,26 @@ def launch_options():
                 allowed_paths=[str(ASSETS)])
 
 
+def create_session(run_dir,backend='auto',model=None):
+    required=[Path(run_dir)/'POLICY_FREEZE.json',ROOT/'models/blip_vizwiz_v2/config.json',
+              ROOT/'.venv-gpu/Scripts/python.exe']
+    if backend=='local' or (backend=='auto' and not all(p.is_file() for p in required)):
+        from modules.local_vision import LocalVisionSession
+        return LocalVisionSession(model)
+    if not all(p.is_file() for p in required):
+        raise RuntimeError('Frozen backend is incomplete. Restore the private runtime bundle or use --backend local.')
+    from full_text_session import FullTextSession
+    return FullTextSession(run_dir)
+
+
 if __name__=='__main__':
     import sys
     if Path(sys.prefix).name!='.venv':raise RuntimeError('Use .venv for Gradio; the persistent worker uses .venv-gpu')
-    p=argparse.ArgumentParser();p.add_argument('--run-dir',default='reports/phase4_policy/run-local-20261013-v1');p.add_argument('--port',type=int,default=7865);args=p.parse_args()
-    demo,session=build_app(Path(args.run_dir).resolve())
+    p=argparse.ArgumentParser();p.add_argument('--run-dir',default='reports/phase4_policy/run-local-20261013-v1');p.add_argument('--port',type=int,default=7865)
+    p.add_argument('--backend',choices=['auto','local','frozen'],default='auto')
+    p.add_argument('--vision-model',default=None);args=p.parse_args()
+    session=create_session(Path(args.run_dir).resolve(),args.backend,args.vision_model)
+    print('Starting VisionBridge:',getattr(session,'backend_label','Frozen Phase 4 workspace'),flush=True)
+    demo,session=build_app(Path(args.run_dir).resolve(),session=session)
     try:demo.queue(default_concurrency_limit=1).launch(server_port=args.port,**launch_options())
     finally:session.close()
