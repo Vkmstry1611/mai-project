@@ -1,3 +1,9 @@
+# Runtime models
+
+For the public workspace use `setup_public_runtime.ps1` from the checkout root; see README. BLIP v2 and classifier heads have exact LFS paths; OCR, YOLO and Whisper use hash-verified public downloads. The original BLIP checkpoint remains unchanged and is not needed for v2 inference. No private evaluation archive is required by the public adapter.
+
+The following historical model documentation remains for compatibility:
+
 # Checkpoints and historical adapter contracts
 
 ## Current frozen Phase 4 application

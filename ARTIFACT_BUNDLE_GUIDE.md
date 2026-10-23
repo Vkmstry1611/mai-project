@@ -1,3 +1,5 @@
+> Historical private evaluation/runtime archive. Do not publish this ZIP. The public workspace uses runtime/manifest.json and setup_public_runtime.ps1; see README. This archive remains unchanged for historical reproducibility.
+
 # Verified private runtime bundle — 16 October 2026
 
 Use **`reports/artifact_bundles/VisionBridge-runtime-20261016-v2/`**. Its ZIP contains exactly **21 reviewed runtime files**, not datasets/images or experiment directories. The initial v1 packaging draft omitted YOLO because the older lock did not enumerate that file; it is marked SUPERSEDED and retained rather than deleted. Do not deploy that draft. The frozen model/policy did not change.

@@ -1,0 +1,304 @@
+{
+  "assets": [
+    {
+      "bytes": 8967018,
+      "download": {
+        "url": "https://huggingface.co/SWHL/RapidOCR/resolve/main/PP-OCRv3/en_PP-OCRv3_rec_infer.onnx"
+      },
+      "path": ".deps/fulltext/en_PP-OCRv3_rec_infer.onnx",
+      "sha256": "ef7abd8bd3629ae57ea2c28b425c1bd258a871b93fd2fe7c433946ade9b5d9ea"
+    },
+    {
+      "bytes": 1345,
+      "path": "models/blip_vizwiz_v2/config.json",
+      "sha256": "901e5144989d69958f57011897132efe7b9fd672472a2dac16ce3a65e6c04ce3"
+    },
+    {
+      "bytes": 136,
+      "path": "models/blip_vizwiz_v2/generation_config.json",
+      "sha256": "e97c77b48064b258e7a4faef22a4909aca3ea1a4958bee1e7611cf6aebb369b3"
+    },
+    {
+      "bytes": 1445022200,
+      "path": "models/blip_vizwiz_v2/model.safetensors",
+      "sha256": "9b6f315df6b4d81c1fc85a41e1882fa15279421317636f1bed20c33d88843c8c"
+    },
+    {
+      "bytes": 471,
+      "path": "models/blip_vizwiz_v2/preprocessor_config.json",
+      "sha256": "5f7d0489cdaa532133458be1585c9038f9ca3d9419426b4403d50e60c266c043"
+    },
+    {
+      "bytes": 695,
+      "path": "models/blip_vizwiz_v2/special_tokens_map.json",
+      "sha256": "5d5b662e421ea9fac075174bb0688ee0d9431699900b90662acd44b2a350503a"
+    },
+    {
+      "bytes": 1400,
+      "path": "models/blip_vizwiz_v2/tokenizer_config.json",
+      "sha256": "c6dfc599a9ad094c87fdfb33603469daf5d47ceb94b81e3589ff4f51fbfe23cd"
+    },
+    {
+      "bytes": 231508,
+      "path": "models/blip_vizwiz_v2/vocab.txt",
+      "sha256": "07eced375cec144d27c900241f3e339478dec958f92fddbc551f295c992038a3"
+    },
+    {
+      "bytes": 83152330,
+      "download": {
+        "member": "craft_mlt_25k.pth",
+        "url": "https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/craft_mlt_25k.zip"
+      },
+      "path": "models/cache/easyocr/craft_mlt_25k.pth",
+      "sha256": "4a5efbfb48b4081100544e75e1e2b57f8de3d84f213004b14b85fd4b3748db17"
+    },
+    {
+      "bytes": 15143997,
+      "download": {
+        "member": "english_g2.pth",
+        "url": "https://github.com/JaidedAI/EasyOCR/releases/download/v1.3/english_g2.zip"
+      },
+      "path": "models/cache/easyocr/english_g2.pth",
+      "sha256": "e2272681d9d67a04e2dff396b6e95077bc19001f8f6d3593c307b9852e1c29e8"
+    },
+    {
+      "bytes": 2317,
+      "download": {
+        "url": "https://huggingface.co/Systran/faster-whisper-tiny.en/resolve/0d3d19a32d3338f10357c0889762bd8d64bbdeba/config.json"
+      },
+      "path": "models/cache/whisper-tiny.en/config.json",
+      "sha256": "14b1b421a90349bc551b881461426b561a874049cb9e4c4864f2ca384f6a7cc5"
+    },
+    {
+      "bytes": 75537502,
+      "download": {
+        "url": "https://huggingface.co/Systran/faster-whisper-tiny.en/resolve/0d3d19a32d3338f10357c0889762bd8d64bbdeba/model.bin"
+      },
+      "path": "models/cache/whisper-tiny.en/model.bin",
+      "sha256": "1a5afae06a4db91c975c9a9d78be5cc110ee4ea022ad57d55492e4550e936b2a"
+    },
+    {
+      "bytes": 2128466,
+      "download": {
+        "url": "https://huggingface.co/Systran/faster-whisper-tiny.en/resolve/0d3d19a32d3338f10357c0889762bd8d64bbdeba/tokenizer.json"
+      },
+      "path": "models/cache/whisper-tiny.en/tokenizer.json",
+      "sha256": "929c5252409436dce1b38a75d1abbcb5e132d170d8e324e4e04ed915fa2d22df"
+    },
+    {
+      "bytes": 422309,
+      "download": {
+        "url": "https://huggingface.co/Systran/faster-whisper-tiny.en/resolve/0d3d19a32d3338f10357c0889762bd8d64bbdeba/vocabulary.txt"
+      },
+      "path": "models/cache/whisper-tiny.en/vocabulary.txt",
+      "sha256": "ff77588746d3a2595d32ab5b69ffd7b95ce2441ac57533cb66fc3eb575a115cf"
+    },
+    {
+      "bytes": 6549796,
+      "download": {
+        "url": "https://github.com/ultralytics/assets/releases/download/v8.3.0/yolov8n.pt"
+      },
+      "path": "models/cache/yolov8n.pt",
+      "sha256": "f59b3d833e2ff32e194b5bb8e08d211dc7c5bdf144b90d2c8412c47ccfc83b36"
+    },
+    {
+      "bytes": 4595,
+      "path": "runtime/classifier/heads.joblib",
+      "sha256": "9ac285dcd45ef7b67ec91f17ca10a7dae4f50289574fbf0485d40876fc6417ae"
+    },
+    {
+      "bytes": 2459,
+      "path": "runtime/classifier/metadata.json",
+      "sha256": "5f60107be97c1ec0733cd25a17c848ad3b1d977a33561e7e4b4a6ea8269da3bd"
+    },
+    {
+      "bytes": 4855,
+      "path": "runtime/normalization.json",
+      "sha256": "d5acfa4d10874344b468a6ed2da7028ba9c72e9ac1ca981eba8092918cba1100"
+    },
+    {
+      "bytes": 135,
+      "path": "runtime/policy.json",
+      "sha256": "5ba40a8e7a307e9a332545ad283287c16f1541d33a0a7aadd21815a50e37d606"
+    }
+  ],
+  "dependencies": {
+    "easyocr": "1.7.2",
+    "faster-whisper": "1.2.1",
+    "gradio": "6.13.0",
+    "python": "3.11.9",
+    "rapidocr-onnxruntime": "1.4.4",
+    "scikit-learn": "1.9.1",
+    "torch": "2.5.1+cu121",
+    "torchvision": "0.20.1+cu121",
+    "transformers": "4.46.3"
+  },
+  "privacy": {
+    "contains_evaluation_predictions": false,
+    "contains_examples": false,
+    "contains_private_annotations": false
+  },
+  "provenance_attestations": {
+    "checkpoint_unchanged": true,
+    "original_manifest_sha256": "6c90f77ee5c8dc54b52fca7706c58bf3f9e32bca1409d0f872039dd0439b026f",
+    "phase4_policy_sha256": "9bd87b116cf123e9de333ce994de16918fb43265f00a3180e9637234cbb4d37f",
+    "private_bundle_sha256": "933acfb18a8bfd3afaf4e15dd7fa760491beeaf5ba76216ee764e175b0ace2fc",
+    "scope": "Attests reviewed export consistency. Does not independently repeat the private training/development audit."
+  },
+  "release": "VisionBridge-public-runtime-20261023-v1",
+  "schema": 1,
+  "source_sha256": {
+    "app.py": "51d7bff5a280f9632efb63f8b4f131ab15c36b22aade7fdcd4f07e085902fad4",
+    "app_phase3.py": "427135f0f38841b55f39dac2d77ea85ba363b8fe72eb16bd50c2badf8c3e7550",
+    "app_phase4.py": "9b742ed00a6932188cf653d6b023a59bd369076aba0b96e8cbb5db277abd24f7",
+    "artifact_bundle.py": "c5add29ed7ee1f9134aa06c540b1230b98f1f784215e5708318ebc830b286506",
+    "assistant_runtime.py": "ed2b3a3b8f8e59ae73e95429aa2ead42dd73bf8f1dd5d4aea316ec32f88237a1",
+    "assistive_tools.py": "09a14e92d83548739c685f897d882fc8514f13f856b58bc4981c942ab2081c81",
+    "audit_assistant_submission.py": "9f1c61fc5aa63fd293d386fceb434c5fe606142ddea53256897c2e6a10c4a719",
+    "audit_baseline_provenance.py": "aed6d5d896dbf1b6e90c63e05a12408bfe26b4361fd0f684cf070b4821c39e84",
+    "audit_reading_upgrade.py": "14fc3eae46b556cd8a7b99d51881e66e79b721a0b1fa9903d3799e891f58a295",
+    "audit_submission.py": "e30dcc2713e7b7c601c8a84062193ee7c912bce9809129af001880bf3c64e25b",
+    "benchmark_persistent_demo.py": "56cd25df34ceac236cc4e9bcfe7b6c6fb3491e0b7208771dac7aa4244c539a0b",
+    "benchmark_reading_composition.py": "67768dd7a8b9abb6efb1eb8a30be9015ed48e651540d6db22687e627283c1983",
+    "benchmark_reading_demo.py": "5c9c4fdf6fb0ff71bd06459f40d34445753cd15e77d612e211f995e27e1dd0c8",
+    "benchmark_reading_sequences.py": "26fa3a395a00b9a09d7d0e695b476c7dfcd231b90f7701c0a0e1e9653ed76158",
+    "benchmark_warm_requests.py": "8886dd635e5908eaeb6ef3b8d87db8a897a8b138a3aad1aebbafde736b019228",
+    "build_phase2_local_report.py": "af92e4635fe6e4a0c3078be345bfccc3006ebc823c56fd4218ab409e1dd65d99",
+    "capture_phase3_features.py": "81aa2e88f8562f805d002f2175c874be55cd7347ee9987e46deb21fe07fcd017",
+    "capture_reading_fixture.py": "26e7ca789098a5f049f2c878e3710930193b07fd6c929222c447514d9ccdccad",
+    "check_phase3.py": "274122c953fcee53bbe3df4616a2227df698f9c409fd0fdaf0388e303329aa88",
+    "check_phase4.py": "d4417dbbd02f0a8e5abbbbd2ed220f0f6da8bf14c813fea4a60c70688d1064f6",
+    "colab_train_t4.py": "0a8aec209352d7137d6d4e58a5d8a9381e9a929b64a5b82ff4b459ca4e09dc7f",
+    "compare_existing_ocr.py": "9ee862a2f0f0041cacadc707aa71cc2a83654d661d29dcb63f1e3b1154ea1dec",
+    "complete_phase2_ocr.py": "01b576975fb01996afa707bfbc48c6ad2cf58b0e21ef5a6f340f0e8c61f8cec4",
+    "config.py": "f0dddae92b85399e5d313becef088df2b21b0828a117aba1e563f3c7c0a647eb",
+    "conversation_recall.py": "a1fc9cea14a1e8557a59f772cfef07ff674687769ebedfb6e71acc90421bc164",
+    "easy_reading_worker.py": "c41167d1490a64e542ebd66f90eb7290a7bf5df40946e5728a59102c409ae157",
+    "evaluate_full_text.py": "8a4e0248fa69f2ea0617d1d9f47f070ad99233d74273703fb8c497804f6606fb",
+    "evaluate_phase2_dev.py": "ef842a69aaa1a21c5448afddb8d57946c73b6a659694c9b782c1a387201efe4d",
+    "evaluate_phase3_dev.py": "4564c2e1cdb550c5e9ea0a1f9e00164065ac9b3f82fe360a61db538e435153e5",
+    "evaluate_vqa.py": "9fe835ae4a72cffeb3e8332fa97fe1017d9aab9ea0e11e7fb202b69ca1203c42",
+    "experimental_orientation.py": "24577bc0b141a90f1a7198840b55e4e4b3d95ff9425306f1f44734c2eab832e1",
+    "experimental_reading.py": "b904e1654eb1541589ccab94930f54c924af2ea841bb6f262a651752c9d74a14",
+    "experimental_scene.py": "2cbe185173f745fcc363ac882b412de7a0b13460b48a49e58e15030a9a269d00",
+    "experimental_scene_worker.py": "998d01a3b47fb713adbddd1fbaf83b42cdc5cfb753ba92e5a37dd6a63b49476d",
+    "export_phase2_dev.py": "019d19bad1bdaa55579ad7569a24144f360446e4bbf3e03e6a7fc3b4fece4914",
+    "full_text_ocr.py": "f7665bfc8824113e407154f67f19fe5b6ddebca53118db62e91f364ef2ecbcb0",
+    "full_text_session.py": "50802cc1ea87dbcec4a588dfde2b28f29e89ca4263527b497c629dba3659fb52",
+    "full_text_worker.py": "34973dfcb97d86e1a0c900a64f28e7ea088c9c80f90fb910b7002efc8b69aaf0",
+    "image_conversation.py": "f95a3ef0f424d60706a03ed0ae373149091da27af38a4ce23f46686605a65666",
+    "ingredient_reading.py": "4401c554c9cf69217031f94b90083ac27fbea72b5b900fe889949b0a12a7dce5",
+    "integration_test.py": "f92b3ed1c8dad2be4de9b06863cce684ed80e36a497c35483b7894255d2e6223",
+    "investigate_gradio_latency.py": "7b1d82a686aeaf48e65e4046f0d7ef6f3ae601ffdca36c57c7f6fde3bae42dc3",
+    "investigate_reading_upgrade.py": "27c3e560bf9918d9683fa7bb58fe34d9a295d5b63aef672a618787e26fe613b7",
+    "launch_full_text_workspace.py": "08efcfc5cfb12ba90135480038e063bf323ba085e8770619229eae8d21d14cfa",
+    "launch_orientation_workspace.py": "75f343e2a293b42251e42d3fde2a2f00d3b70b6bca320e30934cc8590dc2d6cf",
+    "launch_persistent_demo.py": "29ded431d4cc2315b937ded9e5cb0351bda504bb3d3a34eda4b36c0296ef4520",
+    "launch_phase4.py": "0d3c4de1d083eb196194f44ff0dfa0d1a622f2ad2875d95f48ea21d5b4ecaf79",
+    "launch_reading_demo.py": "2650431965bc8060079924d73d3334789c2b3c538fb95a2cfcbe4181a38e95ec",
+    "launch_submission.py": "06d14a1eadd2147bfda7762404e5ec09844aba8934048297cc615cfe6fb8ac8f",
+    "launch_workspace.py": "db4d1454c6d21d63088e6b841083affd5f91579eaf1dce36e5d21c081091c383",
+    "local_phase2_runner.py": "2713035bad3cc0495778f16c2a7a6335631babe0a3338cc7c8e617cc43b92b41",
+    "measure_frozen_worker_cpu.py": "47df4e501028287a8110b6e31cad70ba942ad72c363051ab579a406c842bcc9f",
+    "modules/__init__.py": "4b40f64f1c35d0d7354065ba28211b3732835ded8f18e4673bb3312df6132151",
+    "modules/answerability.py": "2000921d0bc3a69ff4559bb81f13d2356f5656277a1b7f7ad403e61cc6e4021d",
+    "modules/answerability_features.py": "f805d8689f960709a52a30b54c4cb7acca44e71bda3900f1df332ab981d9bdca",
+    "modules/answerability_gate.py": "0675b67efd9097087a75805b68f0c8a96aa957e326ad13b01028f0c0602db42a",
+    "modules/custom_models.py": "8723a43b93b6cf9a0a2f81ac93188cd0b26086d327a647bf6c98ccca3f006b16",
+    "modules/evidence_decision.py": "ce816bb9ea35f33c30525f42174f163ded81066e609d3192ed015fe28d5b4e11",
+    "modules/evidence_store.py": "209fbf9c2239639f5c74f93fcc6b7f68b4ff306512d550bd914e34d6269faeab",
+    "modules/fusion.py": "c2f8261932d0c3103a2dd3275a508bc0e4bb7e065ab172d3e5d7870d99c69d5c",
+    "modules/object_detection.py": "a331d3f87cc599c344d92c303d66bdeac45443542bd7083dbb450d47ad850514",
+    "modules/ocr.py": "828d2ba7793aecfc59c466366a12843d2c6c9a7c8b5c21511ffdc8a92aaf637c",
+    "modules/ocr_phrases.py": "d9227f93d29d51d6edb3082dff9815c7bcbaee42d8eff8136f7bcd7edfb8964b",
+    "modules/qges.py": "19045100c931d75e0671c005b7e3d845c0a83113b101a60308f71111765a19ce",
+    "modules/question_intent.py": "ae6aa07a81d9a6702cd5153fb47ab2138826fc9cda3e37c345cca468a7c5c6b3",
+    "modules/reliability.py": "d2d1e0b519e2b2417c7566f3767854103d72ea6c69cac8c395b870768340a9ce",
+    "modules/speech_to_text.py": "d5b0e196587e0d4c3ae54a76adf4d5ab444eca6985e902edd45105db42eba6fd",
+    "modules/text_to_speech.py": "217df89ace87bca65a46025c26272f10a6b8df0b6f824a0b2fc948e2255983f0",
+    "modules/visual_features.py": "41eba5c4fe53a86d16ead45f587a1b4f3056f074726efa7075051f981a2d9e2c",
+    "modules/vqa.py": "bd3ab4ad9fe0cfafd833a60d87011ecd059c279001088c6531bf006cf0b90adb",
+    "ocr_purpose.py": "7cdf2a1472a082f7d52be3f65cb7f99bee21c044d690fadacd5b7b6b6bf87566",
+    "orientation_reading_worker.py": "2087832910c500f57d42237fe9b947e55f9a952ae15a041040c93dad81ca9553",
+    "orientation_workspace_session.py": "c04ac54360a1bf49f41ee909be08c1baf881a7216fedfe68535ccf0cfe54e987",
+    "persistent_demo_client.py": "8373a5719ff15899c64919087293c8e12366f941582367ef9ec8e6727e95633c",
+    "persistent_demo_worker.py": "ffb4d953523ea5abf6525308e39b0041fdde8fdce8c331f8b373072559a50030",
+    "phase3_common.py": "55fa481f06fab1867a5e9659fb2055163d35df5f626abe5fc9ab4d715ebf495f",
+    "phase3_infer.py": "ed2940eba100f58843aadc6e5c8a91ebab126bd41e62ebfce8083a87dacb06f5",
+    "phase3_pipeline.py": "85a0ca1b60b56451e4dd9b0714963b87f2d55e992c6cbd30d5c8cfe71448dafe",
+    "phase4_gpu_infer.py": "ab4f971eec791371a5cca9d9ed82ff946b423b6ac692b07f1949fd3254831723",
+    "phase4_holdout.py": "871e806ad16a0b63dae527e2eb0a2782574740804e1ffceebbe31599d7327515",
+    "phase4_infer.py": "d6f159a18d944841946066e0221c11f84114086206ea7fac493a4d7245493fb5",
+    "phase4_pipeline.py": "9c70dbb41e135f8b6abff4ec4eeffa7b062e3cfa79d48b9567bafe78db188b65",
+    "phase4_policy.py": "18293be6c61eadd542eac79f12a84b1f0fcc9879584d1c8b37ebcc7b82df3d6d",
+    "phase4_report.py": "7e8c93b88f65bded723f64cdf654ad291278499106d455870a38eabd2bb684a2",
+    "pipeline.py": "b036fa31786a5644f80c109840730d8b676d06d0b1937392b4c47321a62cd817",
+    "prepare_easyocr_models.py": "44cef07e42953fbfcf865814539b7ab1d19f4cdc8ddef1150a306cc6653d2fac",
+    "prepare_full_text.py": "4fda3e542e3310c7275eef96ca64a0ffa1bfd0d2826b0735cf919c42991fac07",
+    "prepare_phase2_local.py": "245d520c3ab81611e004ddfa1174ae459b8e23d3c55ac0d7029ac5dc3d6d8a0b",
+    "prepare_phase3_data.py": "01bb18d11759ece7611e07967b5582852691c3a1f9ba5abc1c3779dcefca7acb",
+    "prepare_pr_audit.py": "dfff7a9599a78962e2dfde5b534965743d3969e55409556750a1a73320093460",
+    "probe_label_crops.py": "3ae4c398d196cded063af7129afd0cf1e48b55907a358d7edec5510a83bcdbd0",
+    "profile_persistent_ocr.py": "ad8560fded7193aac5d779f915485406fff4cc4d432c4fd6984ef2d1d8ebb948",
+    "public_models.py": "aca29d3673f8878f2ea4d3396953369c9b1629c76bba468c602f656f62ca78d3",
+    "public_runtime.py": "df97a34f1ac7362082a3964e8f352988451ccf219da9548f851b3c3f51f01f4e",
+    "public_runtime_session.py": "5c6568852c95f4667ae2830a2cac3bb520e0614fc01690b72069e3a96eb834d5",
+    "public_runtime_worker.py": "4e76217cb632fed98d0e21b3fd4cc75f02a6b39520b3fd2a0de4f08e8b9713f4",
+    "public_scene_worker.py": "b2c52d885e5bc55eb969388a31b3eadd188c837c09b5d36468d94f9506f06202",
+    "reading_demo_worker.py": "f170a085514bf0fd47ba54ebe72243ed6e132d2918d4eb14c341afbcdba2fa17",
+    "reading_relevance.py": "7d232d28d25124ed01dc0e3ace63dd0e87295781e1d8bac57084ccf73b6b709c",
+    "reading_sequences.py": "e478d8a824c19d7881180d61440cbab1c1844e04362bd30e7087bd11d9cc0262",
+    "replay_phase2_dev.py": "b619251f33ffe44859885437d43ba2c23fd25deec1c59b52bb9bb00fdf93849d",
+    "report_phase2_local.py": "ce4f6865c541664986df7e4d7e765327ec2ed6e5f51c71cd93d4f3748c4e784c",
+    "reproduce_workspace_callback.py": "bdf8ea7c1a4f9cce8cbff62f17ae45242c9abf10ca7d414269d5bd83b193167f",
+    "requirements-evidence.txt": "d504abced3d081f3d46032035c20ec7993fa98d611c7bfc17aca71b2d044e81c",
+    "requirements-final-gpu.txt": "59d60324d3e0a7b804e5c6a70763cc568f9bf0068073c0a29d459d37688ad031",
+    "requirements-final-ui.txt": "fc0bfd4c4d8d7b3d2aaf96bb50c00fa792540c5d60523c313be4921c49a1083a",
+    "requirements-fulltext-lock.txt": "63b3f01ddc6e764bff02b31a49df02706c13beaa8f535f22a4a5ecee8c9a1d59",
+    "requirements-fulltext.txt": "41b067dfb983ff675a7624960bed29de9b9baa394ab5f506a3207144cdc6a4fa",
+    "requirements-phase2-colab.txt": "da81c2b3d6a23ff9fa4a3fe4829751e9f0e765115f34d463f79ae2a9794afc9b",
+    "requirements-training.txt": "a13d681cdb910c238086d36e58648ef88fd57500d42dd0e457508b7d8f1bb68b",
+    "requirements.txt": "085acab0cdcc3f23f892c366b24e74c4936e349d4152a5a8698809990335b4be",
+    "run_phase3_local.py": "009cb49c5d91e4582b0f0d444130036b8da21b3fa102e20af5b78b0d670162d7",
+    "run_phase4_completion.py": "506e08bcce96709999938fd991f031443f6396e1fcf919fb3e49439a35a75432",
+    "setup_public_runtime.ps1": "09105d30675768da022dab0e81b91dfbaa39a81acdea441f9f0c715434297423",
+    "smoke_test.py": "287a6206ce72a0db71d81c31d6a470549ead20c4ec6dea92e184b7313cb8845e",
+    "submission_ui_helpers.py": "949fee17d917915140084e25f4588ea39722b214bb8e739f641a1654f826447a",
+    "text_hierarchy.py": "6943c756f9f1042242a32acdfff7dc5775c8ee3162d6b90b7839e26b383e1040",
+    "train_answerability.py": "23d92df695e59921074a5f2a534183ce9b2d201ad98b78501e83f6c65372a350",
+    "utils/__init__.py": "5ded95c347d2288cebdbcf40c06631d0d210611c0071c19f3a6de14cb0b44097",
+    "utils/checkpoint_import.py": "47fb4596dbe529ccb834c7b032187996d2d5b76444d2e2269b043e2171456584",
+    "utils/image_utils.py": "9feaa6d016068d020aa7bddbc8bd2e345b93fef74997b677438c898acf0b2714",
+    "utils/model_loader.py": "626388f46f12b1aca247bb175320672c77ec3abaafbd8830206f3e22b2d28386",
+    "validate_assistant_navigation_voice.py": "21152ac47c56b9a830df49cb2a24f0161af793ac0259844059e32949515efd9b",
+    "validate_assistant_speech.py": "e45ef4544460c56b38d5c8ae838782019be2646d49d5261f9c2f8e022dcf64d0",
+    "validate_final_application.py": "4ba25be16739bfe3f81f8687d6a519fd87259fe052d07018ad65df305bba5681",
+    "validate_final_improvements.py": "3946f8a964f17e3b8b0827eba3a4a66f30e27c57601816593a11a9d18e5840c1",
+    "validate_followup_final.py": "b0b1db2be93bd27873f931f3cd760e355953df70afab0a01fd686944f97bb9d6",
+    "validate_image_conversation.py": "3f0e6bbc957e4e77ec3acddac6a864c8c31a9aece7d3afae5ea65e420fed5bb0",
+    "validate_ocr_purpose.py": "31c79e755d25fd2857e844f960834eca65f6f10a7976fd029d3063dddae331df",
+    "validate_orientation_reading.py": "c22ca0b932e18875e629be141f75bc728651ef7cab1d5eb471346e87749ca85e",
+    "validate_public_runtime.py": "23aa0733f12e798a443d9da060b6fd83e393153d14bd55cf8c1bbd88f7bff1ca",
+    "validate_reading_cached_api.py": "3bde84a21592d636b2c08fd64c5360b4db63095d8f3709a68c51f3ed5bc98b1c",
+    "validate_reading_sequences.py": "6ab34779e1fed62eacd71e0e9aa4b82fcde94e4b5e8e7a48546e503ee7e00d50",
+    "validate_reading_upgrade.py": "2ecd49ab93e9764475aa4aeda9be86470e96288761d3a9215b933b352b7687d6",
+    "validate_screenshot_errors.py": "3b4df8dc4b6c6433e0c61ff6746bf965ac6c705333321f265f8e92f4010ac314",
+    "validate_text_hierarchy.py": "10b780bc74da4cc32b9d961a392fa70a1f1736aa3271f5fb0a24981719f6aa62",
+    "validate_workspace.py": "261837ac00167cfa9f93de192310035e1bf00e96056226825361c1b21095b1bc",
+    "validate_workspace_callback_fix.py": "8b7b63f2b7032ff69b869b89a928ff8855a7dd7cf9fe832c968f646cd2a7d8fb",
+    "verify_application_devices.py": "bfa432b750b92a5d56b7b03720d69559870e4f7a0293ea2ae745ce49f7a37189",
+    "verify_phase2_pilot.py": "67befbf39846b32d3e8f62fcb1ef34d82491da8d3e8f2e65ee43040d067ae8be",
+    "verify_phase3_completion.py": "bb85524df6d4d035ebaf24e8e78bc5e72a5487b9dc755a0c892efee944e04ace",
+    "verify_phase4.py": "e97aa51a881e9f1b0b0b855da9e4347b41d7bc375f1b9b02f90b457c7c531c03",
+    "verify_phase4_app_replay.py": "2f7a017aa710f15fffe7d2df12175412b8594a0f1009b867f406f340ad4d035b",
+    "visionbridge_training.py": "58ae236f24c24cc38016c7a153a1dfe25b45a99a8bc9dc56f889262215957c74",
+    "website_evidence.py": "303fa05065b694bfec32329cf8099aa2231a6ec24a9cf93c88b6d39299d75dcb",
+    "workspace_diagnostics.py": "6922e1baa86e35a3aa776656d85ab4be6e7b09b3ddbb864d75397aeedfcd005a",
+    "workspace_intent.py": "a8dc36eaa2ce8fc4c87f209231bfb7ee754ea345e606068ecf52bae306da0e71",
+    "workspace_speech.py": "567adf030cc0d57f6b907d492a5b6e159183e41cd61933ae2b1eb9209830dc75",
+    "workspace_turns.py": "a4d233d195704bed3032911640ea38bdc8b46e5bed8848160acd97613c37ea12",
+    "workspace_ui.py": "70f583b6dc27656ca54c6a7b55f52e6e68874eff99891fd16da831f383311540",
+    "workspace_voice.py": "bfa6d3fb75b1355e8141848ffe126650a7fe2265aad030724488b5bfa611bcdc"
+  },
+  "whisper_revision": "0d3d19a32d3338f10357c0889762bd8d64bbdeba"
+}

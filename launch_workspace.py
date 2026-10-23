@@ -26,8 +26,16 @@ def build_app(run_dir,session=None):
     import gradio as gr
     if session is None:
         from full_text_session import FullTextSession
-        session=FullTextSession(run_dir)
-    controller=WorkspaceController(session)
+        if (ROOT/'runtime/manifest.json').is_file():
+            from public_runtime_session import PublicSession
+            session=PublicSession()
+        else:
+            session=FullTextSession(run_dir)
+    if session.__class__.__name__ == 'PublicSession':
+        from public_runtime_session import transcribe
+        controller=WorkspaceController(session,transcriber=transcribe)
+    else:
+        controller=WorkspaceController(session)
     def html(value,**kwargs):return gr.HTML(value,css_template=HTML_CSS,**kwargs)
     with gr.Blocks(title='VisionBridge — visual assistant workspace',analytics_enabled=False,delete_cache=(3600,3600)) as demo:
         prior=gr.State(None,time_to_live=3600)
