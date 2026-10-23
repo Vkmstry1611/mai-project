@@ -8,3 +8,17 @@
 *.jpg binary
 *.wav binary
 models/blip_vizwiz/model.safetensors filter=lfs diff=lfs merge=lfs -text
+
+# Exact deployment asset paths; never store these binaries as ordinary Git blobs.
+models/blip_vizwiz_v2/model.safetensors filter=lfs diff=lfs merge=lfs -text
+runtime/classifier/heads.joblib filter=lfs diff=lfs merge=lfs -text
+# Processor bytes must match the reviewed export hashes.
+models/blip_vizwiz_v2/config.json -text
+models/blip_vizwiz_v2/generation_config.json -text
+models/blip_vizwiz_v2/preprocessor_config.json -text
+models/blip_vizwiz_v2/special_tokens_map.json -text
+models/blip_vizwiz_v2/tokenizer_config.json -text
+models/blip_vizwiz_v2/vocab.txt -text
+
+# Portable deployment setup bytes are pinned in the runtime manifest.
+setup_public_runtime.ps1 text eol=lf

@@ -1,0 +1,7 @@
+{
+  "development_selected": true,
+  "ocr_threshold": 0.9,
+  "schema": 1,
+  "threshold_answerable": 0.0,
+  "threshold_reliable": 0.05
+}

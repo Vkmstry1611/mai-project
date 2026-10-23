@@ -47,7 +47,6 @@ Desktop.ini
 .pytest-*/
 reports/
 private-artifacts/
-models/blip_vizwiz_v2/
 *.joblib
 *.partial
 *.download
@@ -74,3 +73,9 @@ credentials.json
 client_secret*.json
 .coverage
 htmlcov/
+
+# Reviewed public runtime: exact exceptions only; downloaded caches stay private.
+!models/blip_vizwiz_v2/model.safetensors
+!runtime/classifier/heads.joblib
+runtime-local/
+runtime-assets-draft.json

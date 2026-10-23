@@ -64,70 +64,54 @@ Advanced / Developer retains manual Visual Q&A, original Experimental OCR Readin
 
 ## Installation and model setup
 
-This section is the main developer setup reference. **A fresh installation on another computer has not yet been verified.** Commands have been reviewed against the working laptop and repository, but dependency checks and source-only tests are not a clean-machine installation test. Do not recreate or upgrade the already working laptop environments.
+The public deployment adapter loads the same BLIP v2 checkpoint, classifier and selected Phase 4 thresholds without private annotations or prediction records. Historical evaluation commands still require the preserved private experiment archive; do not run them as installation steps. Public-runtime deployment parity tests and environment limitations are recorded in the preparation report; an entirely new-machine installation is not yet certified.
 
-Open PowerShell in the checkout root. The repository already tracks an original BLIP checkpoint with Git LFS; it is unchanged and is not needed by explicit v2 inference. A normal LFS-enabled clone may download it. The private v2 runtime bundle below is still required. Do not delete the original checkpoint or disable integrity checks as a setup shortcut.
+### Fresh Windows checkout
 
-A source checkout alone is insufficient. Obtain the trusted private [21-file runtime bundle](ARTIFACT_BUNDLE_GUIDE.md): BLIP v2 and processor, classifier heads, frozen policies/integrity metadata, and existing EasyOCR/YOLO weights. Installation refuses conflicting destinations. The optional EasyOCR worker reuses verified bundled weights and never silently downloads a replacement. `setup_full_text.ps1` prepares the isolated CPU ONNX reader and its hash-verified English recognizer. Whisper may require an initial model download; Windows speech needs an installed SAPI voice.
+Supported target: Windows 11, Python **3.11.9** (Python 3.11), Git with Git LFS, and an NVIDIA CUDA-capable GPU. The tested GTX 1650 has 4 GB VRAM. Frozen VQA requires CUDA: CPU-only machines can inspect source and use isolated CPU OCR, but cannot launch the complete VQA workflow with identical behavior. Install an NVIDIA driver compatible with CUDA 12.1; a separate CUDA toolkit is not needed for the PyTorch CUDA wheels.
 
-### New Windows checkout: quick setup
-
-Use Windows 11 and Python 3.11 (the tested laptop uses 3.11.9), an NVIDIA driver compatible with CUDA 12.1, and sufficient storage for three environments and private assets. The tested GTX 1650 has approximately 4 GB VRAM. This launch path requires CUDA for frozen VQA; it has no silent CPU BLIP fallback. Do not run these creation/install steps over an already configured environment.
+After this PR is merged, clone the team repository. Skip automatic LFS smudging to avoid downloading the historical BLIP checkpoint, then fetch only the two deployment assets:
 
 ```powershell
-py -3.11 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements-final-ui.txt
-py -3.11 -m venv .venv-gpu
-.\.venv-gpu\Scripts\python.exe -m pip install torch==2.5.1 torchvision==0.20.1 --index-url https://download.pytorch.org/whl/cu121
-.\.venv-gpu\Scripts\python.exe -m pip install -r requirements-final-gpu.txt
-.\.venv-gpu\Scripts\python.exe -c "import torch; print(torch.__version__); print(torch.cuda.is_available())"
+$env:GIT_LFS_SKIP_SMUDGE = '1'
+git clone https://github.com/Vkmstry1611/mai-project.git
+Remove-Item Env:GIT_LFS_SKIP_SMUDGE
+Set-Location mai-project
+git lfs install --local
+powershell -ExecutionPolicy Bypass -File .\setup_public_runtime.ps1
+.\.venv\Scripts\python.exe launch_workspace.py --port 7865
 ```
 
-### Restore the private runtime assets
+Open `http://127.0.0.1:7865`. Stop with Ctrl+C; the workspace shuts down its owned workers. Run only one GPU workspace on a 4 GB card. Before merge, review the proposed branch on the fork instead; do not expect these new setup files on team master yet.
 
-Obtain the **private 21-file runtime bundle** from the project owner through an approved private arrangement. This repository does not expose its contents, credentials, private download URL or a public asset download. A source checkout alone cannot launch frozen VQA. The trusted bundle supplies BLIP v2/processor, classifier heads, frozen policy/integrity metadata and existing OCR/YOLO assets. Its private annotation/development metadata must not be committed or uploaded to a public PR.
+The setup creates separate `.venv` (Gradio/speech), `.venv-gpu` (CUDA BLIP/EasyOCR/YOLO/classifier), and `.venv-ocr` (CPU RapidOCR) environments. It installs Torch **2.5.1+cu121** / torchvision **0.20.1**, Transformers **4.46.3**, scikit-learn **1.9.1**, Gradio **6.13.0**, EasyOCR **1.7.2** and the pinned full-text profile. Do not run setup over an unrelated customized environment; it can install/update packages in those named environments. The existing working laptop environments are not changed by development validation.
 
-Save the privately obtained ZIP locally as `private-artifacts/VisionBridge-runtime.zip`. The path is a local placeholder, not a download location. Confirm the expected checksum with the owner before loading it:
+### Model retrieval and integrity
+
+- **LFS:** seven files in `models/blip_vizwiz_v2/` (only `model.safetensors` uses LFS), plus trusted `runtime/classifier/heads.joblib` (LFS). The original checkpoint is left untouched and is not selected by v2 inference.
+- **Public downloads:** EasyOCR detector/English recognizer, YOLOv8n, RapidOCR English ONNX recognizer, and the four required Faster Whisper `tiny.en` files. Whisper is pinned to revision `0d3d19a32d3338f10357c0889762bd8d64bbdeba`; each file also has a trusted SHA256/size in `runtime/manifest.json`. RapidOCR's other models are supplied by the pinned package.
+- **Runtime metadata:** `runtime/policy.json`, `runtime/normalization.json`, classifier metadata and source/asset hashes. The manifest is itself anchored in `runtime_trust.py`. Do not edit hashes or disable verification to bypass a failure.
+- The installer skips byte-identical files and refuses conflicting assets. Initial setup needs Internet. Read [third-party notices](THIRD_PARTY_NOTICES.md) before distributing model files. No private bundle, split manifest, development examples, personal images or recordings are needed by this public launch path.
 
 ```powershell
-$artifactZip = (Resolve-Path '.\private-artifacts\VisionBridge-runtime.zip').Path
-$runtimeSha = '933acfb18a8bfd3afaf4e15dd7fa760491beeaf5ba76216ee764e175b0ace2fc'
-Get-FileHash -LiteralPath $artifactZip -Algorithm SHA256
-.\.venv\Scripts\python.exe artifact_bundle.py verify --archive $artifactZip --project (Get-Location).Path --expected-sha256 $runtimeSha
-.\.venv\Scripts\python.exe artifact_bundle.py install --archive $artifactZip --project (Get-Location).Path --expected-sha256 $runtimeSha
+# Retry downloads after dependencies and LFS retrieval are complete:
+.\.venv\Scripts\python.exe public_models.py download
+# Read-only deployment verification:
+.\.venv\Scripts\python.exe public_models.py verify
+# Synthetic component checks; these do not run an evaluation dataset:
+.\.venv-gpu\Scripts\python.exe validate_public_runtime.py --models
+.\.venv\Scripts\python.exe validate_public_runtime.py --speech
 ```
 
-The installer validates archive members and source hashes, skips identical existing destinations and refuses different existing files. Do not force an overwrite or load untrusted joblib classifier files. The [artifact specification](ARTIFACT_BUNDLE_GUIDE.md) documents the reviewed bundle and its verification boundaries; access must be arranged separately.
+Models and trusted joblib artifacts must come from the reviewed repository/LFS version. SHA256 verifies consistency with that version; it does not prove licensing permission or independently reconstruct the private training audit. The public adapter preserves exact gate feature order and normalization; original provenance hashes are attestations only. Historical freeze files and evaluation programs are unchanged.
 
-### Set up CPU OCR and check dependencies
+### Speech and troubleshooting
 
-```powershell
-.\setup_full_text.ps1
-.\.venv\Scripts\python.exe -m pip check
-.\.venv-gpu\Scripts\python.exe -m pip check
-.\.venv-ocr\Scripts\python.exe -m pip check
-```
+Microphone transcription runs Faster Whisper on CPU/int8. Windows needs an installed SAPI voice for pyttsx3 spoken output. Recorded speech remains editable before analysis. Browser microphone permissions, audible playback, autoplay and screen-reader behavior need manual testing; typed questions and text responses remain available if speech fails. No microphone or camera starts automatically.
 
-`setup_full_text.ps1` creates `.venv-ocr` if needed, installs its pinned lock and verifies/downloads the approved English ONNX recognizer. It does not replace CUDA Torch or overwrite a conflicting recognizer. EasyOCR and experimental CPU scene detection reuse the verified bundle's existing model-cache assets. Whisper may need an initial model download; Windows SAPI needs an installed voice. No environment variable is required for the default relative-path workspace.
+If LFS pointers remain, run `git lfs pull --include="models/blip_vizwiz_v2/model.safetensors,runtime/classifier/heads.joblib"`. If a checksum differs, preserve the file and investigate rather than overwrite it. A CUDA error requires checking the NVIDIA driver and `.venv-gpu` Torch pair; no silent CPU/older-model fallback is used. A missing dependency requires the correct environment, not mixing historical `requirements.txt` into the final profiles. For dependency checks run `python -m pip check` with each environment's interpreter.
 
-### Setup troubleshooting
-
-- Stop if CUDA is unavailable. Check the NVIDIA driver, `.venv-gpu` interpreter and CUDA Torch pair; frozen BLIP has no silent CPU/older-model fallback.
-- Do not mix `requirements.txt`, historical Colab profiles and the final Windows profiles. The saved classifier needs its pinned scikit-learn version. Use separate environments.
-- Missing runtime files require the matching trusted bundle. A changed-source error requires the matching source checkout and a worker restart, not disabling checks. Preserve LF bytes for protected sources.
-- Camera/microphone permission, available Windows speech voices and browser autoplay are separate from CUDA. Typed questions remain available; speech failure should not remove a text answer.
-- Run one GPU interface at a time on a 4 GB card. Cold startup and OCR fallback can be slow. Stop with Ctrl+C in the launching terminal before switching interfaces.
-- A runtime-only bundle does not include every historical testing fixture. Do not substitute examples or regenerate the original splits to make a historical test pass.
-
-| Component | Tested technology |
-|---|---|
-| Visual VQA | Salesforce BLIP VQA base, fine-tuned on VizWiz |
-| Evidence | EasyOCR 1.7.2, RapidOCR ONNX Runtime 1.4.4, existing question-triggered YOLOv8n |
-| Reliability | Saved lightweight scikit-learn classifiers, version 1.9.1 |
-| Speech and UI | Faster Whisper, Windows SAPI/pyttsx3, Gradio 6.13.0 |
-| Execution | Python 3.11; BLIP on CUDA, OCR/YOLO on CPU |
-
-The final profiles also pin Transformers **4.46.3**, Faster Whisper **1.2.1** and pyttsx3 **2.99**. The GPU Torch pair is installed separately as shown above. Versions are taken from the repository profiles and existing environments; a fresh-machine dependency resolution has not been tested in this preparation task.
+Downloaded caches stay under ignored `models/cache/` and `.deps/`. Public request images/logs stay under ignored `runtime-local/`; these can contain personal content and must not be published. This is a local single-user prototype, not a multi-user deployment. Existing historical launchers and the private bundle installer remain available for provenance; their private requirements do not apply to the new public workspace adapter.
 
 ## System architecture
 
@@ -221,7 +205,8 @@ VisionBridge/
 | `modules/`, `utils/` | Original model loading, inference, evidence and gates |
 | `mai_model_train_improved.ipynb`, `visionbridge_training.py` | Preserved training workflow; not run during assistant development |
 | `tests/`, `submission/` | Regression tests and small curated submission materials |
-| `models/`, `reports/` | Local/private runtime artifacts; not a source-only setup |
+| `models/`, `runtime/` | Public deployment assets and reviewed metadata; retrieve LFS files and downloads before launch |
+| `reports/` | Historical private evaluation artifacts; not needed by public runtime |
 
 ## Testing and performance
 
@@ -254,7 +239,7 @@ Other retained entry points: `launch_phase4.py`, `launch_submission.py`, `launch
 - Dense soup-label ingredients and net quantity were not recovered in the recorded test. Serving size was recovered; ambiguous calorie-column values abstained. Missing text is not proof that an ingredient or allergen is absent.
 - CPU YOLO scene candidates may be incomplete or wrong; the living-room check included a questionable TV candidate. This is not a verified detailed scene description or safety/navigation aid.
 - Quality scores and classifier outputs do not prove correctness or product safety. This prototype is not a verified aid for medication or hazards.
-- Conversation history is bounded and browser-scoped. Raw OCR/speech worker files are temporary. **Original frozen VQA callbacks still retain private request images/logs and evidence caches under ignored `reports/`. Reset does not delete preserved artifacts.** Do not publish these files or the private runtime bundle.
+- Conversation history is bounded and browser-scoped. Raw OCR/speech worker files are temporary. **Original frozen VQA callbacks still retain private request images/logs and evidence caches under ignored `reports/`. Reset does not delete preserved artifacts. The public adapter stores its request files under ignored `runtime-local/` instead.** Do not publish these files or the private runtime bundle.
 - Engine overrides are workspace-wide in this local single-user prototype. It is not a production multi-user service. Camera/microphone access remains explicit; mute is browser-session scoped where storage is available.
 - Browser autoplay, physical microphone/camera, audible speech, keyboard-only use and screen-reader behavior require human verification. Follow [MANUAL_TEST_CHECKLIST.md](MANUAL_TEST_CHECKLIST.md); backend tests do not certify accessibility.
 
