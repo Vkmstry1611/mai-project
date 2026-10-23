@@ -46,6 +46,7 @@ Desktop.ini
 .venv-*/
 .pytest-*/
 reports/
+bda-data/
 private-artifacts/
 models/blip_vizwiz_v2/
 *.joblib

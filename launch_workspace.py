@@ -121,12 +121,21 @@ def build_app(run_dir,session=None):
             from modules.evidence_store import image_identity
             from image_conversation import prepare,history_html,task_quality
             state=prepare(previous,photo) if hasattr(session,'for_conversation') else previous
+            captured=False
             if conversation is not None:
                 from uuid import uuid4
                 state['submission']={'id':uuid4().hex,'question':str(q or ''),'completed':False,
                     'image_id':state['conversation']['image_id']}
             for result in controller.analyze_ui(photo,q,muted,override,angle,context=state):
                 info={};values=list(result)
+                if (result[0] or result[3].get('application_error')) and not captured and photo is not None and str(q or '').strip():
+                    captured=True
+                    try:
+                        from bda.capture import capture_request
+                        capture_request(photo,q,result[0],result[3],result[6])
+                    except Exception as error:
+                        from workspace_diagnostics import report_failure
+                        report_failure('bda-capture',error)
                 if conversation is not None and result[0] and not result[3].get('application_error'):
                     state['submission']['completed']=True;state['last_submitted_question']=str(q or '')
                 if photo is not None and result[0]:
