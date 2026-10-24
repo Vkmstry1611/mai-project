@@ -28,9 +28,22 @@ MICROPHONE_CHECK_JS="""async () => {
 
 
 def transcribe_local(recording):
-    from modules import speech_to_text
-    from config import Config
-    return speech_to_text.transcribe(recording,Config()),'Transcribed; review and edit your question.'
+    # Keep CTranslate2's native runtime out of the Gradio process on Windows.
+    # Loading both in one process can terminate Python without an exception.
+    import json
+    import subprocess
+    import sys
+    import os
+    root=Path(__file__).resolve().parent
+    result=subprocess.run([sys.executable,str(root/'workspace_speech_worker.py'),str(Path(recording).resolve())],
+        cwd=root,capture_output=True,text=True,encoding='utf-8',timeout=240,
+        env=dict(os.environ,PYTHONIOENCODING='utf-8'),
+        creationflags=0x08000000 if sys.platform=='win32' else 0)
+    if result.returncode:
+        raise RuntimeError('Local speech worker failed. Check the Whisper model installation and retry.')
+    payload=json.loads(result.stdout)
+    if not payload.get('text'):raise ValueError('No speech was recognized. Try again or type your question.')
+    return payload['text'],'Transcribed; review and edit your question.'
 
 
 def validate_audio(path):
