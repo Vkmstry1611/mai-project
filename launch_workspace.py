@@ -30,14 +30,16 @@ def theme():
         button_primary_background_fill='#254ddd',button_primary_background_fill_dark='#254ddd',button_primary_text_color='#ffffff',button_primary_text_color_dark='#ffffff')
 
 
-def build_app(run_dir,session=None):
+def build_app(run_dir,session=None,model_sessions=None):
     import gradio as gr
     if session is None:
         session=create_session(run_dir)
     controller=WorkspaceController(session)
+    if model_sessions is not None:
+        from workspace_models import BLIP, QWEN
     def html(value,**kwargs):return gr.HTML(value,css_template=HTML_CSS,**kwargs)
     with gr.Blocks(title='VisionBridge — visual assistant workspace',analytics_enabled=False,delete_cache=(3600,3600)) as demo:
-        prior=gr.State(None,time_to_live=3600)
+        prior=gr.State({'workspace_model':model_sessions.default} if model_sessions else None,time_to_live=3600)
         with gr.Column(elem_id='vb-shell'):
             with gr.Row(elem_id='vb-sidebar',equal_height=False):
                 html(BRAND)
@@ -47,6 +49,10 @@ def build_app(run_dir,session=None):
                     mute=gr.Checkbox(label='Mute Spoken Answers',value=False,elem_id='vb-mute')
             with gr.Column(scale=1,min_width=320,elem_id='vb-main'):
                 html(HERO)
+                if model_sessions is not None:
+                    with gr.Row(elem_id='vb-model-bar'):
+                        model_choice=gr.Dropdown(model_sessions.choices,value=model_sessions.default,label='Answer model',interactive=True,allow_custom_value=False,elem_id='vb-model-choice',scale=1,min_width=220)
+                        html('<p class="model-help"><strong>Choose your perspective.</strong> BLIP v2 uses your trained visual Q&amp;A and OCR pipeline. Qwen handles broader image questions. Switching clears the response and conversation; your image and draft stay.</p>')
                 with gr.Row(elem_id='vb-workspace',equal_height=True):
                     with gr.Column(scale=6,min_width=300,elem_classes='vb-card',elem_id='vb-input-card'):
                         html(section('01','The image','Your starting point. Upload a photo or use your camera.'))
@@ -66,7 +72,7 @@ def build_app(run_dir,session=None):
                                 microphone_check=gr.Button('Check microphone access',size='sm')
                                 microphone_notice=gr.Textbox(label='Microphone access status',value='',interactive=False,lines=2)
                             gr.Markdown('Allow microphone access when your browser asks. Record, then stop; transcription starts automatically. Review and edit the question before analyzing. If nothing is captured, check the browser microphone permission or upload a WAV recording.',elem_classes='vb-note')
-                        with gr.Accordion('Advanced / Developer · optional manual overrides',open=False,elem_classes='vb-inset',elem_id='vb-developer',visible=not hasattr(session,'backend_label')):
+                        with gr.Accordion('Advanced / Developer · optional manual overrides',open=False,elem_classes='vb-inset',elem_id='vb-developer',visible=(model_sessions.default==BLIP if model_sessions else not hasattr(session,'backend_label'))) as developer:
                             choices=MODES+(['Full Text Reading (experimental)'] if hasattr(session,'full_request') else [])
                             mode=gr.Radio(choices,value=ASSISTANT,label='Processing override · leave Assistant selected for automatic routing',elem_id='vb-mode')
                             if hasattr(session,'set_engine'):
@@ -120,12 +126,14 @@ def build_app(run_dir,session=None):
             from assistive_tools import quality,compare
             from modules.evidence_store import image_identity
             from image_conversation import prepare,history_html,task_quality
-            state=prepare(previous,photo) if hasattr(session,'for_conversation') else previous
+            active_session=model_sessions.get((previous or {}).get('workspace_model')) if model_sessions else session
+            active_controller=WorkspaceController(active_session) if model_sessions else controller
+            state=prepare(previous,photo) if hasattr(active_session,'for_conversation') else previous
             if conversation is not None:
                 from uuid import uuid4
                 state['submission']={'id':uuid4().hex,'question':str(q or ''),'completed':False,
                     'image_id':state['conversation']['image_id']}
-            for result in controller.analyze_ui(photo,q,muted,override,angle,context=state):
+            for result in active_controller.analyze_ui(photo,q,muted,override,angle,context=state):
                 info={};values=list(result)
                 if conversation is not None and result[0] and not result[3].get('application_error'):
                     state['submission']['completed']=True;state['last_submitted_question']=str(q or '')
@@ -208,7 +216,20 @@ def build_app(run_dir,session=None):
             return question_for_retake(current,state)
         retake.click(reuse_last_question,[question,prior],question,queue=False,api_name='reuse_last_question',api_visibility='undocumented').then(None,[],[],
             js="() => {const el=document.querySelector('#vb-photo');el?.scrollIntoView({block:'center'});el?.querySelector('input')?.focus();return [];}",queue=False,api_visibility='private')
-        clear.click(lambda:(None,'',*original_reset(),{},None,*(['<p>Image and conversation context cleared.</p>'] if conversation is not None else [])),outputs=[image,question,*outputs],cancels=[event],queue=False,api_name='reset_session')
+        if model_sessions is not None:
+            def select_model(value):
+                if value not in model_sessions.choices:raise ValueError('Select a supported model.')
+                values=list(original_reset())
+                values[2]=status_html(value+' selected','Your image and draft are kept. Ask a new question to use this model.')
+                return (*values,{}, {'workspace_model':value},'<p>No earlier questions for this model.</p>',
+                    gr.update(value=ASSISTANT),gr.update(visible=False),gr.update(visible=value==BLIP))
+            model_choice.change(select_model,model_choice,[*outputs,mode,rotation_group,developer],cancels=[event],
+                queue=True,concurrency_limit=1,concurrency_id='workspace-inference',api_name='select_model')
+            def clear_selected(value):
+                return (None,'',*original_reset(),{}, {'workspace_model':value},'<p>Image and conversation context cleared.</p>')
+            clear.click(clear_selected,model_choice,[image,question,*outputs],cancels=[event],queue=False,api_name='reset_session')
+        else:
+            clear.click(lambda:(None,'',*original_reset(),{},None,*(['<p>Image and conversation context cleared.</p>'] if conversation is not None else [])),outputs=[image,question,*outputs],cancels=[event],queue=False,api_name='reset_session')
         def switch_mode(value):
             reading=value=='Full Text Reading (experimental)' or reading_mode(value)
             return (gr.update(visible=reading),gr.update(placeholder='What words are written in this image?' if reading else 'What would you like to know about this image?'),*reset())
@@ -217,7 +238,7 @@ def build_app(run_dir,session=None):
         bind_voice(recording,transcribe,question,status,controller,gr,speech_transcript,clear)
         microphone_check.click(None,inputs=[],outputs=microphone_notice,js=MICROPHONE_CHECK_JS,queue=False,api_visibility='private')
         larger.change(None,larger,[],js="(large) => {document.getElementById('vb-shell')?.classList.toggle('vb-large-text', large); return [];}",queue=False,api_visibility='private')
-    atexit.register(session.close)
+    atexit.register(model_sessions.close if model_sessions else session.close)
     return demo,session
 
 
@@ -245,7 +266,12 @@ if __name__=='__main__':
     p.add_argument('--backend',choices=['auto','local','frozen'],default='auto')
     p.add_argument('--vision-model',default=None);args=p.parse_args()
     session=create_session(Path(args.run_dir).resolve(),args.backend,args.vision_model)
-    print('Starting VisionBridge:',getattr(session,'backend_label','Frozen Phase 4 workspace'),flush=True)
-    demo,session=build_app(Path(args.run_dir).resolve(),session=session)
+    from workspace_models import FrontendModels,BLIP,QWEN
+    default_model=QWEN if hasattr(session,'backend_label') else BLIP
+    models=FrontendModels(lambda name:create_session(Path(args.run_dir).resolve(),'frozen' if name==BLIP else 'local',args.vision_model),default_model,session)
+    # Build both sets of existing controls; model weights still load on demand.
+    session=models.get(BLIP)
+    print('Starting VisionBridge: frontend model selector; default='+default_model,flush=True)
+    demo,session=build_app(Path(args.run_dir).resolve(),session=session,model_sessions=models)
     try:demo.queue(default_concurrency_limit=1).launch(server_port=args.port,**launch_options())
-    finally:session.close()
+    finally:models.close()

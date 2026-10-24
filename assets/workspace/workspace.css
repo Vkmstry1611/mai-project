@@ -340,3 +340,8 @@ to {
 }
 
 @media(max-width:760px){#vb-shell #vb-sidebar>.block{flex:1 1 100%!important;min-width:100%!important;width:100%!important}}@media(max-width:450px){#vb-preferences{flex-direction:column!important;gap:8px!important}}
+/* Frontend model preference: one choice per browser session. */
+#vb-model-bar { align-items:center!important; gap:24px!important; border-top:1px solid #d5d8cd; padding:18px 0!important; }
+#vb-model-choice { flex:0 1 260px!important; background:transparent!important; border:0!important; padding:0!important; }
+#vb-model-bar>.block:last-child { flex:1 1 260px!important; }
+@media(max-width:760px) { #vb-model-bar { gap:14px!important; } #vb-model-choice { flex:1 1 100%!important; } }
