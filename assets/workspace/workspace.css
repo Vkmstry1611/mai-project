@@ -376,7 +376,6 @@ to {
 #vb-preferences { flex-basis:230px!important; min-width:230px!important; }
 #vb-shell #vb-recording button { font-size:18px!important; min-height:48px!important; }
 #vb-shell #vb-microphone-hint p { font-size:16px!important; color:#5c421e; }
-#vb-microphone-hint:not(:has(p)) { display:none!important; }
 #vb-shell #vb-model-choice label { font-size:16px!important; white-space:normal!important; }
 #vb-model-choice { flex-basis:330px!important; }
 #vb-shell #vb-answer textarea { color:#202d19!important; }

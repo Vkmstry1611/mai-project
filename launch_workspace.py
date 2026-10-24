@@ -69,7 +69,7 @@ def build_app(run_dir,session=None,model_sessions=None):
                         with gr.Accordion('Ask with your voice',open=False,elem_classes='vb-inset',elem_id='vb-voice'):
                             gr.Markdown('**1 · Record** → **2 · Stop & review** → **3 · Use question**',elem_classes='vb-note')
                             voice_status=html(status_html('Ready to record','Select Record, speak your question, then select Stop.'),elem_id='vb-voice-status')
-                            microphone_hint=html('<p role="status">Allow microphone access when asked. If this browser shows no microphone, upload audio or open this page in Chrome or Edge.</p>',elem_id='vb-microphone-hint')
+                            microphone_hint=gr.Markdown('Allow microphone access when asked. If this browser shows no microphone, upload audio or open this page in Chrome or Edge.',elem_id='vb-microphone-hint')
                             recording=gr.Audio(label='Your recording',sources=['microphone','upload'],type='filepath',format='wav',editable=False,buttons=[],elem_id='vb-recording')
                             speech_transcript=gr.Textbox(label='Your words · edit if needed',placeholder='Your transcript appears here after you stop recording.',interactive=False,lines=2,max_lines=4,elem_id='vb-transcript')
                             with gr.Row(elem_id='vb-voice-actions'):

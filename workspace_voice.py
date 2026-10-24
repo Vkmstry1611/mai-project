@@ -32,10 +32,10 @@ MICROPHONE_AVAILABILITY_JS="""async () => {
  try {
    if(navigator.mediaDevices?.enumerateDevices){
      const devices=await Promise.race([navigator.mediaDevices.enumerateDevices(),new Promise(resolve=>setTimeout(()=>resolve([]),2000))]);
-     if(devices.some(d=>d.kind==='audioinput'))return [''];
+     if(devices.some(d=>d.kind==='audioinput'))return ['Allow microphone access when asked. Select Record, speak, then Stop.'];
    }
  } catch(e) {}
- return ['<p role="status">This browser has not made a microphone available. Upload an audio file, or open this page in Chrome or Edge and allow microphone access.</p>'];
+ return ['This browser has not made a microphone available. Upload an audio file, or open this page in Chrome or Edge and allow microphone access.'];
 }"""
 
 
