@@ -65,7 +65,7 @@ zero exceptions. The real data views will populate after paired app requests
 are captured and ingested.
 
 To ask a question inside this page, open the **Ask VisionBridge** tab and
-select **Qwen** or **BLIP**. These are separate Gradio services on the Windows
+select **Qwen**, **BLIP**, or **Both**. These are separate Gradio services on the Windows
 machine, where their model runtimes and weights are installed. The default
 URLs are `http://192.168.1.83:7865` for Qwen and
 `http://192.168.1.83:7866` for BLIP; edit the selected URL on the page if
@@ -83,6 +83,13 @@ $env:GRADIO_SERVER_NAME = '0.0.0.0'
 $env:VISIONBRIDGE_BDA_RUN_ID = 'blip-demo-v1'
 .\.venv\Scripts\python.exe launch_workspace.py --backend frozen --port 7866
 ```
+
+**Both** provides one upload and question form in Streamlit. It calls Qwen
+and BLIP sequentially with the same image bytes and question, then displays
+their answers side by side. Each Gradio service writes its own request event
+to the Windows capture spool; the events share a pair ID and have distinct
+run IDs. A model error is displayed for that model while the other model's
+result is preserved. A disagreement between answers is not an accuracy score.
 
 The embedded assistant captures answers on Windows. The VM dashboard reads
 its own spool and MongoDB, so new requests appear there only after transfer
