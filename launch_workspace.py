@@ -1,6 +1,7 @@
 """Opt-in VisionBridge workspace; delegates inference to the existing Session."""
 import argparse
 import atexit
+import os
 from pathlib import Path
 
 from workspace_ui import (WorkspaceController,HTML_CSS,BRAND,NAV,HERO,EMPTY_RESPONSE,EMPTY_EVIDENCE,
@@ -231,7 +232,7 @@ def build_app(run_dir,session=None):
 
 
 def launch_options():
-    return dict(server_name='127.0.0.1',share=False,show_error=True,theme=theme(),css=(ASSETS/'workspace.css').read_text(encoding='utf-8'),
+    return dict(server_name=os.getenv('GRADIO_SERVER_NAME','127.0.0.1'),share=False,show_error=True,theme=theme(),css=(ASSETS/'workspace.css').read_text(encoding='utf-8'),
                 allowed_paths=[str(ASSETS)])
 
 

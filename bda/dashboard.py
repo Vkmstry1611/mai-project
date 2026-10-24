@@ -2,15 +2,34 @@
 import json
 import os
 from pathlib import Path
+from urllib.parse import urlparse
 
 import streamlit as st
+import streamlit.components.v1 as components
 
 from bda.dashboard_data import read_mongo, read_spool, summarize
 
 
-def main():
-    st.set_page_config(page_title="VisionBridge BDA", page_icon="📊", layout="wide")
-    st.title("VisionBridge · Big Data Analytics")
+def assistant_panel():
+    st.subheader("Ask VisionBridge")
+    st.caption("Upload an image and ask a question in the assistant below. The model runs on your Windows machine.")
+    url = st.text_input("VisionBridge assistant URL",
+                        value=os.getenv("VISIONBRIDGE_APP_URL", "http://192.168.1.83:7865"),
+                        help="Use the Windows machine's LAN address and the port shown when VisionBridge starts.")
+    url = url.strip().rstrip("/")
+    parsed = urlparse(url)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        st.error("Enter a full http:// or https:// assistant URL.")
+        return
+    st.link_button("Open assistant in its own tab", url)
+    iframe = getattr(st, "iframe", components.iframe)
+    iframe(url, height=1100)
+    with st.expander("If the assistant does not load"):
+        st.write("Start VisionBridge on Windows with GRADIO_SERVER_NAME set to 0.0.0.0, then use that machine's LAN address above. The assistant must stay running while you use this page.")
+        st.write("New answers are captured on Windows. Transfer the capture spool to the VM and run the BDA pipeline to update the analytics tab.")
+
+
+def analytics_panel():
     st.caption("Request evidence and matched BLIP/Qwen comparisons. Accuracy is shown only after labelled Spark evaluation.")
     source = st.sidebar.radio("Data source", ["Local capture", "MongoDB"], index=0)
     spool = os.getenv("VISIONBRIDGE_BDA_SPOOL", "reports/bda/spool")
@@ -59,6 +78,16 @@ def main():
             st.error(f"Could not read the Spark export: {error}")
     else:
         st.info("No Spark score export has been imported yet. This section will populate after the VM run.")
+
+
+def main():
+    st.set_page_config(page_title="VisionBridge BDA", page_icon="📊", layout="wide")
+    st.title("VisionBridge · Big Data Analytics")
+    ask, analytics = st.tabs(["Ask VisionBridge", "BDA analytics"])
+    with ask:
+        assistant_panel()
+    with analytics:
+        analytics_panel()
 
 
 if __name__ == "__main__":
