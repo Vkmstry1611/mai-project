@@ -5,7 +5,6 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 import streamlit as st
-import streamlit.components.v1 as components
 
 from bda.dashboard_data import read_mongo, read_spool, summarize
 from bda.model_dispatch import run_models
@@ -22,62 +21,47 @@ def valid_url(url):
     return parsed.scheme in {"http", "https"} and bool(parsed.netloc)
 
 
-def both_models_panel():
-    st.caption("One upload and one question are sent to both models. Each app stores its own result with the same image–question pair ID.")
-    qwen_url = st.text_input("Qwen URL", value=model_url("Qwen")).strip().rstrip("/")
-    blip_url = st.text_input("BLIP URL", value=model_url("BLIP")).strip().rstrip("/")
-    if not valid_url(qwen_url) or not valid_url(blip_url):
-        st.error("Enter full http:// or https:// URLs for both model services.")
+def assistant_panel():
+    st.subheader("Ask VisionBridge")
+    st.caption("Upload an image, ask a question, and choose which model answers.")
+    model = st.radio("Model", ["Qwen", "BLIP", "Both"], horizontal=True,
+                     help="Select the model that will answer your image question.")
+    with st.expander("Connection settings"):
+        qwen_url = st.text_input("Qwen service URL", value=model_url("Qwen")).strip().rstrip("/")
+        blip_url = st.text_input("BLIP service URL", value=model_url("BLIP")).strip().rstrip("/")
+    endpoints = {name: url for name, url in (("Qwen", qwen_url), ("BLIP", blip_url))
+                 if model in (name, "Both")}
+    if not all(valid_url(url) for url in endpoints.values()):
+        st.error("Enter a full http:// or https:// URL for each selected model in Connection settings.")
         return
-    with st.form("compare_models"):
+    with st.form("visionbridge_question"):
         photo = st.file_uploader("Image", type=["jpg", "jpeg", "png", "webp"])
         question = st.text_area("Question", max_chars=1000)
-        submit = st.form_submit_button("Run Qwen and BLIP")
+        submit = st.form_submit_button("Analyze image")
     if submit:
         if photo is None or not question.strip():
             st.error("Upload an image and enter a question.")
         else:
-            with st.spinner("Running Qwen and BLIP on the same input…"):
-                st.session_state["both_results"] = run_models(
-                    photo.getvalue(), photo.name, question.strip(),
-                    {"Qwen": qwen_url, "BLIP": blip_url},
+            with st.spinner(f"Running {model}…"):
+                st.session_state["last_results"] = run_models(
+                    photo.getvalue(), photo.name, question.strip(), endpoints,
                 )
-                st.session_state["both_input"] = (photo.name, question.strip())
-    if "both_results" in st.session_state:
-        filename, previous_question = st.session_state["both_input"]
-        st.caption(f"Last run: {filename} · {previous_question}")
-        for column, result in zip(st.columns(2), st.session_state["both_results"]):
+                st.session_state["last_input"] = (photo.name, question.strip(), model)
+    if "last_results" in st.session_state:
+        filename, previous_question, previous_model = st.session_state["last_input"]
+        st.caption(f"Last run · {previous_model} · {filename} · {previous_question}")
+        for column, result in zip(st.columns(len(st.session_state["last_results"])),
+                                  st.session_state["last_results"]):
             with column:
                 st.subheader(result["model"])
                 if result["status"] == "completed":
                     st.write(result["answer"])
                 else:
                     st.error(result.get("error") or "The model did not return an answer. Check its service and request record.")
-        st.caption("The answers are captured on Windows. Transfer the spool and import it to update VM analytics, MongoDB, and HDFS.")
-
-
-def assistant_panel():
-    st.subheader("Ask VisionBridge")
-    st.caption("Upload an image and ask a question in the assistant below. The model runs on your Windows machine.")
-    model = st.radio("Model", ["Qwen", "BLIP", "Both"], horizontal=True,
-                     help="Select the model that will answer your image question.")
-    if model == "Both":
-        both_models_panel()
-        return
-    url = st.text_input("VisionBridge assistant URL",
-                        value=model_url(model), key=f"assistant_url_{model.lower()}",
-                        help="Use the Windows machine's LAN address and the selected model's port.")
-    url = url.strip().rstrip("/")
-    if not valid_url(url):
-        st.error("Enter a full http:// or https:// assistant URL.")
-        return
-    st.caption(f"Selected model: {model}. Requests from this assistant are captured with its run ID.")
-    st.link_button(f"Open {model} assistant in its own tab", url)
-    iframe = getattr(st, "iframe", components.iframe)
-    iframe(url, height=1100)
-    with st.expander("If the assistant does not load"):
-        st.write("Start the selected VisionBridge model on Windows with GRADIO_SERVER_NAME set to 0.0.0.0, then use that machine's LAN address above. The assistant must stay running while you use this page.")
-        st.write("New answers are captured on Windows. Transfer the capture spool to the VM and run the BDA pipeline to update the analytics tab.")
+                with st.expander("Processing details"):
+                    st.json(result["details"])
+                    st.json(result["timings"])
+        st.caption("Each model captures its own request on Windows. Transfer the spool and import it to update VM analytics, MongoDB, and HDFS.")
 
 
 def analytics_panel():

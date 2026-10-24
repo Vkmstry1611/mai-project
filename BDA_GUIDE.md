@@ -28,8 +28,9 @@ docker compose -f compose.bda.yaml up -d --build mongo dashboard
 docker compose -f compose.bda.yaml run --rm import
 ```
 
-Open `http://localhost:8501`. The **Ask VisionBridge** tab embeds the existing
-assistant; the **BDA analytics** tab contains the captured results. Select
+Open `http://localhost:8501`. The **Ask VisionBridge** tab has one Streamlit
+upload and question form for Qwen, BLIP, or Both; the **BDA analytics** tab
+contains the captured results. Select
 **Local capture** or **MongoDB** in the sidebar. The dashboard shows actual
 request counts, routes, OCR coverage, abstention, timing, individual records
 and matched BLIP/Qwen answers. It labels answer disagreement separately from
@@ -65,10 +66,11 @@ zero exceptions. The real data views will populate after paired app requests
 are captured and ingested.
 
 To ask a question inside this page, open the **Ask VisionBridge** tab and
-select **Qwen**, **BLIP**, or **Both**. These are separate Gradio services on the Windows
-machine, where their model runtimes and weights are installed. The default
+select **Qwen**, **BLIP**, or **Both**, then upload an image and ask a question
+in the same Streamlit form. The model runtimes remain on Windows as separate
+services; their original Gradio pages are no longer shown in the dashboard. The default
 URLs are `http://192.168.1.83:7865` for Qwen and
-`http://192.168.1.83:7866` for BLIP; edit the selected URL on the page if
+`http://192.168.1.83:7866` for BLIP; edit them in **Connection settings** if
 the Windows IP changes. Start each service in its own Windows PowerShell
 window:
 
@@ -84,14 +86,13 @@ $env:VISIONBRIDGE_BDA_RUN_ID = 'blip-demo-v1'
 .\.venv\Scripts\python.exe launch_workspace.py --backend frozen --port 7866
 ```
 
-**Both** provides one upload and question form in Streamlit. It calls Qwen
-and BLIP sequentially with the same image bytes and question, then displays
-their answers side by side. Each Gradio service writes its own request event
+**Both** calls Qwen and BLIP sequentially with the same image bytes and
+question, then displays their answers side by side. Each model service writes its own request event
 to the Windows capture spool; the events share a pair ID and have distinct
 run IDs. A model error is displayed for that model while the other model's
 result is preserved. A disagreement between answers is not an accuracy score.
 
-The embedded assistant captures answers on Windows. The VM dashboard reads
+The model services capture answers on Windows. The VM dashboard reads
 its own spool and MongoDB, so new requests appear there only after transfer
 and import. For a quick local capture transfer, copy the Windows
 `reports/bda/spool/events` and `reports/bda/spool/images` directories into
@@ -99,8 +100,7 @@ and import. For a quick local capture transfer, copy the Windows
 `/usr/bin/python3 -m bda.ingest --spool spool --hdfs-root /visionbridge/raw
 --mongo-uri mongodb://localhost:27017 --database visionbridge_bda` from the
 VM project directory. Run `bda/vm_pipeline.sh` after both model runs to
-refresh Spark analytics. If an embedded view does not load, use its
-**Open assistant in its own tab** button to check that model directly.
+refresh Spark analytics.
 
 ## 1. Capture both runs on the laptop
 
