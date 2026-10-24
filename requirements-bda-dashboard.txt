@@ -1,0 +1,2 @@
+streamlit>=1.40,<2
+pymongo>=4.8,<5

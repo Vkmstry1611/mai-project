@@ -5,6 +5,32 @@ analysis of **BLIP and Qwen runs on the same image/question pairs**. The app
 still answers locally; HDFS, MongoDB and Spark are run later on the three VMs.
 No VM address or credential is embedded in the repository.
 
+## BDA dashboard and Docker before the VM stage
+
+The Python Streamlit dashboard runs in Docker with MongoDB. It can read the
+local capture spool immediately; the MongoDB view becomes available after an
+import. This container is the BDA analytics application. BLIP/Qwen inference
+remains in the existing laptop application and is not included in this image.
+
+From the repository root after at least one captured request:
+
+```powershell
+docker compose -f compose.bda.yaml up -d --build mongo dashboard
+docker compose -f compose.bda.yaml run --rm import
+```
+
+Open `http://localhost:8501`. Select **Local capture** or **MongoDB** in the
+sidebar. The dashboard shows actual request counts, routes, OCR coverage,
+abstention, timing, individual records and matched BLIP/Qwen answers. It labels
+answer disagreement separately from accuracy. Repeat `run --rm import` after
+new captures; MongoDB upserts by `request_id`.
+
+The dashboard's optional **Cluster evaluation** section expects a real Spark
+summary exported from HDFS into `bda-data/analytics/matched_score_summary.json`.
+After the VM job runs, use `hdfs dfs -getmerge` on the VM to export the Spark
+part files, then copy the resulting JSON to that ignored local path. Until
+then the dashboard clearly shows that no cluster score is available.
+
 ## 1. Capture both runs on the laptop
 
 Run the app twice, once with `--backend local` and once with `--backend frozen`.

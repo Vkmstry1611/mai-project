@@ -1,0 +1,8 @@
+FROM python:3.11-slim
+WORKDIR /app
+ENV PYTHONPATH=/app
+COPY requirements-bda-dashboard.txt .
+RUN pip install --no-cache-dir -r requirements-bda-dashboard.txt
+COPY bda ./bda
+EXPOSE 8501
+CMD ["streamlit", "run", "bda/dashboard.py", "--server.address=0.0.0.0", "--server.port=8501", "--server.headless=true"]

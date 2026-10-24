@@ -1,0 +1,39 @@
+services:
+  mongo:
+    image: mongo:7.0
+    volumes:
+      - bda_mongo:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.bda
+    ports:
+      - "8501:8501"
+    environment:
+      MONGODB_URI: mongodb://mongo:27017
+      VISIONBRIDGE_BDA_SPOOL: /data/spool
+      VISIONBRIDGE_SPARK_SUMMARY: /data/analytics/matched_score_summary.json
+    volumes:
+      - ./reports/bda/spool:/data/spool:ro
+      - ./bda-data/analytics:/data/analytics:ro
+    depends_on:
+      mongo:
+        condition: service_healthy
+  import:
+    build:
+      context: .
+      dockerfile: Dockerfile.bda
+    command: ["python", "-m", "bda.mongo_import", "--spool", "/data/spool", "--mongo-uri", "mongodb://mongo:27017"]
+    volumes:
+      - ./reports/bda/spool:/data/spool:ro
+    depends_on:
+      mongo:
+        condition: service_healthy
+    profiles: ["tools"]
+volumes:
+  bda_mongo:
