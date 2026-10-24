@@ -3,7 +3,15 @@
 This branch captures live VisionBridge requests and prepares a distributed
 analysis of **BLIP and Qwen runs on the same image/question pairs**. The app
 still answers locally; HDFS, MongoDB and Spark are run later on the three VMs.
-No VM address or credential is embedded in the repository.
+No VM credential is embedded in the repository.
+
+## Current VM layout
+
+The primary VM is `10.128.40.145` (`admin`), with workers
+`10.128.40.45` and `10.128.40.102`. The BDA scripts are deployed to
+`/home/admin/Desktop/BDA/project` on the primary VM. The folder name is
+case-sensitive. HDFS and YARN each report two live workers. Inference remains
+on the Windows laptop; only captures and analytics need to move to the VM.
 
 ## BDA dashboard and Docker before the VM stage
 
@@ -66,13 +74,23 @@ dataset, private checkpoints or MongoDB credentials into Git.
 
 ## 2. Transfer and ingest on a VM
 
-Copy the `spool` directory and the repository source to a VM that has the HDFS
-CLI configured and can reach MongoDB. Install `pymongo` in that VM's Python
-environment. From the repository root on the VM:
+Copy the `spool` directory from Windows into the primary VM's project folder
+after actual app requests have been captured. From PowerShell in the Windows
+repository root:
+
+```powershell
+scp -r reports/bda/spool admin@10.128.40.145:Desktop/BDA/project/
+```
+
+On the primary VM, use its system Python with `python3-pymongo` installed.
+The existing MongoDB container is named `mongodb` and publishes port 27017.
+From the VM project folder:
 
 ```bash
-export MONGODB_URI='mongodb://localhost:27017'
-python -m bda.ingest --spool /path/to/spool --hdfs-root /visionbridge/raw
+cd ~/Desktop/BDA/project
+sudo docker start mongodb
+python3 -m bda.ingest --spool spool --hdfs-root /visionbridge/raw \
+  --mongo-uri mongodb://localhost:27017
 hdfs dfs -ls /visionbridge/raw/events
 hdfs fsck /visionbridge/raw -files -blocks -locations
 ```
@@ -93,12 +111,15 @@ db.requests.findOne({ run_id: "blip-demo-v1" },
 
 ## 3. Run Spark across the cluster
 
-Run from the repository root on a VM with PySpark installed. Replace the master
-address with the actual value from your cluster. Do not use `local[*]` as
-evidence of three-node distributed execution.
+Run from the project folder on the primary VM with PySpark installed in
+`.venv`. This cluster uses YARN, so submit with `--master yarn`. Do not use
+`local[*]` as evidence of distributed execution.
 
 ```bash
-spark-submit --master spark://YOUR-SPARK-MASTER:7077 \
+cd ~/Desktop/BDA/project
+export HADOOP_CONF_DIR=/usr/local/hadoop/etc/hadoop
+export YARN_CONF_DIR="$HADOOP_CONF_DIR"
+.venv/bin/spark-submit --master yarn --deploy-mode client \
   bda/spark_analysis.py \
   --events 'hdfs:///visionbridge/raw/events/*.json' \
   --output hdfs:///visionbridge/analytics \
@@ -124,7 +145,7 @@ python -m bda.prepare_labels --source /private/vizwiz_eval.jsonl \
   --output /private/vizwiz_pair_labels.jsonl
 hdfs dfs -mkdir -p /visionbridge/labels
 hdfs dfs -put -f /private/vizwiz_pair_labels.jsonl /visionbridge/labels/
-spark-submit --master spark://YOUR-SPARK-MASTER:7077 \
+.venv/bin/spark-submit --master yarn --deploy-mode client \
   bda/spark_analysis.py --events 'hdfs:///visionbridge/raw/events/*.json' \
   --output hdfs:///visionbridge/analytics \
   --blip-run-id blip-demo-v1 --qwen-run-id qwen-demo-v1 \
@@ -143,10 +164,11 @@ the examples and scoring protocol match.
 
 1. A new UI request creates an image and JSON event locally.
 2. The same request appears in HDFS and MongoDB with the same `request_id`.
-3. `hdfs fsck` shows block placement across the three DataNodes.
-4. Spark's application UI shows executors on the cluster, and raw = curated +
+3. `hdfs fsck` shows block placement across the two worker DataNodes.
+4. YARN's application UI shows containers on the cluster, and raw = curated +
    rejected + duplicate rows for the run.
 5. Matched BLIP/Qwen pairs are counted at one pair per selected run.
 
-VM ingestion and distributed Spark execution have not been run from this
-checkout; their actual addresses and credentials are still needed.
+Real request ingestion and the distributed Spark results must be run after
+the laptop has captured paired BLIP and Qwen requests. Never present a smoke
+test dataset as real project results.
