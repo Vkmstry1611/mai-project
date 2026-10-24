@@ -40,19 +40,20 @@ def build_app(run_dir,session=None,model_sessions=None):
     def html(value,**kwargs):return gr.HTML(value,css_template=HTML_CSS,**kwargs)
     with gr.Blocks(title='VisionBridge — visual assistant workspace',analytics_enabled=False,delete_cache=(3600,3600)) as demo:
         prior=gr.State({'workspace_model':model_sessions.default} if model_sessions else None,time_to_live=3600)
-        with gr.Column(elem_id='vb-shell'):
+        with gr.Column(elem_id='vb-shell',elem_classes=['vb-large-text']):
+            html('<nav class="skip-links" aria-label="Skip navigation"><a href="#vb-question">Skip to question</a><a href="#vb-voice">Skip to voice input</a></nav>',elem_id='vb-skip')
             with gr.Row(elem_id='vb-sidebar',equal_height=False):
                 html(BRAND)
                 html(NAV)
                 with gr.Column(elem_id='vb-preferences',scale=0,min_width=190):
-                    larger=gr.Checkbox(label='Larger input & answer text',value=False,elem_id='vb-access')
+                    larger=gr.Checkbox(label='Larger text',value=True,elem_id='vb-access')
                     mute=gr.Checkbox(label='Mute Spoken Answers',value=False,elem_id='vb-mute')
             with gr.Column(scale=1,min_width=320,elem_id='vb-main'):
                 html(HERO)
                 if model_sessions is not None:
                     with gr.Row(elem_id='vb-model-bar'):
                         model_choice=gr.Radio(model_sessions.choices,value=model_sessions.default,label='Answer model',interactive=True,elem_id='vb-model-choice',scale=1,min_width=260)
-                        html('<p class="model-help" style="font-size:12px;line-height:1.7;color:#73776c"><strong>Choose your perspective.</strong> BLIP v2 uses your trained visual Q&amp;A and OCR pipeline. Qwen handles broader image questions. Switching clears the response and conversation; your image and draft stay.</p>')
+                        html('<p class="model-help" style="font-size:16px;line-height:1.7;color:#424c3e"><strong>Choose your perspective.</strong> BLIP gives short visual answers and reads text. Qwen handles broader image questions. Switching clears the response and conversation; your image and draft stay.</p>')
                 with gr.Row(elem_id='vb-workspace',equal_height=True):
                     with gr.Column(scale=6,min_width=300,elem_classes='vb-card',elem_id='vb-input-card'):
                         html(section('01','The image','Your starting point. Upload a photo or use your camera.'))
@@ -62,16 +63,23 @@ def build_app(run_dir,session=None,model_sessions=None):
                         question=gr.Textbox(label='What would you like to know?',lines=2,max_lines=5,
                             placeholder='What would you like to know about this image?',elem_id='vb-question')
                         if hasattr(session,'for_conversation'):
-                            gr.Markdown('Ask follow-ups about the same image. Your recent questions stay in the conversation.',elem_classes='vb-note')
+                            gr.Markdown('You can ask follow-up questions about the same image.',elem_classes='vb-note')
+                            gr.Markdown('**Keyboard:** Alt+Q for your question · Alt+V for voice input · Ctrl+Enter to analyze.',elem_classes='vb-note')
                             question_notice=html('<p role="status" aria-live="polite">Type a question, or open voice input below.</p>')
-                        with gr.Accordion('Voice input · record a question',open=False,elem_classes='vb-inset'):
-                            recording=gr.Audio(label='Record or upload a spoken question',sources=['microphone','upload'],type='filepath',format='wav')
-                            transcribe=gr.Button('Transcribe & review',size='sm')
-                            speech_transcript=gr.Textbox(label='Recognized speech · review or copy if your newer draft was preserved',interactive=False,lines=2)
-                            with gr.Accordion('Microphone help · optional',open=False):
+                        with gr.Accordion('Ask with your voice',open=False,elem_classes='vb-inset',elem_id='vb-voice'):
+                            gr.Markdown('**1 · Record** → **2 · Stop & review** → **3 · Use question**',elem_classes='vb-note')
+                            voice_status=html(status_html('Ready to record','Select Record, speak your question, then select Stop.'),elem_id='vb-voice-status')
+                            microphone_hint=html('<p role="status">Allow microphone access when asked. If this browser shows no microphone, upload audio or open this page in Chrome or Edge.</p>',elem_id='vb-microphone-hint')
+                            recording=gr.Audio(label='Your recording',sources=['microphone','upload'],type='filepath',format='wav',editable=False,buttons=[],elem_id='vb-recording')
+                            speech_transcript=gr.Textbox(label='Your words · edit if needed',placeholder='Your transcript appears here after you stop recording.',interactive=False,lines=2,max_lines=4,elem_id='vb-transcript')
+                            with gr.Row(elem_id='vb-voice-actions'):
+                                use_voice=gr.Button('Use this question',variant='primary',interactive=False,elem_id='vb-use-voice')
+                                transcribe=gr.Button('Retry transcription',interactive=False,elem_id='vb-retry-voice')
+                                discard_voice=gr.Button('Start over',elem_id='vb-discard-voice')
+                            gr.Markdown('Your typed question stays unchanged until you select Use this question. Prefer a short recording in a quiet room. You can also upload an audio file.',elem_classes='vb-note')
+                            with gr.Accordion('Microphone not working?',open=False):
                                 microphone_check=gr.Button('Check microphone access',size='sm')
-                                microphone_notice=gr.Textbox(label='Microphone access status',value='',interactive=False,lines=2)
-                            gr.Markdown('Allow microphone access when your browser asks. Record, then stop; transcription starts automatically. Review and edit the question before analyzing. If nothing is captured, check the browser microphone permission or upload a WAV recording.',elem_classes='vb-note')
+                                microphone_notice=gr.Textbox(label='Microphone help',value='Allow microphone access for this page. If recording is unavailable in the in-app browser, open http://127.0.0.1:7867 in Chrome or Edge, or upload a recording.',interactive=False,lines=3)
                         with gr.Accordion('Advanced / Developer · optional manual overrides',open=False,elem_classes='vb-inset',elem_id='vb-developer',visible=(model_sessions.default==BLIP if model_sessions else not hasattr(session,'backend_label'))) as developer:
                             choices=MODES+(['Full Text Reading (experimental)'] if hasattr(session,'full_request') else [])
                             mode=gr.Radio(choices,value=ASSISTANT,label='Processing override · leave Assistant selected for automatic routing',elem_id='vb-mode')
@@ -234,9 +242,25 @@ def build_app(run_dir,session=None,model_sessions=None):
             reading=value=='Full Text Reading (experimental)' or reading_mode(value)
             return (gr.update(visible=reading),gr.update(placeholder='What words are written in this image?' if reading else 'What would you like to know about this image?'),*reset())
         mode.change(switch_mode,mode,[rotation_group,question,*outputs],cancels=[event],queue=False,api_name='set_mode')
-        from workspace_voice import bind as bind_voice,MICROPHONE_CHECK_JS
-        bind_voice(recording,transcribe,question,status,controller,gr,speech_transcript,clear)
+        from workspace_voice import bind as bind_voice,MICROPHONE_CHECK_JS,MICROPHONE_AVAILABILITY_JS
+        bind_voice(recording,transcribe,question,status,controller,gr,speech_transcript,clear,voice_status,use_voice,discard_voice)
+        demo.load(None,outputs=microphone_hint,js=MICROPHONE_AVAILABILITY_JS,api_visibility='private')
         microphone_check.click(None,inputs=[],outputs=microphone_notice,js=MICROPHONE_CHECK_JS,queue=False,api_visibility='private')
+        demo.load(None,outputs=[],api_visibility='private',js="""() => {
+          const question=document.querySelector('#vb-question textarea');
+          question?.setAttribute('aria-keyshortcuts','Alt+Q Control+Enter');
+          if(!window.vbKeyboardAccess){
+            document.addEventListener('keydown',(e)=>{
+              if(e.altKey&&!e.ctrlKey&&e.key.toLowerCase()==='q'){
+                e.preventDefault();const q=document.querySelector('#vb-question textarea');q?.focus();q?.scrollIntoView({block:'center'});
+              }else if(e.altKey&&!e.ctrlKey&&e.key.toLowerCase()==='v'){
+                e.preventDefault();const b=document.querySelector('#vb-voice>button');b?.focus();b?.scrollIntoView({block:'center'});
+              }else if(e.ctrlKey&&e.key==='Enter'&&document.activeElement?.closest('#vb-question')){
+                e.preventDefault();document.querySelector('#vb-analyze:not(:disabled)')?.click();
+              }
+            });window.vbKeyboardAccess=true;
+          }return [];
+        }""")
         larger.change(None,larger,[],js="(large) => {document.getElementById('vb-shell')?.classList.toggle('vb-large-text', large); return [];}",queue=False,api_visibility='private')
     atexit.register(model_sessions.close if model_sessions else session.close)
     return demo,session
@@ -261,6 +285,9 @@ def create_session(run_dir,backend='auto',model=None):
 
 if __name__=='__main__':
     import sys
+    import os
+    # Keep MAI uploads independent of BDA Gradio cache cleanup.
+    os.environ.setdefault('GRADIO_TEMP_DIR',str(ROOT/'outputs/gradio-cache'))
     if Path(sys.prefix).name!='.venv':raise RuntimeError('Use .venv for Gradio; the persistent worker uses .venv-gpu')
     p=argparse.ArgumentParser();p.add_argument('--run-dir',default='reports/phase4_policy/run-local-20261013-v1');p.add_argument('--port',type=int,default=7865)
     p.add_argument('--backend',choices=['auto','local','frozen'],default='auto')

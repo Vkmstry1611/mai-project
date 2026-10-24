@@ -349,3 +349,37 @@ to {
 #vb-model-choice .wrap { display:flex!important; flex-wrap:nowrap!important; gap:8px!important; }
 #vb-model-choice .wrap label { flex:1 1 0!important; white-space:nowrap; min-height:44px; border:1px solid #c5cbbb!important; border-radius:4px!important; padding:10px!important; background:#fbfaf6!important; }
 #vb-model-choice .wrap label:has(input:checked) { border-color:#254ddd!important; color:#254ddd!important; }
+
+/* Speech has its own feedback, review and explicit question insertion. */
+#vb-voice { scroll-margin-top:24px; }
+#vb-voice-status .status { margin:0!important; }
+#vb-recording { background:#fbfaf6!important; border:1px solid #c5cbbb!important; border-radius:6px!important; }
+#vb-recording button { min-height:44px!important; min-width:44px!important; }
+#vb-transcript { background:transparent!important; border:0!important; }
+#vb-transcript textarea { background:#fbfaf6!important; color:#232820!important; font-size:15px!important; line-height:1.6!important; }
+#vb-voice-actions { gap:8px!important; }
+#vb-voice-actions button { min-height:44px!important; font-size:12px!important; flex:1 1 130px!important; }
+#vb-use-voice { background:#254ddd!important; color:#fff!important; border:1px solid #254ddd!important; }
+#vb-voice-actions button:disabled { opacity:.45!important; cursor:not-allowed!important; }
+@media(max-width:500px) { #vb-voice-actions { flex-direction:column!important; } #vb-voice-actions button { flex:0 0 auto!important; width:100%!important; } }
+
+#vb-microphone-hint p { padding:10px 12px; background:#f0eadd; border-left:2px solid #9d8050; color:#6e5a37; font-size:12px; line-height:1.7; }
+
+/* Low-vision defaults: readable copy, strong contrast and generous targets. */
+#vb-skip { position:absolute!important; top:0; left:0; z-index:9999; padding:0!important; border:0!important; min-height:0!important; }
+#vb-shell .vb-note p { font-size:16px!important; line-height:1.7!important; color:#424c3e!important; }
+#vb-shell label,#vb-shell .block-label { font-size:16px!important; color:#303b2b!important; }
+#vb-shell button { min-height:48px!important; font-size:16px!important; }
+#vb-shell .vb-inset>button { font-size:17px!important; color:#303b2b!important; padding:16px!important; }
+#vb-shell input[type=checkbox],#vb-shell input[type=radio] { min-width:20px; min-height:20px; }
+#vb-shell #vb-access label,#vb-shell #vb-mute label { font-size:15px!important; line-height:1.5!important; }
+#vb-preferences { flex-basis:230px!important; min-width:230px!important; }
+#vb-shell #vb-recording button { font-size:18px!important; min-height:48px!important; }
+#vb-shell #vb-microphone-hint p { font-size:16px!important; color:#5c421e; }
+#vb-microphone-hint:not(:has(p)) { display:none!important; }
+#vb-shell #vb-model-choice label { font-size:16px!important; white-space:normal!important; }
+#vb-model-choice { flex-basis:330px!important; }
+#vb-shell #vb-answer textarea { color:#202d19!important; }
+#vb-shell #vb-copy-status { font-size:15px!important; }
+#vb-shell button:focus-visible,#vb-shell a:focus-visible,#vb-shell textarea:focus-visible,#vb-shell input:focus-visible { outline-width:3px!important; }
+@media(max-width:760px) { #vb-preferences { min-width:0!important; flex-basis:100%!important; } #vb-model-choice { flex-basis:100%!important; } }

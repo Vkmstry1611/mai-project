@@ -17,9 +17,14 @@ HTML_CSS='''
 LOGO='''<svg width="38" height="38" viewBox="0 0 38 38" fill="none" aria-hidden="true"><path d="M3 9V3h10M25 3h10v10M35 25v10H25M13 35H3V25" stroke="#254ddd" stroke-width="2"/><path d="m10 14 9 12 9-12M19 9v9" stroke="#254ddd" stroke-width="2"/></svg>'''
 BRAND=f'<a class="brand" href="#vb-workspace" style="text-decoration:none">{LOGO}<div><strong>VisionBridge<span style="color:#254ddd">.</span></strong><small>A DIFFERENT WAY TO SEE</small></div></a>'
 NAV='''<nav class="nav" aria-label="Workspace navigation"><a href="#vb-workspace">Workspace ↗</a><a href="#vb-evidence">Evidence</a><a href="#vb-guide">How it works</a></nav>'''
-HERO='''<header class="hero"><div><p class="eyebrow">THE VISUAL UNDERSTANDING WORKSPACE / 01</p><h1>A little more<br><em>clarity.</em></h1></div><p class="intro">From the everyday to the unfamiliar.<br>Bring an image. Ask a question.<br>Make sense of what’s in front of you.<span>PROCESSED ON YOUR COMPUTER</span></p></header>'''
+HERO='''<header class="hero"><div><p class="eyebrow">VISIONBRIDGE · YOUR VISUAL ASSISTANT</p><h1>A clearer <em>view.</em></h1></div><p class="intro">Upload or take a photo.<br>Ask by voice or text.<br>Read or listen to the answer.<span>PROCESSED ON YOUR COMPUTER</span></p></header>'''
 EMPTY_RESPONSE='<div class="response-empty"><span class="response-mark" aria-hidden="true">“</span><h3>A new perspective<br>starts here.</h3><p>Your answer will appear here. Ask about a detail, read a label, or explore the whole picture.</p></div>'
 EMPTY_EVIDENCE='<div class="empty-evidence">Your analysis has a paper trail. Extracted candidates and supporting regions will appear here when available.</div>'
+
+
+HTML_CSS+='''
+.nav{height:auto;min-height:44px;flex-wrap:wrap;gap:20px}.nav a{font-size:16px;color:#424c3e}.hero{padding:28px 0;align-items:center}.hero h1{font-size:clamp(38px,5vw,60px);letter-spacing:-2px}.hero .intro{font-size:17px;color:#424c3e;line-height:1.7}.eyebrow{font-size:12px;color:#505c49}.section h2{font-size:20px}.section p{font-size:16px;color:#424c3e}.number{font-size:13px}.status strong{font-size:17px}.status p{font-size:16px;color:#424c3e}.response-empty p,.empty-evidence{font-size:16px;color:#424c3e}.guide p{font-size:16px;color:#424c3e}.chip{font-size:13px;color:#3c5031}.skip-links a{position:absolute;top:-9999px;left:16px;background:#232820;color:white;padding:16px;z-index:9999;text-decoration:underline;font-size:18px}.skip-links a:focus{top:12px;outline:3px solid #254ddd;outline-offset:3px}.skip-links a:nth-child(2){left:220px}@media(max-width:760px){.hero{gap:16px;align-items:flex-start}.hero h1{margin-top:8px}.hero .intro{max-width:none}.guide{gap:16px}.nav{gap:16px}.skip-links a:nth-child(2){left:16px}.skip-links a:nth-child(2):focus{top:78px}}
+'''
 
 
 def section(number,title,subtitle=''):
