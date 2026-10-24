@@ -5,7 +5,7 @@ from tempfile import TemporaryDirectory
 
 def run_models(image_bytes, filename, question, endpoints):
     """Return one result per requested model; each app captures its own event."""
-    from gradio_client import Client
+    from gradio_client import Client, handle_file
 
     suffix = Path(filename).suffix.lower()
     if suffix not in {".jpg", ".jpeg", ".png", ".webp"}:
@@ -17,7 +17,7 @@ def run_models(image_bytes, filename, question, endpoints):
         for model, url in endpoints.items():
             try:
                 outputs = Client(url, verbose=False).predict(
-                    str(image_path), question, True, "VisionBridge Assistant", "0",
+                    handle_file(image_path), question, True, "VisionBridge Assistant", "0",
                     api_name="/analyze",
                 )
                 answer = str(outputs[0] or "").strip()

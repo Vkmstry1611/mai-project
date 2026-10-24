@@ -12,13 +12,17 @@ def test_run_models_uses_one_input_for_both(monkeypatch):
         def __init__(self, url, verbose=False):
             self.url = url
 
-        def predict(self, image_path, question, muted, override, angle, api_name):
+        def predict(self, image, question, muted, override, angle, api_name):
             from pathlib import Path
-            calls.append((self.url, Path(image_path).read_bytes(), question, muted,
+            calls.append((self.url, Path(image["path"]).read_bytes(), question, muted,
                           override, angle, api_name))
             return (self.url, None, None, {}, None, None, {"callback_seconds": 1.0})
 
-    monkeypatch.setitem(sys.modules, "gradio_client", SimpleNamespace(Client=Client))
+    def handle_file(path):
+        return {"path": str(path), "meta": {"_type": "gradio.FileData"}}
+
+    monkeypatch.setitem(sys.modules, "gradio_client",
+                        SimpleNamespace(Client=Client, handle_file=handle_file))
     result = run_models(b"same image", "sample.jpg", "What is shown?",
                         {"Qwen": "http://qwen", "BLIP": "http://blip"})
     assert [row["model"] for row in result] == ["Qwen", "BLIP"]
