@@ -64,11 +64,13 @@ the VM and Windows. Streamlit's `AppTest` rendered the dashboard title with
 zero exceptions. The real data views will populate after paired app requests
 are captured and ingested.
 
-To ask a question inside this page, start the inference app on Windows with a
-LAN-accessible Gradio address, then open the **Ask VisionBridge** tab. The
-default assistant URL is `http://192.168.1.83:7865`; edit it on the page if
-the Windows IP changes. The Gradio app stays on Windows because its model
-runtime and weights are installed there:
+To ask a question inside this page, open the **Ask VisionBridge** tab and
+select **Qwen** or **BLIP**. These are separate Gradio services on the Windows
+machine, where their model runtimes and weights are installed. The default
+URLs are `http://192.168.1.83:7865` for Qwen and
+`http://192.168.1.83:7866` for BLIP; edit the selected URL on the page if
+the Windows IP changes. Start each service in its own Windows PowerShell
+window:
 
 ```powershell
 $env:GRADIO_SERVER_NAME = '0.0.0.0'
@@ -76,11 +78,22 @@ $env:VISIONBRIDGE_BDA_RUN_ID = 'qwen-demo-v1'
 .\.venv\Scripts\python.exe launch_workspace.py --backend local --port 7865
 ```
 
-Use the same `GRADIO_SERVER_NAME` setting with `--backend frozen` for a BLIP
-run. The embedded assistant captures answers on Windows; transfer the spool
-and run `bda/vm_pipeline.sh` to refresh VM analytics. If the embedded view
-does not load, use its **Open assistant in its own tab** button to check the
-Windows app directly.
+```powershell
+$env:GRADIO_SERVER_NAME = '0.0.0.0'
+$env:VISIONBRIDGE_BDA_RUN_ID = 'blip-demo-v1'
+.\.venv\Scripts\python.exe launch_workspace.py --backend frozen --port 7866
+```
+
+The embedded assistant captures answers on Windows. The VM dashboard reads
+its own spool and MongoDB, so new requests appear there only after transfer
+and import. For a quick local capture transfer, copy the Windows
+`reports/bda/spool/events` and `reports/bda/spool/images` directories into
+`/home/admin/Desktop/BDA/project/spool/` on the primary VM. Then run
+`/usr/bin/python3 -m bda.ingest --spool spool --hdfs-root /visionbridge/raw
+--mongo-uri mongodb://localhost:27017 --database visionbridge_bda` from the
+VM project directory. Run `bda/vm_pipeline.sh` after both model runs to
+refresh Spark analytics. If an embedded view does not load, use its
+**Open assistant in its own tab** button to check that model directly.
 
 ## 1. Capture both runs on the laptop
 
@@ -95,11 +108,11 @@ $env:VISIONBRIDGE_BDA_RUN_ID = 'qwen-demo-v1'
 .\.venv\Scripts\python.exe launch_workspace.py --backend local --port 7865
 ```
 
-Stop the app before switching backends. In a new terminal:
+In a second terminal:
 
 ```powershell
 $env:VISIONBRIDGE_BDA_RUN_ID = 'blip-demo-v1'
-.\.venv\Scripts\python.exe launch_workspace.py --backend frozen --port 7865
+.\.venv\Scripts\python.exe launch_workspace.py --backend frozen --port 7866
 ```
 
 Set `VISIONBRIDGE_BDA_SPOOL` to change the spool directory. Every request has

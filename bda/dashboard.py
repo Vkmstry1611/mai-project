@@ -13,19 +13,25 @@ from bda.dashboard_data import read_mongo, read_spool, summarize
 def assistant_panel():
     st.subheader("Ask VisionBridge")
     st.caption("Upload an image and ask a question in the assistant below. The model runs on your Windows machine.")
+    model = st.radio("Model", ["Qwen", "BLIP"], horizontal=True,
+                     help="Select the model that will answer your image question.")
+    default_url = (os.getenv("VISIONBRIDGE_QWEN_URL", "http://192.168.1.83:7865")
+                   if model == "Qwen" else
+                   os.getenv("VISIONBRIDGE_BLIP_URL", "http://192.168.1.83:7866"))
     url = st.text_input("VisionBridge assistant URL",
-                        value=os.getenv("VISIONBRIDGE_APP_URL", "http://192.168.1.83:7865"),
-                        help="Use the Windows machine's LAN address and the port shown when VisionBridge starts.")
+                        value=default_url, key=f"assistant_url_{model.lower()}",
+                        help="Use the Windows machine's LAN address and the selected model's port.")
     url = url.strip().rstrip("/")
     parsed = urlparse(url)
     if parsed.scheme not in {"http", "https"} or not parsed.netloc:
         st.error("Enter a full http:// or https:// assistant URL.")
         return
-    st.link_button("Open assistant in its own tab", url)
+    st.caption(f"Selected model: {model}. Requests from this assistant are captured with its run ID.")
+    st.link_button(f"Open {model} assistant in its own tab", url)
     iframe = getattr(st, "iframe", components.iframe)
     iframe(url, height=1100)
     with st.expander("If the assistant does not load"):
-        st.write("Start VisionBridge on Windows with GRADIO_SERVER_NAME set to 0.0.0.0, then use that machine's LAN address above. The assistant must stay running while you use this page.")
+        st.write("Start the selected VisionBridge model on Windows with GRADIO_SERVER_NAME set to 0.0.0.0, then use that machine's LAN address above. The assistant must stay running while you use this page.")
         st.write("New answers are captured on Windows. Transfer the capture spool to the VM and run the BDA pipeline to update the analytics tab.")
 
 
@@ -40,7 +46,7 @@ def analytics_panel():
         st.error(f"Could not read {source}: {error}")
         return
     if not events:
-        st.info("No requests found. Ask VisionBridge a question, then refresh this dashboard. The VM pipeline can be run later.")
+        st.info("No requests are stored in this VM data source yet. Ask a question, transfer the Windows capture spool to the VM, then refresh. Run the VM pipeline to add HDFS and Spark results.")
         return
     choices = sorted({str(row.get("run_id") or "unknown") for row in events})
     selected = st.sidebar.multiselect("Run ID", choices, default=choices)
