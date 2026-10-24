@@ -36,7 +36,7 @@ def build_app(run_dir,session=None,model_sessions=None):
         session=create_session(run_dir)
     controller=WorkspaceController(session)
     if model_sessions is not None:
-        from workspace_models import BLIP, QWEN
+        from workspace_models import BLIP
     def html(value,**kwargs):return gr.HTML(value,css_template=HTML_CSS,**kwargs)
     with gr.Blocks(title='VisionBridge — visual assistant workspace',analytics_enabled=False,delete_cache=(3600,3600)) as demo:
         prior=gr.State({'workspace_model':model_sessions.default} if model_sessions else None,time_to_live=3600)
@@ -51,8 +51,8 @@ def build_app(run_dir,session=None,model_sessions=None):
                 html(HERO)
                 if model_sessions is not None:
                     with gr.Row(elem_id='vb-model-bar'):
-                        model_choice=gr.Dropdown(model_sessions.choices,value=model_sessions.default,label='Answer model',interactive=True,allow_custom_value=False,elem_id='vb-model-choice',scale=1,min_width=220)
-                        html('<p class="model-help"><strong>Choose your perspective.</strong> BLIP v2 uses your trained visual Q&amp;A and OCR pipeline. Qwen handles broader image questions. Switching clears the response and conversation; your image and draft stay.</p>')
+                        model_choice=gr.Radio(model_sessions.choices,value=model_sessions.default,label='Answer model',interactive=True,elem_id='vb-model-choice',scale=1,min_width=260)
+                        html('<p class="model-help" style="font-size:12px;line-height:1.7;color:#73776c"><strong>Choose your perspective.</strong> BLIP v2 uses your trained visual Q&amp;A and OCR pipeline. Qwen handles broader image questions. Switching clears the response and conversation; your image and draft stay.</p>')
                 with gr.Row(elem_id='vb-workspace',equal_height=True):
                     with gr.Column(scale=6,min_width=300,elem_classes='vb-card',elem_id='vb-input-card'):
                         html(section('01','The image','Your starting point. Upload a photo or use your camera.'))
