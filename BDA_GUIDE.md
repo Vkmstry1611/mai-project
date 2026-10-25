@@ -46,7 +46,10 @@ Whisper and text-to-speech modules handle speech. The stored request contains
 the reviewed text; temporary recording bytes are not saved to HDFS or MongoDB.
 
 Browsers can restrict microphones on the VM's plain HTTP LAN address. Upload
-a WAV recording instead, or open the dashboard through a localhost tunnel:
+a WAV recording instead, or open the dashboard through a localhost tunnel.
+The dashboard now hides the recorder on the LAN address and shows a link to
+the microphone-ready localhost page, avoiding Streamlit's generic recording
+error:
 
 ```powershell
 ssh -N -L 127.0.0.1:8501:127.0.0.1:8501 admin@192.168.1.4

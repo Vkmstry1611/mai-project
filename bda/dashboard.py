@@ -22,6 +22,14 @@ def valid_url(url):
     return parsed.scheme in {"http", "https"} and bool(parsed.netloc)
 
 
+def microphone_origin_available(page_url):
+    """Browsers permit recording on HTTPS and loopback HTTP origins."""
+    if not page_url:
+        return True  # Streamlit's AppTest has no browser URL.
+    parsed = urlparse(page_url)
+    return parsed.scheme == "https" or parsed.hostname in {"localhost", "127.0.0.1", "::1"}
+
+
 def assistant_panel():
     st.subheader("Ask VisionBridge")
     st.caption("Upload an image, ask a question, and choose which model answers.")
@@ -36,7 +44,15 @@ def assistant_panel():
         st.error("Enter a full http:// or https:// URL for each selected model in Connection settings.")
         return
     with st.expander("🎙️ Speak your question (optional)"):
-        recorded = st.audio_input("Record your question")
+        page_url = getattr(st.context, "url", None)
+        if microphone_origin_available(page_url):
+            recorded = st.audio_input("Record your question")
+        else:
+            recorded = None
+            st.info("Microphone recording needs a secure browser address. Open this dashboard at "
+                    "http://127.0.0.1:8501 in Chrome or Edge, then allow microphone access. "
+                    "Keep the SSH tunnel running. You can still upload a WAV recording here.")
+            st.link_button("Open microphone-ready page", "http://127.0.0.1:8501/")
         uploaded_audio = st.file_uploader("Or upload a WAV recording", type=["wav"], key="question_audio")
         audio_input = recorded or uploaded_audio
         if st.button("Use spoken question", disabled=audio_input is None):
@@ -48,7 +64,7 @@ def assistant_panel():
                 st.success("Transcript added below. You can edit it before asking.")
             except Exception as error:
                 st.error(f"Could not transcribe the recording: {error}")
-        st.caption("If your browser cannot use the microphone here, upload a WAV recording or type your question.")
+        st.caption("If recording is unavailable, upload a WAV recording or type your question.")
     with st.form("visionbridge_question"):
         photo = st.file_uploader("Image", type=["jpg", "jpeg", "png", "webp"])
         question = st.text_area("Question", max_chars=1000, key="question_text",
