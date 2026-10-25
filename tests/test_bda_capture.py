@@ -1,7 +1,9 @@
 import json
+import pytest
 
 from PIL import Image
 
+import bda.capture as capture_module
 from bda.capture import capture_request
 from bda.prepare_labels import prepare
 
@@ -44,3 +46,16 @@ def test_capture_explicit_run_id(tmp_path):
     path = capture_request(Image.new("RGB", (8, 8), "red"), "What color?", "red",
                            {"backend": "ollama"}, {}, root=tmp_path, run_id="qwen-demo-v1")
     assert json.loads(path.read_text(encoding="utf-8"))["run_id"] == "qwen-demo-v1"
+
+
+def test_failed_event_write_never_publishes_incomplete_json(tmp_path, monkeypatch):
+    def interrupted_dump(value, output, **kwargs):
+        output.write('{"request_id":')
+        raise OSError("interrupted write")
+
+    monkeypatch.setattr(capture_module.json, "dump", interrupted_dump)
+    with pytest.raises(OSError, match="interrupted write"):
+        capture_request(Image.new("RGB", (8, 8), "red"), "What color?", "red",
+                        {"backend": "ollama"}, {}, root=tmp_path,
+                        request_id="interrupted")
+    assert list((tmp_path / "events").iterdir()) == []

@@ -5,6 +5,7 @@ from io import BytesIO
 import json
 import os
 from pathlib import Path
+import tempfile
 from uuid import uuid4
 
 from PIL import ImageOps
@@ -12,6 +13,15 @@ from PIL import ImageOps
 
 def _jsonable(value):
     return json.loads(json.dumps(value, default=str, ensure_ascii=False))
+
+
+def _sync_directory(directory):
+    if os.name == "posix":
+        handle = os.open(directory, os.O_RDONLY)
+        try:
+            os.fsync(handle)
+        finally:
+            os.close(handle)
 
 
 def image_and_pair_id(image, question):
@@ -62,12 +72,36 @@ def capture_request(image, question, answer, details, timings, *, root=None, req
         if details.get(field):
             event[field] = str(details[field])
     image_path = images / f"{image_sha}.jpg"
-    try:
-        with image_path.open("xb") as output:
-            output.write(image_bytes)
-    except FileExistsError:
-        pass
+    if not image_path.is_file() or image_path.read_bytes() != image_bytes:
+        handle, name = tempfile.mkstemp(suffix=".tmp", prefix=f".{image_sha}-", dir=images)
+        temporary_image = Path(name)
+        try:
+            with os.fdopen(handle, "wb") as output:
+                output.write(image_bytes)
+                output.flush()
+                os.fsync(output.fileno())
+            os.replace(temporary_image, image_path)
+            _sync_directory(images)
+        finally:
+            temporary_image.unlink(missing_ok=True)
     event_path = events / f"{request_id}.json"
-    with event_path.open("x", encoding="utf-8") as output:
-        json.dump(event, output, ensure_ascii=False)
+    # Publish a complete, durable record in one filesystem operation. Writing
+    # directly to the final .json path can leave an empty file after a VM reset.
+    handle, name = tempfile.mkstemp(suffix=".tmp", prefix=f".{request_id}-", dir=events)
+    temporary = Path(name)
+    try:
+        with os.fdopen(handle, "w", encoding="utf-8") as output:
+            json.dump(event, output, ensure_ascii=False)
+            output.flush()
+            os.fsync(output.fileno())
+        if os.name == "nt":
+            # Windows may deny hard links to files created by mkstemp.
+            if event_path.exists():
+                raise FileExistsError(event_path)
+            os.replace(temporary, event_path)
+        else:
+            os.link(temporary, event_path)  # fails if an immutable ID exists
+        _sync_directory(events)
+    finally:
+        temporary.unlink(missing_ok=True)
     return event_path

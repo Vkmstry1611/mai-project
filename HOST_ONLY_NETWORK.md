@@ -37,6 +37,23 @@ same addresses on every Wi-Fi network.
   reliably than the previous 6 GB per VM allocation. Heavy model inference
   can still compete for memory; close unrelated Windows apps for a demo.
 
+## Recovery after an interrupted run
+
+On 25 October, the primary VM stopped responding during a Spark refresh. An
+approved reset restored SSH and the dashboard. All **19 saved MongoDB
+requests** survived. Two zero-byte local JSON files were restored from those
+MongoDB records; one additional zero-byte file had no MongoDB or HDFS copy and
+represented an interrupted capture. The originals are preserved under
+`spool/quarantine/` on the primary. No HDFS blocks were missing. The next Spark
+refresh completed with 19 valid requests, 18 curated requests and 6 matched
+BLIP/Qwen pairs.
+
+The primary now has a persistent **2 GB swap file** at `/swapfile` to give its
+4 GB RAM allocation more room during Spark jobs. Request images and JSON are
+published atomically by `bda/capture.py` so an interrupted write cannot leave
+an empty final event file. A model request that had not completed before a VM
+failure may still need to be submitted again.
+
 ## Reapply guest configuration if rebuilding a VM
 
 The reusable script is `bda/configure_vm_hostonly.sh`. Copy it to each guest
