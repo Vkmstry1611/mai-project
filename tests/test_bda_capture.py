@@ -38,3 +38,9 @@ def test_prepared_labels_match_captured_pair(tmp_path):
     output = tmp_path / "labels.jsonl"
     assert prepare(source, output) == 1
     assert json.loads(output.read_text())["pair_id"] == json.loads(event_path.read_text())["pair_id"]
+
+
+def test_capture_explicit_run_id(tmp_path):
+    path = capture_request(Image.new("RGB", (8, 8), "red"), "What color?", "red",
+                           {"backend": "ollama"}, {}, root=tmp_path, run_id="qwen-demo-v1")
+    assert json.loads(path.read_text(encoding="utf-8"))["run_id"] == "qwen-demo-v1"

@@ -1,8 +1,12 @@
 # VisionBridge BDA branch
 
+For the complete architecture, measured results, demonstration commands and
+technical marking check, see [BDA_RUBRIC_EVIDENCE.md](BDA_RUBRIC_EVIDENCE.md).
+
 This branch captures live VisionBridge requests and prepares a distributed
-analysis of **BLIP and Qwen runs on the same image/question pairs**. The app
-still answers locally; HDFS, MongoDB and Spark are run later on the three VMs.
+analysis of **BLIP and Qwen runs on the same image/question pairs**. The models
+still answer on Windows. Streamlit saves each submission immediately on the
+primary VM, and a background service refreshes HDFS and Spark on the cluster.
 No VM credential is embedded in the repository.
 
 ## Current VM layout
@@ -10,22 +14,20 @@ No VM credential is embedded in the repository.
 The primary VM is `192.168.1.4` (`admin`), with workers
 `192.168.1.2` and `192.168.1.5`. The BDA scripts are deployed to
 `/home/admin/Desktop/BDA/project` on the primary VM. The folder name is
-case-sensitive. HDFS and YARN each report two live workers as of October 24,
+case-sensitive. HDFS and YARN each report two live workers as of October 25,
 2026. Inference remains on the Windows laptop; only captures and analytics
 need to move to the VM.
 
-## BDA dashboard and Docker before the VM stage
+## BDA dashboard and Docker
 
-The Python Streamlit dashboard runs in Docker with MongoDB. It can read the
-local capture spool immediately; the MongoDB view becomes available after an
-import. This container is the BDA analytics application. BLIP/Qwen inference
-remains in the existing laptop application and is not included in this image.
+The Python Streamlit dashboard runs in Docker with MongoDB. The VM deployment
+writes each model result to its local spool and MongoDB as soon as it finishes.
+BLIP/Qwen inference remains on Windows and is not included in this image.
 
-From the repository root after at least one captured request:
+For a standalone local Docker setup, run:
 
 ```powershell
 docker compose -f compose.bda.yaml up -d --build mongo dashboard
-docker compose -f compose.bda.yaml run --rm import
 ```
 
 Open `http://localhost:8501`. The **Ask VisionBridge** tab has one Streamlit
@@ -34,20 +36,17 @@ contains the captured results. Select
 **Local capture** or **MongoDB** in the sidebar. The dashboard shows actual
 request counts, routes, OCR coverage, abstention, timing, individual records
 and matched BLIP/Qwen answers. It labels answer disagreement separately from
-accuracy. Repeat `run --rm import` after
-new captures; MongoDB upserts by `request_id`.
+accuracy. The analytics tab refreshes every five seconds while open.
 
-The dashboard's optional **Cluster evaluation** section expects a real Spark
-summary exported from HDFS into `bda-data/analytics/matched_score_summary.json`.
-After the VM job runs, use `hdfs dfs -getmerge` on the VM to export the Spark
-part files, then copy the resulting JSON to that ignored local path. Until
-then the dashboard clearly shows that no cluster score is available.
+The **Cluster evaluation** section shows the background job's status and the
+latest Spark run summary. An official VQA score appears only when VizWiz labels
+and scoring rules were supplied; model disagreement is not an accuracy score.
 
 ### Dashboard running on the primary VM
 
 The primary VM has a built `visionbridge-bda-dashboard` Docker image and a
 running container with the same name. It uses host networking to reach the
-existing `mongodb` container on port 27017, mounts `spool` read-only at
+existing `mongodb` container on port 27017, mounts `spool` read-write at
 `/data/spool`, and mounts `bda-data/analytics` read-only at `/data/analytics`.
 Open `http://192.168.1.4:8501` from Windows. After a VM reboot, check both
 containers and start them if needed:
@@ -55,6 +54,7 @@ containers and start them if needed:
 ```bash
 sudo docker ps --format '{{.Names}} {{.Status}}'
 sudo docker start mongodb visionbridge-bda-dashboard
+systemctl status visionbridge-bda-refresh.service --no-pager
 curl --fail http://127.0.0.1:8501/_stcore/health
 ```
 
@@ -92,9 +92,15 @@ to the Windows capture spool; the events share a pair ID and have distinct
 run IDs. A model error is displayed for that model while the other model's
 result is preserved. A disagreement between answers is not an accuracy score.
 
-The model services capture answers on Windows. The VM dashboard reads
-its own spool and MongoDB, so new requests appear there only after transfer
-and import. For a quick local capture transfer, copy the Windows
+Each submission from the Streamlit page also creates a VM capture event and
+upserts MongoDB immediately. The enabled `visionbridge-bda-refresh.service`
+detects new events, imports them into HDFS, runs the YARN Spark analysis, and
+exports `bda-data/analytics/cluster_summary.json`. The dashboard shows
+**pending**, **running**, **complete**, or **error** while the cluster refreshes.
+No manual transfer or request to rerun analytics is needed for this page.
+
+The separate Gradio pages still capture on Windows. If using those pages
+directly rather than the Streamlit page, copy the Windows
 `reports/bda/spool/events` and `reports/bda/spool/images` directories into
 `/home/admin/Desktop/BDA/project/spool/` on the primary VM. Then run
 `/usr/bin/python3 -m bda.ingest --spool spool --hdfs-root /visionbridge/raw
@@ -102,7 +108,7 @@ and import. For a quick local capture transfer, copy the Windows
 VM project directory. Run `bda/vm_pipeline.sh` after both model runs to
 refresh Spark analytics.
 
-## 1. Capture both runs on the laptop
+## 1. Capture directly on the laptop (optional)
 
 Run the app twice, once with `--backend local` and once with `--backend frozen`.
 The latter needs the existing private Phase 4 runtime. Ask the **same exact
@@ -135,7 +141,7 @@ valid image/question are captured with `status: error` for failure-rate analysis
 retains submitted images and questions for BDA analysis. Do not put the spool,
 dataset, private checkpoints or MongoDB credentials into Git.
 
-## 2. Transfer and ingest on a VM
+## 2. Transfer captures made outside Streamlit (optional)
 
 Copy the `spool` directory from Windows into the primary VM's project folder
 after actual app requests have been captured. From PowerShell in the Windows

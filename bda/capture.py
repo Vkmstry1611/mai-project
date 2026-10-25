@@ -25,8 +25,9 @@ def image_and_pair_id(image, question):
     return image_bytes, image_sha, pair_id
 
 
-def capture_request(image, question, answer, details, timings, *, root=None, request_id=None):
-    """Write an image and matching JSON atomically; return the event path.
+def capture_request(image, question, answer, details, timings, *, root=None, request_id=None,
+                    run_id=None):
+    """Write an image and matching JSON; return the event path.
 
     The request path is local spool storage. VM ingestion copies it to HDFS and
     MongoDB. This function never sends a request over the network.
@@ -42,7 +43,7 @@ def capture_request(image, question, answer, details, timings, *, root=None, req
     model = str(details.get("model") or timings.get("local_vision_model") or
                 os.getenv("VISIONBRIDGE_BDA_MODEL", "blip-vizwiz-v2"))
     backend = str(details.get("backend") or ("ollama" if details.get("answer_source") == "local_vision_model" else "blip"))
-    run_id = os.getenv("VISIONBRIDGE_BDA_RUN_ID") or backend + ":" + model
+    run_id = run_id or os.getenv("VISIONBRIDGE_BDA_RUN_ID") or backend + ":" + model
     evidence = details.get("evidence") or details.get("selected_evidence") or []
     route = (details.get("assistant_trace") or {}).get("route") or (details.get("workspace_routing") or {}).get("task") or "vqa"
     event = {

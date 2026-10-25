@@ -19,7 +19,7 @@ services:
       VISIONBRIDGE_BDA_SPOOL: /data/spool
       VISIONBRIDGE_SPARK_SUMMARY: /data/analytics/matched_score_summary.json
     volumes:
-      - ./reports/bda/spool:/data/spool:ro
+      - ./reports/bda/spool:/data/spool
       - ./bda-data/analytics:/data/analytics:ro
     depends_on:
       mongo:

@@ -7,6 +7,7 @@ from urllib.parse import urlparse
 import streamlit as st
 
 from bda.dashboard_data import read_mongo, read_spool, summarize
+from bda.live_store import store_result
 from bda.model_dispatch import run_models
 
 
@@ -42,11 +43,24 @@ def assistant_panel():
         if photo is None or not question.strip():
             st.error("Upload an image and enter a question.")
         else:
+            image_bytes = photo.getvalue()
+            spool = os.getenv("VISIONBRIDGE_BDA_SPOOL", "reports/bda/spool")
+            mongo_uri = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
+            run_ids = {"Qwen": os.getenv("VISIONBRIDGE_QWEN_RUN_ID", "qwen-demo-v1"),
+                       "BLIP": os.getenv("VISIONBRIDGE_BLIP_RUN_ID", "blip-demo-v1")}
+            results = []
             with st.spinner(f"Running {model}…"):
-                st.session_state["last_results"] = run_models(
-                    photo.getvalue(), photo.name, question.strip(), endpoints,
-                )
-                st.session_state["last_input"] = (photo.name, question.strip(), model)
+                for name, url in endpoints.items():
+                    result = run_models(image_bytes, photo.name, question.strip(), {name: url})[0]
+                    try:
+                        event = store_result(image_bytes, question.strip(), result, spool,
+                                             mongo_uri, run_ids=run_ids)
+                        result["stored_request_id"] = event["request_id"]
+                    except Exception as error:
+                        result["storage_error"] = str(error)
+                    results.append(result)
+            st.session_state["last_results"] = results
+            st.session_state["last_input"] = (photo.name, question.strip(), model)
     if "last_results" in st.session_state:
         filename, previous_question, previous_model = st.session_state["last_input"]
         st.caption(f"Last run · {previous_model} · {filename} · {previous_question}")
@@ -58,15 +72,24 @@ def assistant_panel():
                     st.write(result["answer"])
                 else:
                     st.error(result.get("error") or "The model did not return an answer. Check its service and request record.")
+                if result.get("storage_error"):
+                    st.warning(f"Could not confirm storage: {result['storage_error']}")
+                elif result.get("stored_request_id"):
+                    st.caption(f"Saved request {result['stored_request_id'][:12]} · HDFS/Spark refresh queued")
                 with st.expander("Processing details"):
                     st.json(result["details"])
                     st.json(result["timings"])
-        st.caption("Each model captures its own request on Windows. Transfer the spool and import it to update VM analytics, MongoDB, and HDFS.")
+        st.caption("Each result is saved on the VM immediately. HDFS and Spark refresh in the background.")
 
 
 def analytics_panel():
     st.caption("Request evidence and matched BLIP/Qwen comparisons. Accuracy is shown only after labelled Spark evaluation.")
     source = st.sidebar.radio("Data source", ["Local capture", "MongoDB"], index=0)
+    analytics_results(source)
+
+
+@st.fragment(run_every="5s")
+def analytics_results(source):
     spool = os.getenv("VISIONBRIDGE_BDA_SPOOL", "reports/bda/spool")
     uri = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
     try:
@@ -75,10 +98,10 @@ def analytics_panel():
         st.error(f"Could not read {source}: {error}")
         return
     if not events:
-        st.info("No requests are stored in this VM data source yet. Ask a question, transfer the Windows capture spool to the VM, then refresh. Run the VM pipeline to add HDFS and Spark results.")
+        st.info("No requests are stored yet. Submit an image question in Ask VisionBridge.")
         return
     choices = sorted({str(row.get("run_id") or "unknown") for row in events})
-    selected = st.sidebar.multiselect("Run ID", choices, default=choices)
+    selected = st.multiselect("Run ID", choices, default=choices)
     rows = [row for row in events if str(row.get("run_id") or "unknown") in selected]
     summary = summarize(rows)
     a, b, c, d = st.columns(4)
@@ -103,8 +126,44 @@ def analytics_panel():
         ids = [row["request_id"] for row in rows]
         chosen = st.selectbox("Request ID", ids)
         st.json(next(row for row in rows if row["request_id"] == chosen))
-    spark_summary = Path(os.getenv("VISIONBRIDGE_SPARK_SUMMARY", "bda-data/analytics/matched_score_summary.json"))
     st.subheader("Cluster evaluation")
+    status_path = Path(os.getenv("VISIONBRIDGE_PIPELINE_STATUS", "bda-data/analytics/pipeline_status.json"))
+    summary_path = Path(os.getenv("VISIONBRIDGE_CLUSTER_SUMMARY", "bda-data/analytics/cluster_summary.json"))
+    if status_path.is_file():
+        try:
+            status = json.loads(status_path.read_text(encoding="utf-8"))
+            state = status.get("state")
+            processed = status.get("event_count", 0)
+            if state == "running":
+                st.info(f"Spark refresh running for {processed} requests.")
+            elif state == "complete" and processed >= len(events):
+                st.success(f"Spark is up to date for {processed} requests.")
+            elif state == "error":
+                st.error(f"Spark refresh failed: {status.get('error', 'unknown error')}")
+            else:
+                st.info(f"Spark refresh pending: {len(events)} captured, {processed} processed.")
+        except (OSError, ValueError) as error:
+            st.error(f"Could not read pipeline status: {error}")
+    else:
+        st.info("Spark refresh has not run yet.")
+    if summary_path.is_file():
+        try:
+            cluster = json.loads(summary_path.read_text(encoding="utf-8"))
+            st.caption(f"Last cluster refresh: {cluster.get('refreshed_at_utc', 'unknown')}")
+            st.dataframe(cluster.get("runs", []), use_container_width=True, hide_index=True)
+        except (OSError, ValueError) as error:
+            st.error(f"Could not read Spark summary: {error}")
+    dataset_path = Path(os.getenv("VISIONBRIDGE_DATASET_AUDIT", "bda-data/analytics/dataset_audit.json"))
+    if dataset_path.is_file():
+        try:
+            dataset = json.loads(dataset_path.read_text(encoding="utf-8"))
+            st.subheader("Distributed VizWiz annotations")
+            st.caption(f"{dataset.get('total_rows', 0):,} annotation rows across "
+                       f"{dataset.get('partitions', 0)} HDFS data partitions")
+            st.dataframe(dataset.get("by_split", []), use_container_width=True, hide_index=True)
+        except (OSError, ValueError) as error:
+            st.error(f"Could not read dataset audit: {error}")
+    spark_summary = Path(os.getenv("VISIONBRIDGE_SPARK_SUMMARY", "bda-data/analytics/matched_score_summary.json"))
     if spark_summary.is_file():
         st.caption("Imported Spark output from the VM cluster")
         try:
