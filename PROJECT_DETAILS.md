@@ -65,6 +65,7 @@ The Windows model services must be running for inference. The VM terminal report
 ```powershell
 $env:GRADIO_SERVER_NAME = '0.0.0.0'
 $env:VISIONBRIDGE_BDA_RUN_ID = 'qwen-demo-v1'
+$env:VISIONBRIDGE_OLLAMA_KEEP_ALIVE = '0'
 .\.venv\Scripts\python.exe launch_workspace.py --backend local --port 7865
 ```
 

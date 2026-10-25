@@ -99,7 +99,8 @@ class LocalVisionSession:
         messages.append({'role': 'user', 'content': question.strip(),
                          'images': [base64.b64encode(stream.getvalue()).decode('ascii')]})
         payload = {'model': self.model, 'messages': messages,
-                           'stream': False, 'think': False, 'keep_alive': '15m',
+                           'stream': False, 'think': False,
+                           'keep_alive': os.getenv('VISIONBRIDGE_OLLAMA_KEEP_ALIVE', '15m'),
                            'options': {'temperature': 0, 'num_ctx': 8192, 'num_predict': 2048}}
         result = post_json('/api/chat', payload)
         answer = result.get('message', {}).get('content', '').strip()

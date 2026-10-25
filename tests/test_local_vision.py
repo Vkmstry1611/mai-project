@@ -50,6 +50,15 @@ def test_followups_are_scoped_to_current_image_and_browser(monkeypatch):
     assert len(calls[-1]['messages'])==2
 
 
+def test_model_keep_alive_can_be_disabled_for_low_memory_bda_host(monkeypatch):
+    calls = []
+    monkeypatch.setenv('VISIONBRIDGE_OLLAMA_KEEP_ALIVE', '0')
+    monkeypatch.setattr(local_vision, 'post_json',
+                        lambda path, payload: (calls.append(payload) or response()))
+    local_vision.LocalVisionSession().request(Image.new('RGB', (20, 20)), 'What is shown?')
+    assert calls[0]['keep_alive'] == '0'
+
+
 def test_empty_response_is_application_error_not_model_abstention(monkeypatch):
     monkeypatch.setattr(local_vision,'post_json',lambda *args:response(''))
     with pytest.raises(local_vision.LocalVisionError,match='empty response'):

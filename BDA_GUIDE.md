@@ -115,6 +115,7 @@ window:
 ```powershell
 $env:GRADIO_SERVER_NAME = '0.0.0.0'
 $env:VISIONBRIDGE_BDA_RUN_ID = 'qwen-demo-v1'
+$env:VISIONBRIDGE_OLLAMA_KEEP_ALIVE = '0'
 .\.venv\Scripts\python.exe launch_workspace.py --backend local --port 7865
 ```
 
@@ -156,6 +157,7 @@ JPEG under `reports/bda/spool/images/`. Those paths are ignored by Git.
 
 ```powershell
 $env:VISIONBRIDGE_BDA_RUN_ID = 'qwen-demo-v1'
+$env:VISIONBRIDGE_OLLAMA_KEEP_ALIVE = '0'
 .\.venv\Scripts\python.exe launch_workspace.py --backend local --port 7865
 ```
 

@@ -53,6 +53,9 @@ The primary now has a persistent **2 GB swap file** at `/swapfile` to give its
 published atomically by `bda/capture.py` so an interrupted write cannot leave
 an empty final event file. A model request that had not completed before a VM
 failure may still need to be submitted again.
+The Windows Qwen service is launched with `VISIONBRIDGE_OLLAMA_KEEP_ALIVE=0`,
+so Ollama releases its model after an answer instead of holding it in memory
+during the following Spark refresh. The next Qwen question must reload it.
 
 ## Reapply guest configuration if rebuilding a VM
 
