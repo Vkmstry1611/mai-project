@@ -117,6 +117,26 @@ def bind(recording,button,question,status,controller,gr,transcript,clear_button)
     checked.__annotations__={'request':gr.Request}
     api=gr.Button(visible=False)
     api.click(checked,[recording,cache],[transcript,status,cache],api_name='transcribe_validated',api_visibility='undocumented',concurrency_id='workspace-speech-input',concurrency_limit=1)
+    def dashboard_transcribe(audio):
+        import subprocess
+        import sys
+        validate_audio(audio)
+        script=("from modules.speech_to_text import transcribe; "
+                "from config import Config; import sys; "
+                "print(transcribe(sys.argv[1], Config()))")
+        try:
+            result=subprocess.run([sys.executable,'-c',script,str(audio)],
+                                  capture_output=True,text=True,timeout=120,check=True)
+        except (subprocess.CalledProcessError,subprocess.TimeoutExpired) as error:
+            raise gr.Error('Speech recognition failed. Please try again or type your question.') from error
+        text=result.stdout.strip()
+        if not text:raise gr.Error('No speech was recognized. Try again or type your question.')
+        return text
+    dashboard_file=gr.File(visible=False, file_types=['.wav'], type='filepath')
+    dashboard_api=gr.Button(visible=False)
+    dashboard_api.click(dashboard_transcribe,dashboard_file,transcript,
+                        api_name='transcribe_for_dashboard',api_visibility='public',
+                        concurrency_id='workspace-speech-input',concurrency_limit=1)
     recording.start_recording(lambda:status_html('Recording','Speak your question, then stop recording. Transcription starts automatically.','working'),outputs=status,queue=False,api_visibility='private',
         js="() => {document.querySelector('#vb-playback audio')?.pause(); return []}")
     recording.stop_recording(lambda:status_html('Processing speech','Waiting for the completed audio file. If no transcript appears, check microphone permission or select Transcribe & review.','working'),outputs=status,queue=False,api_visibility='private')

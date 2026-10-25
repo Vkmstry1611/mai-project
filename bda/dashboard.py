@@ -8,7 +8,7 @@ import streamlit as st
 
 from bda.dashboard_data import read_mongo, read_spool, summarize
 from bda.live_store import store_result
-from bda.model_dispatch import run_models
+from bda.model_dispatch import run_models, transcribe_audio
 
 
 def model_url(model):
@@ -35,9 +35,25 @@ def assistant_panel():
     if not all(valid_url(url) for url in endpoints.values()):
         st.error("Enter a full http:// or https:// URL for each selected model in Connection settings.")
         return
+    with st.expander("🎙️ Speak your question (optional)"):
+        recorded = st.audio_input("Record your question")
+        uploaded_audio = st.file_uploader("Or upload a WAV recording", type=["wav"], key="question_audio")
+        audio_input = recorded or uploaded_audio
+        if st.button("Use spoken question", disabled=audio_input is None):
+            try:
+                speech_url = qwen_url if model in ("Qwen", "Both") else blip_url
+                with st.spinner("Transcribing your question…"):
+                    st.session_state["question_text"] = transcribe_audio(
+                        audio_input.getvalue(), audio_input.name, speech_url)
+                st.success("Transcript added below. You can edit it before asking.")
+            except Exception as error:
+                st.error(f"Could not transcribe the recording: {error}")
+        st.caption("If your browser cannot use the microphone here, upload a WAV recording or type your question.")
     with st.form("visionbridge_question"):
         photo = st.file_uploader("Image", type=["jpg", "jpeg", "png", "webp"])
-        question = st.text_area("Question", max_chars=1000)
+        question = st.text_area("Question", max_chars=1000, key="question_text",
+                                help="Type a question or use the speech transcript above. Review it before submitting.")
+        speak = st.checkbox("Read answers aloud", value=True)
         submit = st.form_submit_button("Analyze image")
     if submit:
         if photo is None or not question.strip():
@@ -51,7 +67,8 @@ def assistant_panel():
             results = []
             with st.spinner(f"Running {model}…"):
                 for name, url in endpoints.items():
-                    result = run_models(image_bytes, photo.name, question.strip(), {name: url})[0]
+                    result = run_models(image_bytes, photo.name, question.strip(),
+                                        {name: url}, speak=speak)[0]
                     try:
                         event = store_result(image_bytes, question.strip(), result, spool,
                                              mongo_uri, run_ids=run_ids)
@@ -70,6 +87,10 @@ def assistant_panel():
                 st.subheader(result["model"])
                 if result["status"] == "completed":
                     st.write(result["answer"])
+                    if result.get("audio"):
+                        st.audio(result["audio"], format="audio/wav")
+                    elif result.get("speech_error"):
+                        st.caption(f"Audio unavailable: {result['speech_error']}")
                 else:
                     st.error(result.get("error") or "The model did not return an answer. Check its service and request record.")
                 if result.get("storage_error"):
