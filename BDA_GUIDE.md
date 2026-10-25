@@ -13,12 +13,13 @@ No VM credential is embedded in the repository.
 
 ## Current VM layout
 
-The primary VM is `192.168.1.4` (`admin`), with workers
-`192.168.1.2` and `192.168.1.5`. The BDA scripts are deployed to
+The primary VM is `192.168.56.10` (`admin`), with workers
+`192.168.56.11` and `192.168.56.12`. The BDA scripts are deployed to
 `/home/admin/Desktop/BDA/project` on the primary VM. The folder name is
 case-sensitive. HDFS and YARN each report two live workers as of October 25,
 2026. Inference remains on the Windows laptop; only captures and analytics
-need to move to the VM.
+need to move to the VM. These fixed addresses are described in
+[HOST_ONLY_NETWORK.md](HOST_ONLY_NETWORK.md).
 
 ### One-command VM startup
 
@@ -70,7 +71,7 @@ The dashboard hides the recorder on the LAN address and gives the localhost
 address, avoiding Streamlit's generic recording error:
 
 ```powershell
-ssh -N -L 127.0.0.1:8501:127.0.0.1:8501 admin@192.168.1.4
+ssh -N -L 127.0.0.1:8501:127.0.0.1:8501 admin@192.168.56.10
 ```
 
 Keep that PowerShell window open and browse to `http://127.0.0.1:8501`.
@@ -85,7 +86,7 @@ The primary VM has a built `visionbridge-bda-dashboard` Docker image and a
 running container with the same name. It uses host networking to reach the
 existing `mongodb` container on port 27017, mounts `spool` read-write at
 `/data/spool`, and mounts `bda-data/analytics` read-only at `/data/analytics`.
-Open `http://192.168.1.4:8501` from Windows. After a VM reboot, check both
+Open `http://192.168.56.10:8501` from Windows. After a VM reboot, check both
 containers and start them if needed:
 
 ```bash
@@ -106,9 +107,9 @@ To ask a question inside this page, open the **Ask VisionBridge** tab and
 select **Qwen**, **BLIP**, or **Both**, then upload an image and ask a question
 in the same Streamlit form. The model runtimes remain on Windows as separate
 services; their original Gradio pages are no longer shown in the dashboard. The default
-URLs are `http://192.168.1.83:7865` for Qwen and
-`http://192.168.1.83:7866` for BLIP; edit them in **Connection settings** if
-the Windows IP changes. Start each service in its own Windows PowerShell
+URLs are `http://192.168.56.1:7865` for Qwen and
+`http://192.168.56.1:7866` for BLIP. The host-only address stays fixed when
+Wi-Fi changes. Start each service in its own Windows PowerShell
 window:
 
 ```powershell
@@ -185,7 +186,7 @@ after actual app requests have been captured. From PowerShell in the Windows
 repository root:
 
 ```powershell
-scp -r reports/bda/spool admin@192.168.1.4:Desktop/BDA/project/
+scp -r reports/bda/spool admin@192.168.56.10:Desktop/BDA/project/
 ```
 
 On the primary VM, use its system Python with `python3-pymongo` installed.

@@ -31,10 +31,14 @@ flowchart LR
 
 | Machine | Current address | Roles |
 | --- | --- | --- |
-| Primary Ubuntu VM | `192.168.1.4` | HDFS NameNode, SecondaryNameNode, YARN ResourceManager, Dockerized Streamlit and MongoDB, Spark driver, refresh service |
-| `secondary1` Ubuntu VM | `192.168.1.2` | HDFS DataNode and YARN NodeManager |
-| `secondary2` Ubuntu VM | `192.168.1.5` | HDFS DataNode and YARN NodeManager |
-| Windows laptop | `192.168.1.83` | Qwen/Ollama and frozen BLIP inference services, Whisper speech recognition, Windows text-to-speech |
+| Primary Ubuntu VM | `192.168.56.10` | HDFS NameNode, SecondaryNameNode, YARN ResourceManager, Dockerized Streamlit and MongoDB, Spark driver, refresh service |
+| `secondary1` Ubuntu VM | `192.168.56.11` | HDFS DataNode and YARN NodeManager |
+| `secondary2` Ubuntu VM | `192.168.56.12` | HDFS DataNode and YARN NodeManager |
+| Windows laptop | `192.168.56.1` | Qwen/Ollama and frozen BLIP inference services, Whisper speech recognition, Windows text-to-speech |
+
+**Stable network:** The table shows the configured VirtualBox host-only
+addresses. The VM dashboard uses these model URL defaults. See
+[HOST_ONLY_NETWORK.md](HOST_ONLY_NETWORK.md) for startup and verification.
 
 The three-node cluster means **one controller VM plus two worker VMs**. HDFS replication factor 2 stores blocks on the two DataNodes. Qwen and BLIP inference remains on Windows; the VMs store records and run analytics. The primary VM script can check Windows model endpoints, but cannot start Windows processes remotely.
 
@@ -49,7 +53,10 @@ The three-node cluster means **one controller VM plus two worker VMs**. HDFS rep
 
 3. The terminal starts any missing NameNode, SecondaryNameNode, DataNodes, ResourceManager, and NodeManagers. It starts the `mongodb` and `visionbridge-bda-dashboard` Docker containers and `visionbridge-bda-refresh.service`.
 4. The terminal refreshes a status screen about every 12 seconds. It reports Hadoop roles, live HDFS/YARN workers, MongoDB, dashboard health, Windows Qwen/BLIP reachability, and the last Spark refresh. Press **q** or **Ctrl+C** to close only the monitor; services continue running.
-5. Open `http://192.168.1.4:8501/` for typed questions. To record with a browser microphone, open `http://127.0.0.1:8501/` in Chrome or Edge after creating the localhost SSH tunnel shown below.
+5. Open `http://192.168.56.10:8501/` after the primary is running. To record
+   with a browser microphone, open
+   `http://127.0.0.1:8501/` in Chrome or Edge after creating the localhost
+   SSH tunnel shown below.
 
 The launcher is safe to run again: it checks each Hadoop process before starting it. It **never formats HDFS** or erases stored requests. The desktop script also supports `--status` for a one-time check and `--start-only` to start services and exit. Its version-controlled source is `bda/start_visionbridge_bda.sh`.
 
@@ -67,14 +74,16 @@ $env:VISIONBRIDGE_BDA_RUN_ID = 'blip-demo-v1'
 .\.venv\Scripts\python.exe launch_workspace.py --backend frozen --port 7866
 ```
 
-If the Windows IP changes, edit the **Connection settings** in Streamlit and the `QWEN_URL` / `BLIP_URL` defaults in the VM desktop script or set `VISIONBRIDGE_QWEN_URL` / `VISIONBRIDGE_BLIP_URL` before running it. The frozen BLIP service requires the private runtime bundle described in `ARTIFACT_BUNDLE_GUIDE.md`; a source checkout alone is insufficient.
+The host-only Windows address remains fixed across Wi-Fi changes. The frozen
+BLIP service requires the private runtime bundle described in
+`ARTIFACT_BUNDLE_GUIDE.md`; a source checkout alone is insufficient.
 
 ### Browser microphone setup
 
 Microphone capture requires a browser secure context. The primary VM's plain HTTP LAN address does not provide one, so the dashboard hides the recorder there and permits typed questions or WAV upload. On Windows, keep this PowerShell SSH tunnel open:
 
 ```powershell
-ssh -N -L 127.0.0.1:8501:127.0.0.1:8501 admin@192.168.1.4
+ssh -N -L 127.0.0.1:8501:127.0.0.1:8501 admin@192.168.56.10
 ```
 
 Use `http://127.0.0.1:8501/` in Chrome or Edge and allow microphone access. On the page, upload an image, **type or record** a question, and press **Analyze image** once. If both text and audio are present, typed text takes priority. The app transcribes audio before inference, displays the recognized question, and does not store raw microphone recordings. A WAV upload remains available in the optional expander.

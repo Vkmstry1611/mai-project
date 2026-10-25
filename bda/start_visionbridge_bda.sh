@@ -9,8 +9,8 @@ export PATH="$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$JAVA_HOME/bin:$PATH"
 
 PROJECT="${VISIONBRIDGE_PROJECT:-/home/admin/Desktop/BDA/project}"
 DASHBOARD_URL="${VISIONBRIDGE_DASHBOARD_URL:-http://127.0.0.1:8501}"
-QWEN_URL="${VISIONBRIDGE_QWEN_URL:-http://192.168.1.83:7865}"
-BLIP_URL="${VISIONBRIDGE_BLIP_URL:-http://192.168.1.83:7866}"
+QWEN_URL="${VISIONBRIDGE_QWEN_URL:-http://192.168.56.1:7865}"
+BLIP_URL="${VISIONBRIDGE_BLIP_URL:-http://192.168.56.1:7866}"
 WORKERS=(secondary1 secondary2)
 
 has_local() { jps 2>/dev/null | awk '{print $2}' | grep -Fxq "$1"; }

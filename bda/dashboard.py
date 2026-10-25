@@ -13,8 +13,8 @@ from bda.model_dispatch import run_models, transcribe_audio
 
 def model_url(model):
     if model == "Qwen":
-        return os.getenv("VISIONBRIDGE_QWEN_URL", "http://192.168.1.83:7865")
-    return os.getenv("VISIONBRIDGE_BLIP_URL", "http://192.168.1.83:7866")
+        return os.getenv("VISIONBRIDGE_QWEN_URL", "http://192.168.56.1:7865")
+    return os.getenv("VISIONBRIDGE_BLIP_URL", "http://192.168.56.1:7866")
 
 
 def valid_url(url):

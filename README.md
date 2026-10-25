@@ -7,6 +7,8 @@
 
 For the complete BDA and three-VM operating guide, see
 [PROJECT_DETAILS.md](PROJECT_DETAILS.md).
+For stable VM addresses across Wi-Fi changes, see
+[HOST_ONLY_NETWORK.md](HOST_ONLY_NETWORK.md). All three guests are configured.
 
 VisionBridge is a university AI/ML accessibility prototype that answers questions about images and reads question-relevant printed text. It combines a fine-tuned BLIP model with visual evidence, conservative answer-or-abstain decisions, and an experimental voice-first workspace.
 
