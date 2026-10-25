@@ -1,8 +1,10 @@
 # VisionBridge: complete project and presentation guide
 
-**Project:** VisionBridge — image question answering with a Big Data Analytics extension  
-**Branch:** bda-project  
-**Verified deployment snapshot:** 25 October 2026  
+**Project:** VisionBridge — image question answering with a Big Data Analytics extension
+
+**Branch:** bda-project
+
+**Verified deployment snapshot:** 25 October 2026
 **Audience:** Mini project presentation, live demonstration, viva, and report preparation
 
 This is the single guide to study before presenting. The live counts can increase whenever a new question is submitted. Run the verification commands in Section 13 before quoting numbers in a presentation.
