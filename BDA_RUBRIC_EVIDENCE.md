@@ -47,10 +47,12 @@ internal model-serving API on Windows. Qwen uses the local Ollama
 `qwen3-vl:4b` model; BLIP uses the project's frozen VizWiz runtime. **Both**
 submits the same uploaded image bytes and question sequentially to both
 services, avoiding simultaneous GPU inference.
-The page offers microphone or WAV question input with a reviewed, editable
-transcript and spoken playback for each model answer. Existing Windows
+The page accepts a typed question, microphone recording or WAV upload, then
+transcribes recorded speech and runs the selected model from one submit
+button. It displays the recognized text and spoken playback for each model
+answer. Existing Windows
 Whisper and text-to-speech modules provide these through the internal API.
-The reviewed question text is stored with the result; recording bytes remain
+The final question text is stored with the result; recording bytes remain
 temporary. A localhost SSH tunnel or WAV upload handles browsers that block
 microphone access on the VM's plain HTTP LAN address.
 

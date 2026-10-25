@@ -38,18 +38,19 @@ request counts, routes, OCR coverage, abstention, timing, individual records
 and matched BLIP/Qwen answers. It labels answer disagreement separately from
 accuracy. The analytics tab refreshes every five seconds while open.
 
-For voice input, expand **Speak your question**, record with the microphone
-or upload a WAV file, then click **Use spoken question**. Review and edit the
-transcript in the question box before clicking **Analyze image**. **Read
-answers aloud** adds a player to each model answer. The existing Windows
-Whisper and text-to-speech modules handle speech. The stored request contains
-the reviewed text; temporary recording bytes are not saved to HDFS or MongoDB.
+To ask, upload an image, type a question **or** record it, then click
+**Analyze image** once. WAV upload is in the optional expander. A recorded
+question is transcribed and sent through the selected model in that same
+submission; the recognized text appears above the result. If both typed text
+and audio are present, the typed question takes priority. **Read answers
+aloud** adds a player to each model answer. The existing Windows Whisper and
+text-to-speech modules handle speech. The stored request contains the final
+text question; temporary recording bytes are not saved to HDFS or MongoDB.
 
 Browsers can restrict microphones on the VM's plain HTTP LAN address. Upload
 a WAV recording instead, or open the dashboard through a localhost tunnel.
-The dashboard now hides the recorder on the LAN address and shows a link to
-the microphone-ready localhost page, avoiding Streamlit's generic recording
-error:
+The dashboard hides the recorder on the LAN address and gives the localhost
+address, avoiding Streamlit's generic recording error:
 
 ```powershell
 ssh -N -L 127.0.0.1:8501:127.0.0.1:8501 admin@192.168.1.4

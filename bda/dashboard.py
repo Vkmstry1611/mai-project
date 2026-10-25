@@ -43,38 +43,38 @@ def assistant_panel():
     if not all(valid_url(url) for url in endpoints.values()):
         st.error("Enter a full http:// or https:// URL for each selected model in Connection settings.")
         return
-    with st.expander("🎙️ Speak your question (optional)"):
-        page_url = getattr(st.context, "url", None)
-        if microphone_origin_available(page_url):
-            recorded = st.audio_input("Record your question")
-        else:
-            recorded = None
-            st.info("Microphone recording needs a secure browser address. Open this dashboard at "
-                    "http://127.0.0.1:8501 in Chrome or Edge, then allow microphone access. "
-                    "Keep the SSH tunnel running. You can still upload a WAV recording here.")
-            st.link_button("Open microphone-ready page", "http://127.0.0.1:8501/")
-        uploaded_audio = st.file_uploader("Or upload a WAV recording", type=["wav"], key="question_audio")
-        audio_input = recorded or uploaded_audio
-        if st.button("Use spoken question", disabled=audio_input is None):
-            try:
-                speech_url = qwen_url if model in ("Qwen", "Both") else blip_url
-                with st.spinner("Transcribing your question…"):
-                    st.session_state["question_text"] = transcribe_audio(
-                        audio_input.getvalue(), audio_input.name, speech_url)
-                st.success("Transcript added below. You can edit it before asking.")
-            except Exception as error:
-                st.error(f"Could not transcribe the recording: {error}")
-        st.caption("If recording is unavailable, upload a WAV recording or type your question.")
     with st.form("visionbridge_question"):
         photo = st.file_uploader("Image", type=["jpg", "jpeg", "png", "webp"])
-        question = st.text_area("Question", max_chars=1000, key="question_text",
-                                help="Type a question or use the speech transcript above. Review it before submitting.")
+        question = st.text_area("Type your question", max_chars=1000,
+                                placeholder="Ask about the image, or record your question below")
+        if microphone_origin_available(getattr(st.context, "url", None)):
+            recorded = st.audio_input("Or record your question")
+        else:
+            recorded = None
+            st.info("To record, open this page at http://127.0.0.1:8501 in Chrome or Edge. "
+                    "Keep the SSH tunnel running. Typing and WAV upload work here.")
+        with st.expander("Have a WAV recording? Upload it here"):
+            uploaded_audio = st.file_uploader("WAV recording", type=["wav"], key="question_audio")
         speak = st.checkbox("Read answers aloud", value=True)
         submit = st.form_submit_button("Analyze image")
     if submit:
-        if photo is None or not question.strip():
-            st.error("Upload an image and enter a question.")
+        if photo is None:
+            st.error("Upload an image first.")
         else:
+            final_question = question.strip()
+            audio_input = recorded or uploaded_audio
+            if not final_question and audio_input is not None:
+                try:
+                    speech_url = qwen_url if model in ("Qwen", "Both") else blip_url
+                    with st.spinner("Transcribing your question…"):
+                        final_question = transcribe_audio(
+                            audio_input.getvalue(), audio_input.name, speech_url)
+                    st.caption(f"Heard: {final_question}")
+                except Exception as error:
+                    st.error(f"Could not transcribe the recording: {error}")
+            if not final_question:
+                st.error("Type or record a question, then try again.")
+                return
             image_bytes = photo.getvalue()
             spool = os.getenv("VISIONBRIDGE_BDA_SPOOL", "reports/bda/spool")
             mongo_uri = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
@@ -83,17 +83,17 @@ def assistant_panel():
             results = []
             with st.spinner(f"Running {model}…"):
                 for name, url in endpoints.items():
-                    result = run_models(image_bytes, photo.name, question.strip(),
+                    result = run_models(image_bytes, photo.name, final_question,
                                         {name: url}, speak=speak)[0]
                     try:
-                        event = store_result(image_bytes, question.strip(), result, spool,
+                        event = store_result(image_bytes, final_question, result, spool,
                                              mongo_uri, run_ids=run_ids)
                         result["stored_request_id"] = event["request_id"]
                     except Exception as error:
                         result["storage_error"] = str(error)
                     results.append(result)
             st.session_state["last_results"] = results
-            st.session_state["last_input"] = (photo.name, question.strip(), model)
+            st.session_state["last_input"] = (photo.name, final_question, model)
     if "last_results" in st.session_state:
         filename, previous_question, previous_model = st.session_state["last_input"]
         st.caption(f"Last run · {previous_model} · {filename} · {previous_question}")
