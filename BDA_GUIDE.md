@@ -37,6 +37,11 @@ contains the captured results. Select
 request counts, routes, OCR coverage, abstention, timing, individual records
 and matched BLIP/Qwen answers. It labels answer disagreement separately from
 accuracy. The analytics tab refreshes every five seconds while open.
+**Request history** shows every selected run newest first, with processing
+date and time in India Standard Time, question, answer, status, duration and
+request ID. Search filters the visible history. New requests store model start
+and completion timestamps; older records use their existing capture timestamp
+and are labelled **Captured** in the time-source column.
 
 To ask, upload an image, type a question **or** record it, then click
 **Analyze image** once. WAV upload is in the optional expander. A recorded

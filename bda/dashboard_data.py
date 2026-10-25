@@ -1,8 +1,49 @@
 """Read captured requests and calculate clearly labelled local dashboard metrics."""
 from collections import defaultdict
+from datetime import datetime, timedelta, timezone
 import json
 from pathlib import Path
 from statistics import mean
+
+
+IST = timezone(timedelta(hours=5, minutes=30))
+
+
+def event_time(row):
+    """Prefer exact model completion; older events only have capture time."""
+    value = row.get("processing_completed_at_utc") or row.get("timestamp_utc")
+    if not value:
+        return None
+    try:
+        moment = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        return moment.replace(tzinfo=timezone.utc) if moment.tzinfo is None else moment
+    except ValueError:
+        return None
+
+
+def history_rows(events):
+    """Newest first, with readable India date/time and the original request ID."""
+    ordered = sorted(events, key=lambda row: event_time(row) or datetime.min.replace(
+        tzinfo=timezone.utc), reverse=True)
+    result = []
+    for row in ordered:
+        moment = event_time(row)
+        local = moment.astimezone(IST) if moment else None
+        seconds = row.get("processing_seconds")
+        backend = str(row.get("backend") or "").lower()
+        model = "Qwen" if "ollama" in backend or "qwen" in backend else "BLIP" if "blip" in backend else (row.get("model") or backend or "Unknown")
+        result.append({
+            "Date (IST)": local.strftime("%d %b %Y") if local else "—",
+            "Time (IST)": local.strftime("%I:%M:%S %p") if local else "—",
+            "Model": model,
+            "Question": row.get("question") or "",
+            "Answer": row.get("final_answer") or "",
+            "Status": row.get("status") or "unknown",
+            "Duration (s)": round(float(seconds), 2) if isinstance(seconds, (int, float)) else None,
+            "Time source": "Model completed" if row.get("processing_completed_at_utc") else "Captured",
+            "Request ID": row.get("request_id") or "",
+        })
+    return result
 
 
 def read_spool(spool):

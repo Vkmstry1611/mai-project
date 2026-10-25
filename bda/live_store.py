@@ -16,6 +16,9 @@ def store_result(image_bytes, question, result, spool, mongo_uri, database="visi
     backend = "ollama" if model == "Qwen" else "blip"
     details = dict(result.get("details") or {})
     details.setdefault("backend", backend)
+    for field in ("processing_started_at_utc", "processing_completed_at_utc"):
+        if result.get(field):
+            details[field] = result[field]
     if result["status"] != "completed":
         details["application_error"] = details.get("application_error") or {
             "stage": "model_dispatch", "message": result.get("error", "No answer returned")

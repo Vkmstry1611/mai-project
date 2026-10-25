@@ -1,6 +1,11 @@
 """Submit one image and question to the existing model-specific Gradio apps."""
+from datetime import datetime, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
+
+
+def now_utc():
+    return datetime.now(timezone.utc).isoformat()
 
 
 def transcribe_audio(audio_bytes, filename, service_url):
@@ -32,6 +37,7 @@ def run_models(image_bytes, filename, question, endpoints, *, speak=False):
         image_path = Path(directory) / ("image" + suffix)
         image_path.write_bytes(image_bytes)
         for model, url in endpoints.items():
+            started_at = now_utc()
             try:
                 outputs = Client(url, verbose=False).predict(
                     handle_file(image_path), question, not speak, "VisionBridge Assistant", "0",
@@ -55,8 +61,12 @@ def run_models(image_bytes, filename, question, endpoints, *, speak=False):
                     "timings": outputs[6] if isinstance(outputs[6], dict) else {},
                     "audio": audio,
                     "speech_error": speech_error,
+                    "processing_started_at_utc": started_at,
+                    "processing_completed_at_utc": now_utc(),
                 })
             except Exception as error:
                 results.append({"model": model, "answer": "", "status": "error",
-                                "error": str(error), "details": {}, "timings": {}})
+                                "error": str(error), "details": {}, "timings": {},
+                                "processing_started_at_utc": started_at,
+                                "processing_completed_at_utc": now_utc()})
     return results

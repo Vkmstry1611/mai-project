@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 
 import streamlit as st
 
-from bda.dashboard_data import read_mongo, read_spool, summarize
+from bda.dashboard_data import history_rows, read_mongo, read_spool, summarize
 from bda.live_store import store_result
 from bda.model_dispatch import run_models, transcribe_audio
 
@@ -109,6 +109,9 @@ def assistant_panel():
                         st.caption(f"Audio unavailable: {result['speech_error']}")
                 else:
                     st.error(result.get("error") or "The model did not return an answer. Check its service and request record.")
+                processed = history_rows([result])[0]
+                if processed["Time source"] == "Model completed":
+                    st.caption(f"Processed {processed['Date (IST)']} at {processed['Time (IST)']} IST")
                 if result.get("storage_error"):
                     st.warning(f"Could not confirm storage: {result['storage_error']}")
                 elif result.get("stored_request_id"):
@@ -156,13 +159,22 @@ def analytics_results(source):
         st.dataframe(summary["matched"], use_container_width=True, hide_index=True)
     else:
         st.info("No matched pair yet. Run the same image and question through each backend.")
-    st.subheader("Request records")
-    st.dataframe([{key: row.get(key) for key in ("request_id", "run_id", "backend", "route", "question", "status", "abstained", "processing_seconds")}
-                  for row in rows], use_container_width=True, hide_index=True)
+    st.subheader("Request history")
+    st.caption("Newest first · India Standard Time. Older records show capture time; new records show model completion time.")
+    search = st.text_input("Search question, answer or request ID", key="history_search")
+    history = history_rows(rows)
+    if search.strip():
+        term = search.strip().casefold()
+        history = [row for row in history if any(term in str(row[key]).casefold()
+                   for key in ("Question", "Answer", "Request ID"))]
+    st.dataframe(history, use_container_width=True, hide_index=True)
     with st.expander("Inspect one stored request"):
-        ids = [row["request_id"] for row in rows]
-        chosen = st.selectbox("Request ID", ids)
-        st.json(next(row for row in rows if row["request_id"] == chosen))
+        ids = [row["Request ID"] for row in history]
+        if ids:
+            chosen = st.selectbox("Request ID", ids)
+            st.json(next(row for row in rows if row["request_id"] == chosen))
+        else:
+            st.info("No requests match the current filters.")
     st.subheader("Cluster evaluation")
     status_path = Path(os.getenv("VISIONBRIDGE_PIPELINE_STATUS", "bda-data/analytics/pipeline_status.json"))
     summary_path = Path(os.getenv("VISIONBRIDGE_CLUSTER_SUMMARY", "bda-data/analytics/cluster_summary.json"))

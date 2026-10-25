@@ -58,6 +58,9 @@ def capture_request(image, question, answer, details, timings, *, root=None, req
         "ocr_evidence": _jsonable(evidence), "processing_details": _jsonable(details),
         "timings": _jsonable(timings), "processing_seconds": timings.get("callback_seconds"),
     }
+    for field in ("processing_started_at_utc", "processing_completed_at_utc"):
+        if details.get(field):
+            event[field] = str(details[field])
     image_path = images / f"{image_sha}.jpg"
     try:
         with image_path.open("xb") as output:

@@ -31,12 +31,16 @@ def test_store_result_saves_event_and_upserts_mongo(tmp_path, monkeypatch):
     Image.new("RGB", (8, 8), "blue").save(buffer, format="PNG")
     event = store_result(buffer.getvalue(), "What color?",
                          {"model": "Qwen", "status": "completed", "answer": "blue",
-                          "details": {"model": "qwen3-vl:4b"}, "timings": {"callback_seconds": 2}},
+                          "details": {"model": "qwen3-vl:4b"}, "timings": {"callback_seconds": 2},
+                          "processing_started_at_utc": "2026-10-25T06:00:00+00:00",
+                          "processing_completed_at_utc": "2026-10-25T06:00:02+00:00"},
                          tmp_path, "mongodb://localhost:27017",
                          run_ids={"Qwen": "qwen-demo-v1"})
     assert event["run_id"] == "qwen-demo-v1"
     assert event["backend"] == "ollama"
     assert event["final_answer"] == "blue"
+    assert event["processing_started_at_utc"] == "2026-10-25T06:00:00+00:00"
+    assert event["processing_completed_at_utc"] == "2026-10-25T06:00:02+00:00"
     assert json.loads(next((tmp_path / "events").glob("*.json")).read_text())["request_id"] == event["request_id"]
     assert saved[0][0] == {"request_id": event["request_id"]}
     assert saved[0][2] is True

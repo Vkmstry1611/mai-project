@@ -55,6 +55,10 @@ Whisper and text-to-speech modules provide these through the internal API.
 The final question text is stored with the result; recording bytes remain
 temporary. A localhost SSH tunnel or WAV upload handles browsers that block
 microphone access on the VM's plain HTTP LAN address.
+The analytics tab also shows searchable request history, newest first, with
+date and time in IST. New requests store explicit model start and completion
+times alongside the original UTC capture time; older requests display that
+capture time with a clear source label.
 
 | Component | Location | Purpose |
 | --- | --- | --- |
