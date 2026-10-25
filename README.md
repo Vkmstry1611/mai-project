@@ -5,6 +5,9 @@
 > See [BDA_GUIDE.md](BDA_GUIDE.md) before using personal images or transferring
 > captured records to the VM cluster.
 
+For the complete BDA and three-VM operating guide, see
+[PROJECT_DETAILS.md](PROJECT_DETAILS.md).
+
 VisionBridge is a university AI/ML accessibility prototype that answers questions about images and reads question-relevant printed text. It combines a fine-tuned BLIP model with visual evidence, conservative answer-or-abstain decisions, and an experimental voice-first workspace.
 
 Blind and visually impaired users may need a scene description, a label reading or a specific printed field from the same photograph. These tasks need different evidence. VisionBridge routes questions automatically and keeps uncertainty visible rather than guessing missing information.

@@ -22,8 +22,8 @@ rules are available; answer disagreement alone is not accuracy.
 The Big Data aspects are the mixture of image bytes and nested event JSON
 (variety), continuous request capture (velocity), and partitioned VizWiz
 annotations plus an extensible event log (volume). The present demonstration
-has 14 live request records and a 9,319-row annotation selection. Those are
-measured demonstration sizes, not a claim that 14 requests alone are large.
+has 17 live request records and a 9,319-row annotation selection. Those are
+measured demonstration sizes, not a claim that 17 requests alone are large.
 
 ## 2. System architecture
 
@@ -157,7 +157,7 @@ from `reports/phase2_local_dev_evaluation/drive_inputs/split_manifest.json`.
 The exporter validates image names, questions and ten answer slots, then hashes
 rows across 32 JSONL data partitions. Its manifest records the source SHA-256
 and split counts. This selection contains **annotation records only**; the
-full 9,319-image corpus was not uploaded. Three images from the live requests
+full 9,319-image corpus was not uploaded. Four images from the live requests
 are stored separately under the HDFS raw image path.
 
 The exported source manifest SHA-256 is
@@ -188,11 +188,11 @@ The following are observed results, not projections:
 | Docker services | `visionbridge-bda-dashboard` and `mongodb` running |
 | Dashboard health | `http://192.168.1.4:8501/_stcore/health` returned `ok` |
 | Model endpoints | Qwen `:7865` and BLIP `:7866` returned HTTP 200 |
-| VM spool and MongoDB | 14 request records each after an automatic test submission |
-| MongoDB group query | BLIP run 6; Qwen run 8 |
+| VM spool and MongoDB | 17 request records each after an automatic test submission |
+| MongoDB group query | BLIP run 6; Qwen run 11 |
 | Automatic HDFS backfill | The new request's MongoDB document later contained both `hdfs_event` and `hdfs_image` references |
-| Request Spark job | 14 raw, 14 valid, 0 duplicates, 14 curated, 6 matched pairs |
-| HDFS raw path | 14 event JSON files and 3 content-addressed images; healthy, 0 under-replicated blocks |
+| Request Spark job | 17 raw, 17 valid, 0 duplicates, 17 curated, 6 matched pairs |
+| HDFS raw path | 17 event JSON files and 4 content-addressed images; `hdfs fsck /visionbridge/raw` healthy |
 | HDFS annotation selection | 33 files; healthy, 0 under-replicated blocks, 2 DataNodes |
 | Dataset Spark audit | 9,319 raw, 9,319 valid, 0 rejected; YARN application succeeded |
 
@@ -207,7 +207,7 @@ ignored `reports/bda/demo_suite_results.json` file.
 
 | Criterion | Marks | Evidence ready to show | Remaining qualification |
 | --- | ---: | --- | --- |
-| Clear Big Data problem statement | 2 | Section 1 defines the question, data types, scale path and measurable outputs. | Explain why the distributed analysis is useful; do not call the 14-request demo itself “big data.” |
+| Clear Big Data problem statement | 2 | Section 1 defines the question, data types, scale path and measurable outputs. | Explain why the distributed analysis is useful; do not call the 17-request demo itself “big data.” |
 | Docker and NoSQL | 2 | Dockerized Python/Streamlit app and MongoDB container; nested event upserts and actual `countDocuments`, aggregation and field queries. | Show the query result live, including a nested `processing_details` or `timings` field. |
 | Streamlit UI | 1 | One interactive page for upload, question, Qwen/BLIP/Both, answer cards, request filters, metrics and refresh status. | Demonstrate a successful submission and then open the analytics tab. |
 | Dataset on Hadoop/PySpark, distributed | 2 | 32 VizWiz annotation partitions, 9,319 valid Spark rows, replication 2 across two DataNodes, plus live images and events; YARN audit succeeded. | Be precise that the 9,319 records are annotations, not uploaded image files. |

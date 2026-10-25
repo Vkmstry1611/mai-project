@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Start VisionBridge BDA
+Comment=Start Hadoop, YARN, MongoDB, Streamlit and monitor cluster status
+Exec=/home/admin/Desktop/start_visionbridge_bda.sh
+Path=/home/admin
+Terminal=true
+Icon=utilities-terminal
+Categories=Development;

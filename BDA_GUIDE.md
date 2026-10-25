@@ -2,6 +2,8 @@
 
 For the complete architecture, measured results, demonstration commands and
 technical marking check, see [BDA_RUBRIC_EVIDENCE.md](BDA_RUBRIC_EVIDENCE.md).
+For a single operating manual covering both the MAI app and VM deployment,
+see [PROJECT_DETAILS.md](PROJECT_DETAILS.md).
 
 This branch captures live VisionBridge requests and prepares a distributed
 analysis of **BLIP and Qwen runs on the same image/question pairs**. The models
@@ -17,6 +19,16 @@ The primary VM is `192.168.1.4` (`admin`), with workers
 case-sensitive. HDFS and YARN each report two live workers as of October 25,
 2026. Inference remains on the Windows laptop; only captures and analytics
 need to move to the VM.
+
+### One-command VM startup
+
+After booting all three VMs, double-click **Start VisionBridge BDA** on the
+primary desktop or run `bash ~/Desktop/start_visionbridge_bda.sh`. The script
+starts missing HDFS/YARN daemons, MongoDB, Streamlit and the automatic Spark
+refresh service, then monitors their status in the terminal. Press **q** to
+close the monitor without stopping services. Qwen and BLIP run on Windows;
+the monitor checks them and reports if either Windows service is down. The
+version-controlled script is `bda/start_visionbridge_bda.sh`.
 
 ## BDA dashboard and Docker
 
