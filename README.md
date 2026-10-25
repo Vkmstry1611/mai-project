@@ -7,6 +7,8 @@
 
 For the complete BDA and three-VM operating guide, see
 [PROJECT_DETAILS.md](PROJECT_DETAILS.md).
+For a presentation script, viva answers, live demonstration and report outline,
+see [PRESENTATION_GUIDE.md](PRESENTATION_GUIDE.md).
 For stable VM addresses across Wi-Fi changes, see
 [HOST_ONLY_NETWORK.md](HOST_ONLY_NETWORK.md). All three guests are configured.
 

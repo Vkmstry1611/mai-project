@@ -4,6 +4,9 @@
 **Verified environment:** 25 October 2026  
 **Purpose:** A working guide for the MAI application, its Big Data Analytics extension, the three-node VM deployment, and a live demonstration.
 
+For the presentation sequence, viva answers, current measured snapshot and
+report outline, see [PRESENTATION_GUIDE.md](PRESENTATION_GUIDE.md).
+
 ## 1. What the project does
 
 VisionBridge answers questions about photographs for visually impaired users. A user uploads an image, types or records a question, selects **Qwen**, **BLIP**, or **Both**, and presses **Analyze image** once. The page returns each model's answer, optional spoken playback, processing details, and a saved request ID. A second tab shows request counts, matched Qwen/BLIP pairs, searchable history, and the latest cluster analysis.
@@ -157,9 +160,9 @@ The following is a snapshot from **25 October 2026** and will change as users su
 | YARN workers | 2 running NodeManagers |
 | Docker | `mongodb` and `visionbridge-bda-dashboard` running |
 | Windows model endpoints | Qwen and BLIP both responded |
-| Live requests | 17 records in VM spool, MongoDB, and HDFS |
-| Raw HDFS images | 4 content-addressed image files |
-| Latest automatic request Spark refresh | `complete` for 17 requests |
+| Live requests | 19 valid records in VM spool, MongoDB, and HDFS |
+| Latest automatic request Spark refresh | `complete` for 19 valid rows, 18 curated rows, and 6 matched pairs |
+| HDFS integrity | 2 live DataNodes, 0 missing and 0 under-replicated blocks |
 | Distributed annotation selection | 9,319 valid rows, 32 partitions, replication factor 2 |
 | New timestamp test | Qwen answered `STOP`; its event stored both UTC start and completion times and appeared first in the IST history |
 

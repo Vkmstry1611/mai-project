@@ -1,5 +1,11 @@
 # VisionBridge BDA: implementation and rubric evidence
 
+**Historical deployment snapshot:** The addresses and 17-request counts below
+were recorded before the fixed host-only network and later recovery. For the
+current presentation snapshot (19 saved requests, 18 curated rows, 6 matched
+pairs), use [PRESENTATION_GUIDE.md](PRESENTATION_GUIDE.md) and verify live
+counts before presenting.
+
 **Observed on 25 October 2026.** This document covers the working technical
 implementation and the evidence needed to demonstrate it. Presentation and the
 formal report can use these measurements later. Marks remain the examiner's
