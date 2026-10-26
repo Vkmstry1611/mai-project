@@ -1,0 +1,12 @@
+FROM python:3.11-slim
+WORKDIR /app
+ENV PYTHONUNBUFFERED=1 PYTHONPATH=/app HF_HUB_OFFLINE=1 AWS_DEFAULT_REGION=ap-southeast-2
+RUN pip install --no-cache-dir torch==2.5.1+cpu torchvision==0.20.1+cpu --index-url https://download.pytorch.org/whl/cpu
+COPY requirements-mlops-serving.txt .
+RUN pip install --no-cache-dir -r requirements-mlops-serving.txt
+COPY .dvc .dvc
+COPY .dvcignore dvc.yaml dvc.lock ./
+COPY mlops/__init__.py mlops/model.py mlops/api.py mlops/serve.sh mlops/
+RUN chmod +x mlops/serve.sh
+EXPOSE 8000
+CMD ["/app/mlops/serve.sh"]

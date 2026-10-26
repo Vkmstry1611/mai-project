@@ -1,0 +1,46 @@
+stages:
+  prepare:
+    cmd: python -m mlops.prepare
+    deps:
+      - mlops/prepare.py
+      - mlops/data/raw
+    outs:
+      - mlops/data/processed.json
+  evaluate_v1:
+    cmd: python -m mlops.evaluate --candidate blip_vizwiz --output mlops/experiments/blip_vizwiz.json
+    deps:
+      - mlops/model.py
+      - mlops/evaluate.py
+      - mlops/data/processed.json
+      - mlops/data/raw
+      - models/blip_vizwiz
+    metrics:
+      - mlops/experiments/blip_vizwiz.json
+  evaluate_v2:
+    cmd: python -m mlops.evaluate --candidate blip_vizwiz_v2 --output mlops/experiments/blip_vizwiz_v2.json
+    deps:
+      - mlops/model.py
+      - mlops/evaluate.py
+      - mlops/data/processed.json
+      - mlops/data/raw
+      - models/blip_vizwiz_v2
+    metrics:
+      - mlops/experiments/blip_vizwiz_v2.json
+  select:
+    cmd: python -m mlops.select mlops/experiments/blip_vizwiz.json mlops/experiments/blip_vizwiz_v2.json
+    deps:
+      - mlops/select.py
+      - mlops/experiments/blip_vizwiz.json
+      - mlops/experiments/blip_vizwiz_v2.json
+    metrics:
+      - mlops/registry/selection.json
+  register:
+    cmd: python -m mlops.register
+    deps:
+      - mlops/register.py
+      - mlops/model.py
+      - mlops/registry/selection.json
+      - models/blip_vizwiz
+      - models/blip_vizwiz_v2
+    outs:
+      - mlops/registry/champion

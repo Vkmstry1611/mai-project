@@ -1,0 +1,6 @@
+outs:
+- md5: 0b5ad178be1dccf9eb877835673d8176.dir
+  size: 1445257755
+  nfiles: 7
+  hash: md5
+  path: blip_vizwiz_v2

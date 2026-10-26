@@ -2,3 +2,15 @@
 !requirements-bda-dashboard.txt
 !bda/
 !bda/**
+!Dockerfile.mlops
+!requirements-mlops-serving.txt
+!.dvc/
+!.dvc/config
+!.dvcignore
+!dvc.yaml
+!dvc.lock
+!mlops/
+!mlops/__init__.py
+!mlops/model.py
+!mlops/api.py
+!mlops/serve.sh

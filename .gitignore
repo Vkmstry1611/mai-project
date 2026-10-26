@@ -48,7 +48,6 @@ Desktop.ini
 reports/
 bda-data/
 private-artifacts/
-models/blip_vizwiz_v2/
 *.joblib
 *.partial
 *.download
@@ -75,3 +74,4 @@ credentials.json
 client_secret*.json
 .coverage
 htmlcov/
+mlops/aws/launch-template.generated.json

@@ -1,0 +1,133 @@
+schema: '2.0'
+stages:
+  prepare:
+    cmd: python -m mlops.prepare
+    deps:
+    - path: mlops/data/raw
+      hash: md5
+      md5: b82a275412d4ebe0bf1fa553a30aa592.dir
+      size: 889995
+      nfiles: 5
+    - path: mlops/prepare.py
+      hash: md5
+      md5: 36f9b48019188d0282cbfe8a19119d36
+      size: 1882
+    outs:
+    - path: mlops/data/processed.json
+      hash: md5
+      md5: f019ca60bf2821de1916ebe75005de63
+      size: 4271
+  evaluate_v1:
+    cmd: python -m mlops.evaluate --candidate blip_vizwiz --output
+      mlops/experiments/blip_vizwiz.json
+    deps:
+    - path: mlops/data/processed.json
+      hash: md5
+      md5: f019ca60bf2821de1916ebe75005de63
+      size: 4271
+    - path: mlops/data/raw
+      hash: md5
+      md5: b82a275412d4ebe0bf1fa553a30aa592.dir
+      size: 889995
+      nfiles: 5
+    - path: mlops/evaluate.py
+      hash: md5
+      md5: bdd0d1f4c50cd9983b3c2adb7adca105
+      size: 3027
+    - path: mlops/model.py
+      hash: md5
+      md5: d551d52afd83e120358a690502a8eed9
+      size: 2491
+    - path: models/blip_vizwiz
+      hash: md5
+      md5: 582b45b6a4a3e11edc422bdadd61dc44.dir
+      size: 1445969382
+      nfiles: 8
+    outs:
+    - path: mlops/experiments/blip_vizwiz.json
+      hash: md5
+      md5: ea433a5d1f640f9062f7f1f9459a34df
+      size: 3951
+  evaluate_v2:
+    cmd: python -m mlops.evaluate --candidate blip_vizwiz_v2 --output
+      mlops/experiments/blip_vizwiz_v2.json
+    deps:
+    - path: mlops/data/processed.json
+      hash: md5
+      md5: f019ca60bf2821de1916ebe75005de63
+      size: 4271
+    - path: mlops/data/raw
+      hash: md5
+      md5: b82a275412d4ebe0bf1fa553a30aa592.dir
+      size: 889995
+      nfiles: 5
+    - path: mlops/evaluate.py
+      hash: md5
+      md5: bdd0d1f4c50cd9983b3c2adb7adca105
+      size: 3027
+    - path: mlops/model.py
+      hash: md5
+      md5: d551d52afd83e120358a690502a8eed9
+      size: 2491
+    - path: models/blip_vizwiz_v2
+      hash: md5
+      md5: 0b5ad178be1dccf9eb877835673d8176.dir
+      size: 1445257755
+      nfiles: 7
+    outs:
+    - path: mlops/experiments/blip_vizwiz_v2.json
+      hash: md5
+      md5: 1705c09b8754a6eac721b88d1686eb80
+      size: 3935
+  select:
+    cmd: python -m mlops.select mlops/experiments/blip_vizwiz.json
+      mlops/experiments/blip_vizwiz_v2.json
+    deps:
+    - path: mlops/experiments/blip_vizwiz.json
+      hash: md5
+      md5: ea433a5d1f640f9062f7f1f9459a34df
+      size: 3951
+    - path: mlops/experiments/blip_vizwiz_v2.json
+      hash: md5
+      md5: 1705c09b8754a6eac721b88d1686eb80
+      size: 3935
+    - path: mlops/select.py
+      hash: md5
+      md5: eca80c481f1ea8767a91da6b67e27054
+      size: 1893
+    outs:
+    - path: mlops/registry/selection.json
+      hash: md5
+      md5: 6c918db454b57fc96f5ad31e765a4e35
+      size: 953
+  register:
+    cmd: python -m mlops.register
+    deps:
+    - path: mlops/model.py
+      hash: md5
+      md5: d551d52afd83e120358a690502a8eed9
+      size: 2491
+    - path: mlops/register.py
+      hash: md5
+      md5: e40ff3e6209aa4778bc0e1926943128c
+      size: 1792
+    - path: mlops/registry/selection.json
+      hash: md5
+      md5: 6c918db454b57fc96f5ad31e765a4e35
+      size: 953
+    - path: models/blip_vizwiz
+      hash: md5
+      md5: 582b45b6a4a3e11edc422bdadd61dc44.dir
+      size: 1445969382
+      nfiles: 8
+    - path: models/blip_vizwiz_v2
+      hash: md5
+      md5: 0b5ad178be1dccf9eb877835673d8176.dir
+      size: 1445257755
+      nfiles: 7
+    outs:
+    - path: mlops/registry/champion
+      hash: md5
+      md5: ccf75bf780e9afb9353788e36c33fbb2.dir
+      size: 1445258153
+      nfiles: 8

@@ -1,0 +1,24 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ListDvcObjects",
+      "Effect": "Allow",
+      "Action": ["s3:ListBucket"],
+      "Resource": "arn:aws:s3:::visionbridge-mlops-20261026-1a167b3",
+      "Condition": {"StringLike": {"s3:prefix": ["dvc", "dvc/*"]}}
+    },
+    {
+      "Sid": "ReadDvcObjects",
+      "Effect": "Allow",
+      "Action": ["s3:GetObject"],
+      "Resource": "arn:aws:s3:::visionbridge-mlops-20261026-1a167b3/dvc/*"
+    },
+    {
+      "Sid": "WriteApiLogs",
+      "Effect": "Allow",
+      "Action": ["logs:CreateLogStream", "logs:PutLogEvents", "logs:DescribeLogStreams"],
+      "Resource": "arn:aws:logs:ap-southeast-2:921810471381:log-group:/visionbridge/mlops/api:*"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+[core]
+    no_scm = false
+    remote = aws
+['remote "aws"']
+    url = s3://visionbridge-mlops-20261026-1a167b3/dvc
+    region = ap-southeast-2
