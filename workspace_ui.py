@@ -15,15 +15,18 @@ HTML_CSS='''
 .status{display:flex;gap:10px;padding:14px 0;border-top:1px solid #d9ddd0;margin:4px 0}.dot{width:6px;height:6px;background:#929888;border-radius:50%;margin-top:6px;flex-shrink:0}.status strong{font-size:12px;font-weight:600}.status p{color:#73776c;font-size:12px;line-height:1.65;margin-top:4px}.status.done .dot{background:#48785b}.status.working .dot{background:#254ddd;animation:breathe 1s ease-in-out infinite alternate}.status.error{border-color:#c67d67}.status.error .dot{background:#a53e25}.response-empty{padding:28px 0 6px}.response-empty .response-mark{font:normal 84px/.8 Georgia,serif;color:#c6ceba;display:block;margin-bottom:24px}.response-empty h3{font:normal 30px/1.15 Georgia,serif;letter-spacing:-.8px;max-width:270px}.response-empty p{font-size:13px;color:#73776c;line-height:1.8;max-width:285px;margin-top:14px}.meta{display:flex;gap:8px;flex-wrap:wrap;padding:6px 0}.chip{font:10px/1.6 Consolas,monospace;border-bottom:1px solid #b8c3a7;padding:4px 0;color:#586b45}.evidence-list{display:grid;gap:8px}.evidence-item{padding:16px;border-left:2px solid #a8b999;background:#f6f7f1}.evidence-top{display:flex;justify-content:space-between;font:10px Consolas,monospace;text-transform:uppercase;color:#586b45;gap:10px}.evidence-item p{font-size:14px;line-height:1.7;margin-top:10px;overflow-wrap:anywhere;white-space:pre-wrap}.evidence-item small{display:block;font-size:11px;color:#777b70;margin-top:8px}.empty-evidence{font-size:13px;line-height:1.8;color:#73776c;padding:22px;border:1px dashed #c8cdbf}.guide{display:grid;grid-template-columns:1fr 2fr;gap:40px;padding:28px 0 16px;border-top:1px solid #d5d8cd;margin-top:18px}.guide h2{font:normal 27px/1.25 Georgia,serif;letter-spacing:-.6px;max-width:260px}.guide p{font-size:12px;color:#777b70;line-height:1.9;max-width:700px}#question-notice,p[role=status]{font-size:11px;line-height:1.6;color:#73776c}@keyframes breathe{to{opacity:.3}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}@media(max-width:760px){.hero{padding:30px 0;align-items:flex-start;flex-direction:column;gap:20px}.hero h1{letter-spacing:-2px}.hero .intro{max-width:100%}.hero .intro span{margin-top:8px}.nav{gap:24px;height:34px}.brand strong{font-size:20px}.guide{grid-template-columns:1fr;gap:18px}.response-empty{padding-top:14px}}
 '''
 LOGO='''<svg width="38" height="38" viewBox="0 0 38 38" fill="none" aria-hidden="true"><path d="M3 9V3h10M25 3h10v10M35 25v10H25M13 35H3V25" stroke="#254ddd" stroke-width="2"/><path d="m10 14 9 12 9-12M19 9v9" stroke="#254ddd" stroke-width="2"/></svg>'''
-BRAND=f'<a class="brand" href="#vb-workspace" style="text-decoration:none">{LOGO}<div><strong>VisionBridge<span style="color:#254ddd">.</span></strong><small>A DIFFERENT WAY TO SEE</small></div></a>'
+BRAND=f'<a class="brand" href="#vb-workspace" style="text-decoration:none">{LOGO}<div><h1>VisionBridge</h1><small>See more. Understand more.</small></div></a>'
 NAV='''<nav class="nav" aria-label="Workspace navigation"><a href="#vb-workspace">Workspace ↗</a><a href="#vb-evidence">Evidence</a><a href="#vb-guide">How it works</a></nav>'''
 HERO='''<header class="hero"><div><p class="eyebrow">VISIONBRIDGE · YOUR VISUAL ASSISTANT</p><h1>A clearer <em>view.</em></h1></div><p class="intro">Upload or take a photo.<br>Ask by voice or text.<br>Read or listen to the answer.<span>PROCESSED ON YOUR COMPUTER</span></p></header>'''
-EMPTY_RESPONSE='<div class="response-empty"><span class="response-mark" aria-hidden="true">“</span><h3>A new perspective<br>starts here.</h3><p>Your answer will appear here. Ask about a detail, read a label, or explore the whole picture.</p></div>'
+EMPTY_RESPONSE='<div class="response-empty" aria-hidden="true"></div>'
 EMPTY_EVIDENCE='<div class="empty-evidence">Your analysis has a paper trail. Extracted candidates and supporting regions will appear here when available.</div>'
 
 
 HTML_CSS+='''
 .nav{height:auto;min-height:44px;flex-wrap:wrap;gap:20px}.nav a{font-size:16px;color:#424c3e}.hero{padding:28px 0;align-items:center}.hero h1{font-size:clamp(38px,5vw,60px);letter-spacing:-2px}.hero .intro{font-size:17px;color:#424c3e;line-height:1.7}.eyebrow{font-size:12px;color:#505c49}.section h2{font-size:20px}.section p{font-size:16px;color:#424c3e}.number{font-size:13px}.status strong{font-size:17px}.status p{font-size:16px;color:#424c3e}.response-empty p,.empty-evidence{font-size:16px;color:#424c3e}.guide p{font-size:16px;color:#424c3e}.chip{font-size:13px;color:#3c5031}.skip-links a{position:absolute;top:-9999px;left:16px;background:#232820;color:white;padding:16px;z-index:9999;text-decoration:underline;font-size:18px}.skip-links a:focus{top:12px;outline:3px solid #254ddd;outline-offset:3px}.skip-links a:nth-child(2){left:220px}@media(max-width:760px){.hero{gap:16px;align-items:flex-start}.hero h1{margin-top:8px}.hero .intro{max-width:none}.guide{gap:16px}.nav{gap:16px}.skip-links a:nth-child(2){left:16px}.skip-links a:nth-child(2):focus{top:78px}}
+'''
+HTML_CSS+='''
+.brand h1{font:750 32px/1.12 "Segoe UI",Arial,sans-serif;letter-spacing:-.045em;color:#101828;margin:0}.brand small{font:500 18px/1.45 "Segoe UI",Arial,sans-serif;letter-spacing:0;color:#344054;margin-top:3px}.brand svg{width:42px;height:42px}.status{margin:0;padding:12px 0;border:0}.status strong{font-size:18px;color:#101828}.status p{font-size:18px;color:#344054}.status.error{background:#fff3f0;border-left:4px solid #ad2f17;padding:12px}.status.working{background:#edf4ff;border-left:4px solid #1644cc;padding:12px}.response-empty{display:none}.chip{font:500 15px/1.4 "Segoe UI",Arial,sans-serif;color:#344054;border:0;background:#edf4ff;border-radius:99px;padding:5px 10px}.empty-evidence,.evidence-item p{font-size:18px;line-height:1.6;color:#101828}.evidence-item small,.evidence-top{font-size:15px;color:#344054}.skip-links a{background:#101828;color:#fff}
 '''
 
 
@@ -117,7 +120,7 @@ class WorkspaceController:
         values=list(final)
         try:
             values[1]=self.response_speech(final[0])
-            note='Spoken answer ready. If autoplay is blocked, press Play Answer or the audio player Play control.'
+            note='Spoken answer ready. Select Read Aloud to play it.'
         except Exception as error:
             from workspace_diagnostics import report_failure
             reference=report_failure('tts',error)
@@ -176,7 +179,8 @@ class WorkspaceController:
                 answer,audio,status,details,annotated,text,timings=request(image,question,speak,reading,rotation if reading and not automatic else '0')
             failed=not answer or bool(details.get('phase3_error'))
             title='Needs attention' if failed else ('More information needed' if details.get('answer_source')=='abstention' else 'Analysis complete')
-            yield (answer,audio,status_html(title,status,'error' if failed else 'done'),details,annotated,text,timings,
+            visible_status=status.replace(' See warnings in the evidence panel.',' Check important details against the image.')
+            yield (answer,audio,status_html(title,visible_status,'error' if failed else 'done'),details,annotated,text,timings,
                    response_meta(details,timings,show_task=not automatic),gr.update(interactive=True),evidence_html(details),explanation)
         except Exception as error:
             from workspace_diagnostics import report_failure

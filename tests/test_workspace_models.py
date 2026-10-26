@@ -45,6 +45,11 @@ def test_selector_isolates_models_and_clears_context_but_preserves_inputs(tmp_pa
     handlers = {f.api_name: f.fn for f in demo.fns.values() if f.fn}
     functions = {f.fn.__name__: f.fn for f in demo.fns.values() if f.fn}
     components = {c['id']: c for c in demo.config['components']}
+    by_elem = {c['props'].get('elem_id'): c for c in demo.config['components']}
+    assert by_elem['vb-model-choice']['type'] == 'dropdown'
+    assert by_elem['vb-photo']['id'] < by_elem['vb-question']['id'] < by_elem['vb-analyze']['id'] < by_elem['vb-answer']['id']
+    assert by_elem['vb-answer']['id'] < by_elem['vb-audio-controls']['id']
+    assert {'vb-contrast', 'vb-pause-answer', 'vb-resume-answer', 'vb-stop-answer'} <= by_elem.keys()
     select = next(d for d in demo.config['dependencies'] if d['api_name'] == 'select_model')
     # A selection never writes to the image or question components.
     assert not {'vb-photo', 'vb-question'} & {

@@ -1,4 +1,4 @@
-"""Real event callbacks: late results, resets, retries and explicit insertion."""
+"""Real event callbacks: late results, resets, retries and automatic insertion."""
 import wave
 import math
 import struct
@@ -25,20 +25,23 @@ def setup_flow(tmp_path,monkeypatch):
     return demo,handlers,calls,str(audio)
 
 
-def test_recording_review_never_automatically_replaces_question(tmp_path,monkeypatch):
+def test_recording_fills_question_after_transcription_and_preserves_newer_draft(tmp_path,monkeypatch):
     demo,f,calls,audio=setup_flow(tmp_path,monkeypatch)
-    job=f['begin'](audio)[0]
+    job=f['begin'](audio,'Original draft')[0]
     result=f['run'](job,None)
     committed=f['finish'](job,result)
     assert committed[0]['value']=='What is in the image?'
     assert committed[0]['interactive']
     assert committed[3]['interactive'] and committed[4]['interactive']
+    assert f['auto_insert'](job,result,'Original draft')[0]=='What is in the image?'
+    assert f['auto_insert'](job,result,'A newer typed question')[0]=={'__type__':'update'}
+    assert f['auto_insert'](f['begin'](audio)[0],result,'Original draft')[0]=={'__type__':'update'}
     assert f['use_question']('  My reviewed question  ')[0]=='My reviewed question'
     components={c['props'].get('elem_id'):c['id'] for c in demo.config['components']}
     finish=next(d for d in demo.config['dependencies'] if d.get('backend_fn') and
         demo.fns[d['id']].fn.__name__=='finish')
     assert components['vb-question'] not in finish['outputs']
-    # An explicit use click is the only new UI insertion action.
+    # The compatibility endpoint still accepts an explicit transcript.
     assert f['use_question']('')[0]=={'__type__':'update'}
 
 

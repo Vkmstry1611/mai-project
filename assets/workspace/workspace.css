@@ -351,7 +351,22 @@ to {
 #vb-model-choice .wrap label:has(input:checked) { border-color:#254ddd!important; color:#254ddd!important; }
 
 /* Speech has its own feedback, review and explicit question insertion. */
-#vb-voice { scroll-margin-top:24px; }
+#vb-voice {
+  scroll-margin-top:24px;
+  background:#edf0e6!important;
+  border:1px solid #c5cbbb!important;
+  border-left:4px solid #254ddd!important;
+  border-radius:6px!important;
+  padding:18px!important;
+  gap:12px!important;
+}
+#vb-voice .vb-voice-heading h3 {
+  margin:0!important;
+  color:#202d19!important;
+  font-family:Georgia,serif!important;
+  font-size:24px!important;
+  line-height:1.25!important;
+}
 #vb-voice-status .status { margin:0!important; }
 #vb-recording { background:#fbfaf6!important; border:1px solid #c5cbbb!important; border-radius:6px!important; }
 #vb-recording button { min-height:44px!important; min-width:44px!important; }
@@ -376,9 +391,105 @@ to {
 #vb-preferences { flex-basis:230px!important; min-width:230px!important; }
 #vb-shell #vb-recording button { font-size:18px!important; min-height:48px!important; }
 #vb-shell #vb-microphone-hint p { font-size:16px!important; color:#5c421e; }
+#vb-shell #vb-question textarea { font-size:20px!important; }
 #vb-shell #vb-model-choice label { font-size:16px!important; white-space:normal!important; }
 #vb-model-choice { flex-basis:330px!important; }
 #vb-shell #vb-answer textarea { color:#202d19!important; }
 #vb-shell #vb-copy-status { font-size:15px!important; }
 #vb-shell button:focus-visible,#vb-shell a:focus-visible,#vb-shell textarea:focus-visible,#vb-shell input:focus-visible { outline-width:3px!important; }
 @media(max-width:760px) { #vb-preferences { min-width:0!important; flex-basis:100%!important; } #vb-model-choice { flex-basis:100%!important; } }
+@media(max-width:500px) { #vb-voice { padding:14px!important; } }
+
+/* Accessible single-column workspace. */
+:root{color-scheme:light}
+body,.gradio-container{background:#fff!important;color:#101828!important}
+#vb-shell{width:min(100%,850px)!important;max-width:850px!important;margin:0 auto!important;padding:0 28px 70px!important;gap:0!important}
+#vb-sidebar{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:20px!important;padding:28px 0!important;border-bottom:1px solid #d0d5dd}
+#vb-sidebar>.block:first-child{flex:1 1 auto!important}
+#vb-preferences{flex:0 1 440px!important;min-width:0!important;display:flex!important;flex-direction:row!important;justify-content:flex-end!important;flex-wrap:wrap!important;gap:8px 16px!important;border:0!important;padding:0!important}
+#vb-preferences>.block{min-width:0!important;flex:0 1 auto!important}
+#vb-preferences label{font-size:18px!important;font-weight:600!important;color:#101828!important}
+#vb-preferences input{min-width:22px;min-height:22px;accent-color:#1644cc}
+#vb-main{gap:0!important;min-width:0!important}
+#vb-model-bar{justify-content:flex-end!important;padding:18px 0 8px!important;border:0!important}
+#vb-model-choice{flex:0 1 240px!important;min-width:200px!important;max-width:320px!important}
+#vb-model-choice label,#vb-model-choice button,#vb-model-choice input{font-size:18px!important;font-weight:650!important;color:#344054!important}
+#vb-model-choice ul.options{background:#fff!important;color:#101828!important;border:1px solid #667085!important;border-radius:10px!important;box-shadow:0 8px 24px rgba(16,24,40,.16)!important}
+#vb-model-choice ul.options li.item{background:#fff!important;color:#101828!important;font-size:18px!important;line-height:1.5!important;min-height:48px!important;padding:10px 14px!important}
+#vb-model-choice ul.options li.item:hover,#vb-model-choice ul.options li.item:focus{background:#edf4ff!important;color:#101828!important}
+#vb-model-choice ul.options li.item.selected{background:#e3edff!important;color:#002a9e!important;font-weight:700!important}
+#vb-model-choice ul.options .inner-item{color:#1644cc!important}
+#vb-workspace{display:flex!important;flex-direction:column!important;gap:20px!important;background:#fff!important;border:0!important}
+#vb-input-card,#vb-response-card{width:100%!important;min-width:0!important;flex:1 1 auto!important;padding:0!important;gap:16px!important;background:#fff!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+.step-heading{font:750 26px/1.25 "Segoe UI",Arial,sans-serif;color:#101828;margin:22px 0 0}
+#vb-photo{background:#f8faff!important;border:2px dashed #6d8cd7!important;border-radius:16px!important;overflow:hidden!important}
+#vb-photo .image-container{background:#f8faff!important}
+#vb-photo img{object-fit:contain!important}
+#vb-image-actions{display:flex!important;gap:12px!important}
+#vb-image-actions button{flex:1 1 0!important;min-width:0!important;min-height:54px!important;border-radius:10px!important;background:#fff!important;border:2px solid #1644cc!important;color:#1644cc!important;font-size:18px!important;font-weight:700!important}
+#vb-image-actions button:hover{background:#edf4ff!important}
+#vb-question,#vb-answer,#vb-transcript{border:0!important;background:transparent!important;padding:0!important}
+#vb-shell label,#vb-shell .block-label{font-size:18px!important;color:#101828!important;font-weight:650!important}
+#vb-question textarea,#vb-transcript textarea{background:#fff!important;color:#101828!important;border:2px solid #667085!important;border-radius:10px!important;padding:16px!important;font-size:20px!important;line-height:1.5!important;min-height:90px!important}
+#vb-question textarea::placeholder,#vb-transcript textarea::placeholder{color:#475467!important;opacity:1!important}
+#vb-voice{background:#f8faff!important;border:1px solid #c4d3ef!important;border-radius:14px!important;padding:18px!important;gap:10px!important}
+#vb-voice .vb-voice-heading h3{margin:0!important;font:700 22px/1.3 "Segoe UI",Arial,sans-serif!important;color:#101828!important}
+#vb-voice-status .status{padding:0!important}
+#vb-microphone-hint p{font-size:17px!important;color:#344054!important;line-height:1.5!important;margin:0!important}
+#vb-recording{background:#fff!important;border:1px solid #98a2b3!important;border-radius:10px!important}
+#vb-recording button{min-width:48px!important;min-height:48px!important;font-size:18px!important}
+#vb-voice-actions{gap:10px!important}
+#vb-voice-actions button{flex:1 1 145px!important;min-height:50px!important}
+#vb-use-voice{background:#1644cc!important;color:#fff!important;border:2px solid #1644cc!important}
+#vb-voice-actions button:disabled{opacity:.55!important}
+#vb-analyze{background:#1644cc!important;color:#fff!important;border:2px solid #1644cc!important;border-radius:12px!important;min-height:64px!important;font-size:22px!important;font-weight:750!important}
+#vb-analyze:hover,#vb-play-answer:hover{background:#1139ad!important}
+#vb-analyze:disabled{opacity:.6!important}
+#vb-retake,#vb-clear,#vb-copy{background:#fff!important;border:1px solid #98a2b3!important;color:#101828!important;border-radius:10px!important}
+#vb-response-card{background:#edf4ff!important;border:2px solid #1644cc!important;border-radius:16px!important;padding:22px!important;gap:12px!important}
+#vb-response-card .step-heading{margin:0!important}
+#vb-answer textarea{background:transparent!important;color:#101828!important;border:0!important;box-shadow:none!important;font-size:26px!important;line-height:1.5!important;min-height:80px!important;padding:6px 0!important}
+#vb-answer .label-wrap{display:none!important}
+#vb-audio-controls{display:none!important;flex-wrap:wrap!important;gap:10px!important}
+#vb-response-card.vb-audio-ready #vb-audio-controls{display:flex!important}
+#vb-audio-controls button{flex:1 1 150px!important;min-height:52px!important}
+#vb-play-answer{background:#1644cc!important;color:#fff!important;border:2px solid #1644cc!important;border-radius:10px!important;font-weight:700!important}
+#vb-pause-answer,#vb-resume-answer,#vb-stop-answer{background:#fff!important;color:#101828!important;border:2px solid #1644cc!important;border-radius:10px!important}
+#vb-response-card:has(.response-empty) #vb-audio-controls,#vb-response-card:has(.response-empty) #vb-playback,#vb-response-card:has(.response-empty) #vb-copy,#vb-response-card:has(.response-empty) #vb-copy-status{display:none!important}
+#vb-audio-controls #vb-pause-answer,#vb-audio-controls #vb-resume-answer,#vb-audio-controls #vb-stop-answer{display:none!important}
+#vb-response-card.vb-audio-playing #vb-pause-answer,#vb-response-card.vb-audio-playing #vb-stop-answer,#vb-response-card.vb-audio-paused #vb-resume-answer,#vb-response-card.vb-audio-paused #vb-stop-answer{display:block!important}
+#vb-playback{background:#fff!important;border:1px solid #98a2b3!important;border-radius:10px!important}
+#vb-copy-status{font-size:16px!important;color:#344054!important}
+#vb-evidence{margin-top:8px!important;border:1px solid #d0d5dd!important;border-radius:10px!important;background:#fff!important}
+#vb-evidence>button,#vb-developer>button{font-size:18px!important;font-weight:650!important;padding:16px!important}
+#vb-evidence-panels{gap:20px!important}
+#vb-annotated{background:#f8faff!important;border:1px solid #d0d5dd!important;border-radius:10px!important}
+#vb-mode{background:transparent!important;border:0!important}
+#vb-mode .wrap{display:flex!important;flex-wrap:wrap!important;gap:8px!important}
+#vb-mode .wrap label{flex:1 1 170px!important;min-height:48px!important;border:1px solid #98a2b3!important;border-radius:8px!important;padding:12px!important}
+#vb-developer,#vb-developer .block,#vb-developer .form,#vb-developer .wrap{min-width:0!important;max-width:100%!important;box-sizing:border-box}
+#vb-shell button{min-height:48px;font-size:18px!important;border-radius:10px;box-shadow:none!important}
+#vb-shell button:focus-visible,#vb-shell a:focus-visible,#vb-shell textarea:focus-visible,#vb-shell input:focus-visible,#vb-shell [role=combobox]:focus-visible{outline:4px solid #ed8b00!important;outline-offset:3px!important}
+#vb-shell input,#vb-shell textarea,#vb-shell [role=combobox]{color:#101828!important}
+#vb-shell .vb-note p,#vb-shell p[role=status]{font-size:18px!important;line-height:1.55!important;color:#344054!important}
+#vb-skip{position:absolute!important;top:0;left:0;z-index:9999;padding:0!important;border:0!important;min-height:0!important}
+#vb-shell.vb-large-text textarea,#vb-shell.vb-large-text #vb-answer textarea{font-size:26px!important}
+#vb-shell.vb-high-contrast{background:#fff!important;color:#000!important}
+#vb-shell.vb-high-contrast #vb-response-card{background:#fff!important;border-color:#000!important}
+#vb-shell.vb-high-contrast #vb-voice,#vb-shell.vb-high-contrast #vb-photo{background:#fff!important;border-color:#000!important}
+#vb-shell.vb-high-contrast #vb-analyze,#vb-shell.vb-high-contrast #vb-play-answer,#vb-shell.vb-high-contrast #vb-use-voice{background:#002a9e!important;border-color:#002a9e!important;color:#fff!important}
+#vb-shell.vb-high-contrast label,#vb-shell.vb-high-contrast p,#vb-shell.vb-high-contrast .step-heading{color:#000!important}
+.vb-sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+footer{border-top:1px solid #d0d5dd!important}
+@media(max-width:760px){#vb-shell{padding:0 18px 42px!important}#vb-sidebar{align-items:flex-start!important;flex-direction:column!important}#vb-preferences{width:100%!important;flex:0 0 auto!important;justify-content:flex-start!important}#vb-preferences>.block{flex:0 0 auto!important;width:auto!important;min-height:0!important}#vb-model-bar{justify-content:flex-start!important}#vb-model-choice{max-width:100%!important;flex:1 1 100%!important}#vb-evidence-panels{flex-direction:column!important}#vb-photo{height:260px!important}}
+@media(max-width:480px){#vb-shell{padding:0 14px 36px!important}#vb-image-actions,#vb-voice-actions{flex-direction:column!important}#vb-image-actions button,#vb-voice-actions button{width:100%!important;flex:0 0 auto!important}#vb-response-card{padding:16px!important}.step-heading{font-size:24px!important}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Voice is a single Record/Stop action; the native recorder remains mounted for capture. */
+#vb-voice{position:relative!important;display:flex!important;flex-direction:column!important;gap:8px!important;padding:14px!important}
+#vb-record-toggle{width:100%!important;min-height:58px!important;background:#1644cc!important;color:#fff!important;border:2px solid #1644cc!important;border-radius:10px!important;font-size:20px!important;font-weight:750!important}
+#vb-record-toggle:hover{background:#1139ad!important}
+#vb-voice-status .status{padding:0!important;margin:0!important;background:transparent!important;border:0!important}
+#vb-recording{position:absolute!important;left:0!important;top:0!important;width:1px!important;height:1px!important;min-height:0!important;max-height:1px!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important;opacity:0!important;pointer-events:none!important}
+#vb-shell.vb-high-contrast #vb-record-toggle{background:#002a9e!important;border-color:#002a9e!important;color:#fff!important}
+#vb-question-notice{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important}

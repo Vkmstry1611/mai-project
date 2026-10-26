@@ -80,8 +80,8 @@ def insert_transcript(current,snapshot,text):
     """Run after transcription, with the browser's latest question value."""
     if not text:return None,'No transcript was inserted. You can type your question.'
     if str(current or '')!=str(snapshot or ''):
-        return None,'Transcription ready below. Your newer typed draft was preserved; copy or edit the transcript if needed.'
-    return text,'Transcription ready. Review and edit the question, then select Analyze Image.'
+        return None,'Your newer typed question was preserved. Record again if you want to replace it.'
+    return text,'Question captured. Review it, then select Get Answer.'
 
 
 class VoiceReview:
@@ -111,17 +111,17 @@ class VoiceReview:
             return '', 'Speech processing failed. You can type your question. Diagnostic reference: '+ref,state
 
 
-def voice_job(audio=None):
+def voice_job(audio=None,draft='',recording=False):
     """A new recording/reset invalidates every older completion."""
     from uuid import uuid4
-    return {'id':uuid4().hex,'audio':audio}
+    return {'id':uuid4().hex,'audio':audio,'draft':str(draft or ''),'recording':recording}
 
 
 def current_completion(job,result):
     return bool(job and result and job.get('id')==result.get('id'))
 
 
-def bind(recording,button,question,status,controller,gr,transcript,clear_button,voice_status,use_button,discard_button):
+def bind(recording,button,question,status,controller,gr,transcript,clear_button,voice_status,use_button,discard_button,record_toggle=None):
     from workspace_ui import status_html
     voice=VoiceReview(controller.transcriber)
     cache=gr.State(None,time_to_live=3600)
@@ -130,8 +130,9 @@ def bind(recording,button,question,status,controller,gr,transcript,clear_button,
     jobs=[]
     local_outputs=[job,transcript,voice_status,use_button,button]
 
-    def begin(audio):
-        return (voice_job(audio),gr.update(value='',interactive=False),
+    def begin(audio,current_question='',previous_job=None):
+        draft=(previous_job or {}).get('draft',current_question) if (previous_job or {}).get('recording') else current_question
+        return (voice_job(audio,draft),gr.update(value='',interactive=False),
             (status_html('Transcribing your recording','This usually takes a few seconds. You can keep typing your question.','working') if audio else status_html('Ready for your recording','Select Record, or upload an audio file.')),
             gr.update(interactive=False),gr.update(interactive=False))
 
@@ -146,43 +147,55 @@ def bind(recording,button,question,status,controller,gr,transcript,clear_button,
         if not current_completion(current,result) or result.get('pending'):return (gr.skip(),)*5
         text=result['text']
         return (gr.update(value=text,interactive=bool(text)),
-            status_html('Review your question' if text else 'Try recording again',
-                'Edit any words below, then select Use this question.' if text else result['message'],
+            status_html('Speech recognized' if text else 'Try recording again',
+                'Adding your words to the question box.' if text else result['message'],
                 'done' if text else 'error'),result['cache'],
             gr.update(interactive=bool(text)),gr.update(interactive=bool(current.get('audio'))))
+
+    def auto_insert(current,result,current_question):
+        if not current_completion(current,result) or result.get('pending') or not result.get('text'):
+            return gr.skip(),gr.skip()
+        value,message=insert_transcript(current_question,current.get('draft'),result['text'])
+        return (value if value is not None else gr.skip()),status_html('Question ready' if value is not None else 'Typed question kept',message,'done')
 
     def attach(event):
         work=event.then(run,[job,cache],completion,show_progress='hidden',concurrency_limit=1,
             concurrency_id='workspace-speech-input',api_visibility='private')
-        work.success(finish,[job,completion],[transcript,voice_status,cache,use_button,button],queue=False,api_visibility='private')
+        work.success(finish,[job,completion],[transcript,voice_status,cache,use_button,button],queue=False,api_visibility='private').then(
+            auto_insert,[job,completion,question],[question,voice_status],queue=False,api_visibility='private')
         jobs.append(work)
 
     # Only the completed file triggers transcription. Stop never starts another job.
-    attach(recording.input(begin,recording,local_outputs,queue=False,api_visibility='private'))
-    attach(button.click(begin,recording,local_outputs,queue=False,trigger_mode='once',api_visibility='private'))
+    attach(recording.input(begin,[recording,question,job],local_outputs,queue=False,api_visibility='private'))
+    attach(button.click(begin,[recording,question,job],local_outputs,queue=False,trigger_mode='once',api_visibility='private'))
 
     def use_question(text):
         if not str(text or '').strip():
             return gr.skip(),status_html('No question yet','Record a question first.','error')
-        return str(text).strip(),status_html('Question ready','Your question is in the question box. Select Analyze Image when you are ready.','done')
+        return str(text).strip(),status_html('Question ready','Your question is in the question box. Select Get Answer when you are ready.','done')
     use_button.click(use_question,transcript,[question,voice_status],queue=False,api_name='use_voice_question').then(
         None,outputs=[],queue=False,api_visibility='private',
         js="() => {const q=document.querySelector('#vb-question textarea');q?.focus();q?.scrollIntoView({block:'center'});return [];}")
 
-    def starting():
-        return (voice_job(),gr.update(value='',interactive=False),
+    def starting(current_question=''):
+        return (voice_job(draft=current_question,recording=True),gr.update(value='',interactive=False),
             status_html('Recording…','Speak naturally. Select Stop when you finish.','working'),
             gr.update(interactive=False),gr.update(interactive=False))
-    recording.start_recording(starting,outputs=local_outputs,queue=False,api_visibility='private',
+    recording.start_recording(starting,inputs=question,outputs=local_outputs,queue=False,api_visibility='private',
         js="() => {document.querySelector('#vb-playback audio')?.pause(); return []}")
     recording.stop_recording(lambda:None,outputs=[],queue=False,api_visibility='private')
+    if record_toggle is not None:
+        recording.start_recording(lambda:gr.update(value='Stop recording'),outputs=record_toggle,queue=False,api_visibility='private')
+        recording.stop_recording(lambda:gr.update(value='Record question'),outputs=record_toggle,queue=False,api_visibility='private')
+        recording.clear(lambda:gr.update(value='Record question'),outputs=record_toggle,queue=False,api_visibility='private')
+        clear_button.click(lambda:gr.update(value='Record question'),outputs=record_toggle,queue=False,api_visibility='private')
 
     def reset_voice(request=None):
         session_id=getattr(request,'session_hash',None)
         for key in list(voice.recent):
             if key[0]==session_id:voice.recent.pop(key,None)
         return (voice_job(),gr.update(value='',interactive=False),
-            status_html('Ready to record','Select Record, speak your question, then select Stop.'),
+            status_html('Voice input','Select Record question, then Stop recording.'),
             gr.update(interactive=False),gr.update(interactive=False),None)
     reset_voice.__annotations__={'request':gr.Request}
     recording.clear(reset_voice,outputs=[*local_outputs,cache],queue=False,api_visibility='private',cancels=jobs)
@@ -191,7 +204,7 @@ def bind(recording,button,question,status,controller,gr,transcript,clear_button,
     for control in (discard_button,clear_button):
         control.click(discard,outputs=[recording,*local_outputs,cache],queue=False,api_visibility='private',cancels=jobs)
 
-    # Keep existing speech APIs for integrations; UI insertion is now explicit.
+    # Keep existing speech APIs for integrations; the simple UI inserts completed speech automatically.
     legacy=gr.Button(visible=False)
     legacy.click(controller.transcribe,recording,[transcript,status],api_name='transcribe_question',api_visibility='undocumented')
     def checked(audio,previous,request=None):return voice.transcribe(audio,previous,getattr(request,'session_hash',None))

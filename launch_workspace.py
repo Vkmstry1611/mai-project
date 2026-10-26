@@ -3,7 +3,7 @@ import argparse
 import atexit
 from pathlib import Path
 
-from workspace_ui import (WorkspaceController,HTML_CSS,BRAND,NAV,HERO,EMPTY_RESPONSE,EMPTY_EVIDENCE,
+from workspace_ui import (WorkspaceController,HTML_CSS,BRAND,EMPTY_RESPONSE,EMPTY_EVIDENCE,
                           ASSISTANT,VISUAL,READING,MODES,section,status_html,reading_mode)
 
 ROOT=Path(__file__).resolve().parent
@@ -44,72 +44,69 @@ def build_app(run_dir,session=None,model_sessions=None):
             html('<nav class="skip-links" aria-label="Skip navigation"><a href="#vb-question">Skip to question</a><a href="#vb-voice">Skip to voice input</a></nav>',elem_id='vb-skip')
             with gr.Row(elem_id='vb-sidebar',equal_height=False):
                 html(BRAND)
-                html(NAV)
                 with gr.Column(elem_id='vb-preferences',scale=0,min_width=190):
+                    contrast=gr.Checkbox(label='High contrast',value=False,elem_id='vb-contrast')
                     larger=gr.Checkbox(label='Larger text',value=True,elem_id='vb-access')
                     mute=gr.Checkbox(label='Mute Spoken Answers',value=False,elem_id='vb-mute')
             with gr.Column(scale=1,min_width=320,elem_id='vb-main'):
-                html(HERO)
                 if model_sessions is not None:
                     with gr.Row(elem_id='vb-model-bar'):
-                        model_choice=gr.Radio(model_sessions.choices,value=model_sessions.default,label='Answer model',interactive=True,elem_id='vb-model-choice',scale=1,min_width=260)
-                        html('<p class="model-help" style="font-size:16px;line-height:1.7;color:#424c3e"><strong>Choose your perspective.</strong> BLIP gives short visual answers and reads text. Qwen handles broader image questions. Switching clears the response and conversation; your image and draft stay.</p>')
-                with gr.Row(elem_id='vb-workspace',equal_height=True):
-                    with gr.Column(scale=6,min_width=300,elem_classes='vb-card',elem_id='vb-input-card'):
-                        html(section('01','The image','Your starting point. Upload a photo or use your camera.'))
-                        image=gr.Image(label='Image — upload or camera',sources=['upload','webcam'],type='pil',height=340,
-                            placeholder='Drop an image here, or choose Upload',elem_id='vb-photo')
-                        gr.Markdown('Use a clear, upright photo. Avoid glare and keep the text in focus.',elem_classes='vb-note')
-                        question=gr.Textbox(label='What would you like to know?',lines=2,max_lines=5,
+                        model_choice=gr.Dropdown(model_sessions.choices,value=model_sessions.default,label='AI Model',interactive=True,elem_id='vb-model-choice',scale=0,min_width=230)
+                with gr.Column(elem_id='vb-workspace'):
+                    with gr.Column(elem_classes='vb-card',elem_id='vb-input-card'):
+                        html('<h2 class="step-heading">Upload image</h2>')
+                        image=gr.Image(label='Image preview and upload',sources=['upload','webcam'],type='pil',height=300,
+                            placeholder='Choose an image or take a photo',elem_id='vb-photo')
+                        with gr.Row(elem_id='vb-image-actions'):
+                            upload_button=gr.Button('Upload Image',elem_id='vb-upload-button')
+                            camera_button=gr.Button('Open Camera',elem_id='vb-camera-button')
+                        html('<h2 class="step-heading" id="vb-ask-heading">Ask a question</h2>')
+                        question=gr.Textbox(label='Your question',lines=2,max_lines=5,
                             placeholder='What would you like to know about this image?',elem_id='vb-question')
-                        if hasattr(session,'for_conversation'):
-                            gr.Markdown('You can ask follow-up questions about the same image.',elem_classes='vb-note')
-                            gr.Markdown('**Keyboard:** Alt+Q for your question · Alt+V for voice input · Ctrl+Enter to analyze.',elem_classes='vb-note')
-                            question_notice=html('<p role="status" aria-live="polite">Type a question, or open voice input below.</p>')
-                        with gr.Accordion('Ask with your voice',open=False,elem_classes='vb-inset',elem_id='vb-voice'):
-                            gr.Markdown('**1 · Record** → **2 · Stop & review** → **3 · Use question**',elem_classes='vb-note')
-                            voice_status=html(status_html('Ready to record','Select Record, speak your question, then select Stop.'),elem_id='vb-voice-status')
-                            microphone_hint=gr.Markdown('Allow microphone access when asked. If this browser shows no microphone, upload audio or open this page in Chrome or Edge.',elem_id='vb-microphone-hint')
+                        with gr.Column(elem_id='vb-voice',elem_classes='vb-voice-panel'):
+                            record_toggle=gr.Button('Record question',variant='secondary',elem_id='vb-record-toggle')
+                            voice_status=html(status_html('Voice input','Select Record question, then Stop recording.'),elem_id='vb-voice-status')
                             recording=gr.Audio(label='Your recording',sources=['microphone','upload'],type='filepath',format='wav',editable=False,buttons=[],elem_id='vb-recording')
-                            speech_transcript=gr.Textbox(label='Your words · edit if needed',placeholder='Your transcript appears here after you stop recording.',interactive=False,lines=2,max_lines=4,elem_id='vb-transcript')
-                            with gr.Row(elem_id='vb-voice-actions'):
-                                use_voice=gr.Button('Use this question',variant='primary',interactive=False,elem_id='vb-use-voice')
-                                transcribe=gr.Button('Retry transcription',interactive=False,elem_id='vb-retry-voice')
-                                discard_voice=gr.Button('Start over',elem_id='vb-discard-voice')
-                            gr.Markdown('Your typed question stays unchanged until you select Use this question. Prefer a short recording in a quiet room. You can also upload an audio file.',elem_classes='vb-note')
-                            with gr.Accordion('Microphone not working?',open=False):
-                                microphone_check=gr.Button('Check microphone access',size='sm')
-                                microphone_notice=gr.Textbox(label='Microphone help',value='Allow microphone access for this page. If recording is unavailable in the in-app browser, open http://127.0.0.1:7867 in Chrome or Edge, or upload a recording.',interactive=False,lines=3)
-                        with gr.Accordion('Advanced / Developer · optional manual overrides',open=False,elem_classes='vb-inset',elem_id='vb-developer',visible=(model_sessions.default==BLIP if model_sessions else not hasattr(session,'backend_label'))) as developer:
-                            choices=MODES+(['Full Text Reading (experimental)'] if hasattr(session,'full_request') else [])
-                            mode=gr.Radio(choices,value=ASSISTANT,label='Processing override · leave Assistant selected for automatic routing',elem_id='vb-mode')
-                            if hasattr(session,'set_engine'):
-                                engine=gr.Dropdown(['Automatic','EasyOCR','RapidOCR'],value='Automatic',label='Experimental OCR engine · optional developer override')
-                                engine_status=gr.Textbox(label='Engine setting',interactive=False)
-                                engine.change(session.set_engine,engine,engine_status,api_name='set_ocr_engine',concurrency_limit=1,concurrency_id='workspace-inference')
-                            gr.Markdown('Manual modes are for testing. You do not need to choose a processing method to ask a question.',elem_classes='vb-note')
-                            with gr.Group(visible=False,elem_id='vb-rotation',elem_classes='vb-inset') as rotation_group:
-                                rotation=gr.Dropdown([('0° · upright','0'),('90° counterclockwise','90'),('180° · upside down','180'),('270° counterclockwise','270')],
-                                    value='0',label='Rotate image for manual OCR',info='Only applied with a manual OCR override; automatic reading selects orientation itself.')
-                        analyze=gr.Button('Analyze Image',variant='primary',elem_id='vb-analyze')
-                        retake=gr.Button('Replace image ↗',size='sm',elem_id='vb-retake')
-                        clear=gr.Button('Clear workspace',size='sm',elem_id='vb-clear')
-                    with gr.Column(scale=5,min_width=280,elem_classes='vb-card',elem_id='vb-response-card'):
-                        html(section('02','The perspective','A closer look at what’s in front of you.'))
+                            speech_transcript=gr.Textbox(label='Voice transcript',interactive=False,visible=False,elem_id='vb-transcript')
+                            use_voice=gr.Button('Use this question',interactive=False,visible=False,elem_id='vb-use-voice')
+                            transcribe=gr.Button('Retry transcription',interactive=False,visible=False,elem_id='vb-retry-voice')
+                            discard_voice=gr.Button('Start over',visible=False,elem_id='vb-discard-voice')
+                        if hasattr(session,'for_conversation'):
+                            question_notice=html('<p role="status" aria-live="polite">Type or record a question, then select Get Answer.</p>',elem_id='vb-question-notice')
+                        analyze=gr.Button('Get Answer',variant='primary',elem_id='vb-analyze')
+                    with gr.Column(elem_classes='vb-card',elem_id='vb-response-card'):
+                        html('<h2 class="step-heading">Answer</h2>')
+                        answer=gr.Textbox(label='AI answer',value='',placeholder='Your answer will appear here.',interactive=False,lines=2,max_lines=16,buttons=['copy'],elem_id='vb-answer')
+                        with gr.Row(elem_id='vb-audio-controls'):
+                            play=gr.Button('🔊 Read Aloud',variant='primary',elem_id='vb-play-answer')
+                            pause=gr.Button('Pause',elem_id='vb-pause-answer')
+                            resume=gr.Button('Resume',elem_id='vb-resume-answer')
+                            stop=gr.Button('Stop',elem_id='vb-stop-answer')
+                        audio=gr.Audio(label='Spoken answer',autoplay=True,elem_id='vb-playback')
+                        status=html(status_html('Ready when you are','Upload a photo and ask a question.'),elem_id='vb-status')
+                        copy=gr.Button('Copy answer',size='sm',elem_id='vb-copy')
+                        html('<p role="status" aria-live="polite">Answer copied when requested.</p>',elem_id='vb-copy-status')
                         meta=html(EMPTY_RESPONSE)
-                        answer=gr.Textbox(label='Answer / transcription',value='',placeholder='',interactive=False,lines=5,max_lines=16,buttons=['copy'],elem_id='vb-answer')
-                        copy=gr.Button('Copy response',size='sm',elem_id='vb-copy')
-                        html('<p role="status" aria-live="polite">Copy the answer to keep it handy. You can also select text and press Ctrl+C.</p>',elem_id='vb-copy-status')
-                        audio=gr.Audio(label='Play Answer · spoken response',autoplay=True,elem_id='vb-playback')
-                        play=gr.Button('Play Answer',size='sm',elem_id='vb-play-answer')
-                        gr.Markdown('Speech is generated by default. If your browser blocks autoplay, press Play Answer. Mute Spoken Answers stops playback and disables generation for new requests.',elem_classes='vb-note')
-                        status=html(status_html('Ready when you are','Upload a photo, ask a question, then select Analyze Image.'),elem_id='vb-status')
-                        gr.Markdown('Answers are generated from your image. Verify important numbers, dates and conclusions.' if hasattr(session,'backend_label') else 'An OCR candidate or learned score is not proof that an answer is correct. Inspect the supporting evidence below.',elem_classes='vb-note')
+                        gr.Markdown('Answers are generated from your image. Verify important numbers, dates and conclusions.',elem_classes='vb-note')
                         conversation=None
                         if hasattr(session,'for_conversation'):
                             with gr.Accordion('Conversation · recent questions',open=False):
                                 conversation=html('<p>No earlier questions for this image.</p>',elem_id='vb-conversation')
-                with gr.Accordion('Behind the answer · evidence & details',open=False,elem_classes='vb-card',elem_id='vb-evidence'):
+                    with gr.Row(elem_id='vb-secondary-actions'):
+                        retake=gr.Button('Replace image',size='sm',elem_id='vb-retake')
+                        clear=gr.Button('Clear workspace',size='sm',elem_id='vb-clear')
+                    with gr.Accordion('Advanced / Developer · optional manual overrides',open=False,elem_classes='vb-inset',elem_id='vb-developer',visible=(model_sessions.default==BLIP if model_sessions else not hasattr(session,'backend_label'))) as developer:
+                        choices=MODES+(['Full Text Reading (experimental)'] if hasattr(session,'full_request') else [])
+                        mode=gr.Radio(choices,value=ASSISTANT,label='Processing override · leave Assistant selected for automatic routing',elem_id='vb-mode')
+                        if hasattr(session,'set_engine'):
+                            engine=gr.Dropdown(['Automatic','EasyOCR','RapidOCR'],value='Automatic',label='Experimental OCR engine · optional developer override')
+                            engine_status=gr.Textbox(label='Engine setting',interactive=False)
+                            engine.change(session.set_engine,engine,engine_status,api_name='set_ocr_engine',concurrency_limit=1,concurrency_id='workspace-inference')
+                        gr.Markdown('Manual modes are for testing. You do not need to choose a processing method to ask a question.',elem_classes='vb-note')
+                        with gr.Group(visible=False,elem_id='vb-rotation',elem_classes='vb-inset') as rotation_group:
+                            rotation=gr.Dropdown([('0° · upright','0'),('90° counterclockwise','90'),('180° · upside down','180'),('270° counterclockwise','270')],
+                                value='0',label='Rotate image for manual OCR',info='Only applied with a manual OCR override; automatic reading selects orientation itself.')
+                with gr.Accordion('Behind the answer · evidence & details',open=False,visible=False,elem_classes='vb-card',elem_id='vb-evidence'):
                     html(section('03','A closer look','Inspect the sources, selected regions and original model outputs.'))
                     with gr.Row(elem_id='vb-evidence-panels'):
                         annotated=gr.Image(label='Supporting evidence boxes · all raw and excluded boxes in details',interactive=False,height=285,elem_id='vb-annotated',scale=1,min_width=240)
@@ -122,9 +119,6 @@ def build_app(run_dir,session=None,model_sessions=None):
                         details=gr.JSON(label='Original candidate, evidence and decision')
                         timings=gr.JSON(label='Persistent-worker request timings')
                         guidance=gr.JSON(label='Experimental capture quality and before/after comparison · not accuracy')
-                capability=getattr(session,'capability_text',None) or ('Explicit reading uses experimental Full Text Reading. Clearly labeled price, brand, expiry and manufacturing fields can be extracted when evidence is sufficient; this does not verify product safety. '
-                    if hasattr(session,'full_request') else 'Explicit reading uses the experimental fragment reader. Reliable specific-field extraction is not enabled in this launcher. ')
-                html('<section class="guide"><h2>One image.<br>Many possibilities.</h2><p>Upload an image or take a photo, then ask in your own words. You can speak your question, review the transcript, and listen to the answer. Ask a follow-up to explore the same image, or replace it to start a new perspective. '+capability+' Your session is temporary.</p></section>',elem_id='vb-guide')
 
         outputs=[answer,audio,status,details,annotated,text,timings,meta,analyze,evidence,routing,guidance,prior]
         if conversation is not None:outputs.append(conversation)
@@ -195,12 +189,38 @@ def build_app(run_dir,session=None,model_sessions=None):
             event.then(clear_submitted_question,[question,prior],[question,question_notice],queue=False,
                 api_name='clear_submitted_after_audio',api_visibility='private')
         demo.load(None,outputs=mute,js="() => {if(!window.vbSpeechGuard){document.addEventListener('play',(e)=>{if(e.target.closest?.('#vb-playback')){try{if(sessionStorage.getItem('visionbridge-mute')==='true'){e.target.muted=true;e.target.pause()}}catch(x){}}},true);window.vbSpeechGuard=true}try{return sessionStorage.getItem('visionbridge-mute')==='true'}catch(e){return false}}",api_visibility='private')
-        mute.change(None,mute,[],js="(muted) => {try{sessionStorage.setItem('visionbridge-mute',String(muted))}catch(e){} const a=document.querySelector('#vb-playback audio'); if(a){a.muted=muted;if(muted)a.pause()} return [];}",queue=False,api_visibility='private')
-        play.click(None,inputs=mute,outputs=[],js="(muted) => {const a=document.querySelector('#vb-playback audio');if(a&&!muted){a.muted=false;a.play().catch(()=>{});}return [];}",queue=False,api_visibility='private')
+        mute.change(None,mute,[],js="(muted) => {try{sessionStorage.setItem('visionbridge-mute',String(muted))}catch(e){} if(muted)window.vbNarrationControl?.('stop');return [];}",queue=False,api_visibility='private')
+        play.click(None,inputs=mute,outputs=[],js="(muted) => {if(!muted)window.vbNarrationControl?.('play');return [];}",queue=False,api_visibility='private')
+        pause.click(None,inputs=[],outputs=[],js="() => {window.vbNarrationControl?.('pause');return [];}",queue=False,api_visibility='private')
+        resume.click(None,inputs=mute,outputs=[],js="(muted) => {if(!muted)window.vbNarrationControl?.('resume');return [];}",queue=False,api_visibility='private')
+        stop.click(None,inputs=[],outputs=[],js="() => {window.vbNarrationControl?.('stop');return [];}",queue=False,api_visibility='private')
+        upload_button.click(None,inputs=[],outputs=[],js="""() => {
+          const root=document.querySelector('#vb-photo');
+          root?.querySelector('input[type=file]')?.removeAttribute('capture');
+          const button=root?.querySelector('button[aria-label="Drop an image file here to upload"]');
+          (button||root?.querySelector('input[type=file]'))?.click();return [];
+        }""",queue=False,api_visibility='private')
+        camera_button.click(None,inputs=[],outputs=[],js="""() => {
+          const root=document.querySelector('#vb-photo');if(!root)return [];
+          const mobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||navigator.userAgentData?.mobile;
+          if(mobile||!window.isSecureContext){
+            const openNativeCamera=()=>{
+              const input=root.querySelector('input[type=file]');if(!input)return false;
+              input.setAttribute('accept','image/*');input.setAttribute('capture','environment');input.click();return true;
+            };
+            if(!openNativeCamera()){
+              root.querySelector('button[aria-label="Upload file"]')?.click();
+              queueMicrotask(openNativeCamera);
+            }
+          }else{
+            root.querySelector('button[aria-label="Capture from camera"]')?.click();
+          }
+          return [];
+        }""",queue=False,api_visibility='private')
         copy.click(None,inputs=answer,outputs=[],js="async (text) => {try{await navigator.clipboard.writeText(text)}catch(e){document.querySelector('#vb-answer textarea')?.focus()}return [];}",queue=False,api_visibility='private')
         def reset(photo=None):
             return ('',None,status_html('Image ready' if photo is not None else 'Ready when you are',
-                'Ask a question, then select Analyze Image.' if photo is not None else 'Upload a photo to begin.'),{},None,'',{},EMPTY_RESPONSE,gr.update(interactive=True),EMPTY_EVIDENCE,
+                'Ask a question, then select Get Answer.' if photo is not None else 'Upload a photo to begin.'),{},None,'',{},EMPTY_RESPONSE,gr.update(interactive=True),EMPTY_EVIDENCE,
                 status_html('Task selection','No task has run for this input.'))
         original_reset=reset
         def reset(photo=None):return (*original_reset(photo),{},gr.skip(),*(['<p>Context will reset for a changed image on the next question.</p>'] if conversation is not None else []))
@@ -242,11 +262,36 @@ def build_app(run_dir,session=None,model_sessions=None):
             reading=value=='Full Text Reading (experimental)' or reading_mode(value)
             return (gr.update(visible=reading),gr.update(placeholder='What words are written in this image?' if reading else 'What would you like to know about this image?'),*reset())
         mode.change(switch_mode,mode,[rotation_group,question,*outputs],cancels=[event],queue=False,api_name='set_mode')
-        from workspace_voice import bind as bind_voice,MICROPHONE_CHECK_JS,MICROPHONE_AVAILABILITY_JS
-        bind_voice(recording,transcribe,question,status,controller,gr,speech_transcript,clear,voice_status,use_voice,discard_voice)
-        demo.load(None,outputs=microphone_hint,js=MICROPHONE_AVAILABILITY_JS,api_visibility='private')
-        microphone_check.click(None,inputs=[],outputs=microphone_notice,js=MICROPHONE_CHECK_JS,queue=False,api_visibility='private')
+        from workspace_voice import bind as bind_voice
+        bind_voice(recording,transcribe,question,status,controller,gr,speech_transcript,clear,voice_status,use_voice,discard_voice,record_toggle)
+        record_toggle.click(None,inputs=[],outputs=[],js="""() => {
+          const root=document.getElementById('vb-recording');if(!root)return [];
+          if(!window.isSecureContext||!navigator.mediaDevices?.getUserMedia){
+            const notice=document.querySelector('#vb-voice-status');
+            if(notice)notice.textContent='Microphone requires a secure page. On this laptop use localhost. On a phone use the local HTTPS address after trusting this laptop’s certificate.';
+            return [];
+          }
+          const shown=(selector)=>{const b=root.querySelector(selector);return b&&getComputedStyle(b).display!=='none'?b:null};
+          const stop=shown('.stop-button')||shown('.stop-button-paused');
+          if(stop){stop.click();return []}
+          const start=shown('.record-button');if(start){start.click();return []}
+          const clear=root.querySelector('button[aria-label="Clear"]');
+          if(clear){
+            const observer=new MutationObserver(()=>{const ready=shown('.record-button');if(ready){observer.disconnect();ready.click()}});
+            observer.observe(root,{childList:true,subtree:true,attributes:true,attributeFilter:['style','class']});
+            clear.click();setTimeout(()=>observer.disconnect(),3000);
+          }return [];
+        }""",queue=False,api_visibility='private')
+        contrast.change(None,contrast,[],js="(enabled) => {document.getElementById('vb-shell')?.classList.toggle('vb-high-contrast',enabled);try{sessionStorage.setItem('visionbridge-contrast',String(enabled))}catch(e){}return [];}",queue=False,api_visibility='private')
+        demo.load(None,outputs=contrast,js="() => {let enabled=false;try{enabled=sessionStorage.getItem('visionbridge-contrast')==='true'}catch(e){}document.getElementById('vb-shell')?.classList.toggle('vb-high-contrast',enabled);return enabled}",api_visibility='private')
+        answer.change(None,inputs=answer,outputs=[],js="(value) => {let region=document.getElementById('vb-answer-announcement');if(!region){region=document.createElement('div');region.id='vb-answer-announcement';region.className='vb-sr-only';region.setAttribute('role','status');region.setAttribute('aria-live','polite');region.setAttribute('aria-atomic','true');document.querySelector('#vb-response-card')?.appendChild(region)}region.textContent=value?'Answer ready. '+value:'';return [];}",queue=False,api_visibility='private')
         demo.load(None,outputs=[],api_visibility='private',js="""() => {
+          const recorder=document.getElementById('vb-recording');
+          if(recorder){
+            recorder.setAttribute('aria-hidden','true');
+            const removeNativeTabStops=()=>recorder.querySelectorAll('button,[tabindex]').forEach(el=>el.setAttribute('tabindex','-1'));
+            removeNativeTabStops();new MutationObserver(removeNativeTabStops).observe(recorder,{childList:true,subtree:true});
+          }
           const question=document.querySelector('#vb-question textarea');
           question?.setAttribute('aria-keyshortcuts','Alt+Q Control+Enter');
           if(!window.vbKeyboardAccess){
@@ -254,20 +299,57 @@ def build_app(run_dir,session=None,model_sessions=None):
               if(e.altKey&&!e.ctrlKey&&e.key.toLowerCase()==='q'){
                 e.preventDefault();const q=document.querySelector('#vb-question textarea');q?.focus();q?.scrollIntoView({block:'center'});
               }else if(e.altKey&&!e.ctrlKey&&e.key.toLowerCase()==='v'){
-                e.preventDefault();const b=document.querySelector('#vb-voice>button');b?.focus();b?.scrollIntoView({block:'center'});
+                e.preventDefault();const b=document.querySelector('#vb-record-toggle');b?.focus();b?.scrollIntoView({block:'center'});
               }else if(e.ctrlKey&&e.key==='Enter'&&document.activeElement?.closest('#vb-question')){
                 e.preventDefault();document.querySelector('#vb-analyze:not(:disabled)')?.click();
               }
             });window.vbKeyboardAccess=true;
           }return [];
         }""")
+        demo.load(None,outputs=[],api_visibility='private',js="""() => {
+          if(window.vbAudioControls)return [];
+          const card=document.querySelector('#vb-response-card');
+          const player=document.querySelector('#vb-playback');
+          const sync=()=>{
+            const source=player?.querySelector('a[data-testid="download-link"]')?.href||'';
+            if(source!==window.vbNarrationSource){
+              window.vbNarration?.pause();window.vbNarration=null;window.vbNarrationSource=source;
+              card?.classList.remove('vb-audio-playing','vb-audio-paused');
+            }
+            card?.classList.toggle('vb-audio-ready',!!source);
+          };
+          window.vbNarrationControl=(action)=>{
+            sync();const nativePause=player?.querySelector('button[aria-label="Pause"]');
+            if(action==='stop'||action==='pause')nativePause?.click();
+            if(action==='stop'){
+              if(window.vbNarration){window.vbNarration.pause();window.vbNarration.currentTime=0}
+              card?.classList.remove('vb-audio-playing','vb-audio-paused');return;
+            }
+            if(action==='pause'){
+              window.vbNarration?.pause();card?.classList.remove('vb-audio-playing');
+              card?.classList.add('vb-audio-paused');return;
+            }
+            if(!window.vbNarrationSource)return;
+            nativePause?.click();
+            if(!window.vbNarration){
+              const audio=new Audio(window.vbNarrationSource);window.vbNarration=audio;
+              audio.addEventListener('ended',()=>card?.classList.remove('vb-audio-playing','vb-audio-paused'));
+            }
+            if(action==='play')window.vbNarration.currentTime=0;
+            window.vbNarration.play().then(()=>{
+              card?.classList.add('vb-audio-playing');card?.classList.remove('vb-audio-paused');
+            }).catch(()=>{});
+          };
+          if(player)new MutationObserver(sync).observe(player,{childList:true,subtree:true,attributes:true,attributeFilter:['href']});
+          sync();window.vbAudioControls=true;return [];
+        }""")
         larger.change(None,larger,[],js="(large) => {document.getElementById('vb-shell')?.classList.toggle('vb-large-text', large); return [];}",queue=False,api_visibility='private')
     atexit.register(model_sessions.close if model_sessions else session.close)
     return demo,session
 
 
-def launch_options():
-    return dict(server_name='127.0.0.1',share=False,show_error=True,theme=theme(),css=(ASSETS/'workspace.css').read_text(encoding='utf-8'),
+def launch_options(host='127.0.0.1',ssl=None):
+    return dict(server_name=host,share=False,**(ssl or {}),show_error=True,theme=theme(),css=(ASSETS/'workspace.css').read_text(encoding='utf-8'),
                 allowed_paths=[str(ASSETS)])
 
 
@@ -286,12 +368,27 @@ def create_session(run_dir,backend='auto',model=None):
 if __name__=='__main__':
     import sys
     import os
+    # Gradio converts phone recordings (usually M4A/3GP) to WAV before the
+    # existing speech validator sees them. Both ffmpeg and ffprobe are needed.
+    import static_ffmpeg
+    static_ffmpeg.add_paths()
     # Keep MAI uploads independent of BDA Gradio cache cleanup.
     os.environ.setdefault('GRADIO_TEMP_DIR',str(ROOT/'outputs/gradio-cache'))
     if Path(sys.prefix).name!='.venv':raise RuntimeError('Use .venv for Gradio; the persistent worker uses .venv-gpu')
     p=argparse.ArgumentParser();p.add_argument('--run-dir',default='reports/phase4_policy/run-local-20261013-v1');p.add_argument('--port',type=int,default=7865)
+    p.add_argument('--host',choices=['127.0.0.1','0.0.0.0'],default='127.0.0.1',help='Use 0.0.0.0 to allow devices on the same local network to connect.')
+    p.add_argument('--local-https',action='store_true',help='Use a private LAN HTTPS certificate; the phone must trust its CA certificate.')
+    p.add_argument('--lan-ip',help='Private Wi-Fi IP of this laptop for --local-https.')
     p.add_argument('--backend',choices=['auto','local','frozen'],default='auto')
     p.add_argument('--vision-model',default=None);args=p.parse_args()
+    ssl=None
+    if args.local_https:
+        if not args.lan_ip:p.error('--local-https needs --lan-ip (this laptop’s Wi-Fi address).')
+        from workspace_tls import local_certificates
+        ca_file,cert_file,key_file=local_certificates(ROOT/'outputs/local-https',args.lan_ip)
+        ssl={'ssl_certfile':str(cert_file),'ssl_keyfile':str(key_file),'ssl_verify':False}
+        print('Private phone URL: https://'+args.lan_ip+':'+str(args.port),flush=True)
+        print('Install and trust this local CA certificate on your phone: '+str(ca_file.with_name(ca_file.name.replace('-ca.pem','-phone-ca.crt'))),flush=True)
     session=create_session(Path(args.run_dir).resolve(),args.backend,args.vision_model)
     from workspace_models import FrontendModels,BLIP,QWEN
     default_model=QWEN if hasattr(session,'backend_label') else BLIP
@@ -300,5 +397,5 @@ if __name__=='__main__':
     session=models.get(BLIP)
     print('Starting VisionBridge: frontend model selector; default='+default_model,flush=True)
     demo,session=build_app(Path(args.run_dir).resolve(),session=session,model_sessions=models)
-    try:demo.queue(default_concurrency_limit=1).launch(server_port=args.port,**launch_options())
+    try:demo.queue(default_concurrency_limit=1).launch(server_port=args.port,**launch_options(args.host,ssl))
     finally:models.close()
