@@ -3,7 +3,6 @@ name: VisionBridge MLOps
 on:
   push:
     branches: [codex/mlops-agent-toolkit]
-  pull_request:
   workflow_dispatch:
     inputs:
       deploy:
@@ -30,7 +29,6 @@ jobs:
 
   publish:
     needs: validate
-    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -55,7 +53,7 @@ jobs:
 
   deploy:
     needs: publish
-    if: github.event_name == 'workflow_dispatch' && inputs.deploy
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy)
     runs-on: [self-hosted, linux, visionbridge-mlops]
     permissions:
       contents: read
