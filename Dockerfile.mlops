@@ -5,6 +5,7 @@ RUN pip install --no-cache-dir torch==2.5.1+cpu torchvision==0.20.1+cpu --index-
 COPY requirements-mlops-serving.txt .
 RUN pip install --no-cache-dir -r requirements-mlops-serving.txt
 COPY .dvc .dvc
+RUN printf '[core]\n    no_scm = true\n' > .dvc/config.local
 COPY .dvcignore dvc.yaml dvc.lock ./
 COPY mlops/__init__.py mlops/model.py mlops/api.py mlops/serve.sh mlops/
 RUN chmod +x mlops/serve.sh
