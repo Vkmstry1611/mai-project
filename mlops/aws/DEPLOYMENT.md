@@ -16,7 +16,7 @@ All regional resources are in `ap-southeast-2` under AWS CLI profile `mlops-visi
 | CI image | `ghcr.io/vkmstry1611/visionbridge-mlops:<full-git-sha>` |
 | CI/CD | [VisionBridge MLOps GitHub Actions](https://github.com/Vkmstry1611/mai-project/actions/workflows/mlops.yml) |
 
-The AWS Free Plan managed policy blocks ECR repository creation and IAM OIDC providers. GitHub Actions builds the image and GitHub Container Registry holds it. An EC2 self-hosted runner deploys it using the workflow's short-lived GitHub token. The container pulls the selected model from S3 using temporary instance-role credentials. No static AWS keys are stored in GitHub.
+The [AWS Free Plan managed policy](https://docs.aws.amazon.com/accounts/latest/reference/scps-and-rcps-for-projects.html) blocks ECR repository creation and IAM OIDC providers. GitHub Actions builds the image and GitHub Container Registry holds it. An EC2 self-hosted runner deploys it using the workflow's short-lived GitHub token. The container pulls the selected model from S3 using temporary instance-role credentials. No static AWS keys are stored in GitHub.
 
 ## Reproduce or inspect
 
@@ -49,7 +49,7 @@ aws ssm send-command --instance-ids i-0e44bd4d11fa9f312 --document-name AWS-RunS
 aws ssm get-command-invocation --command-id <id-from-previous-command> --instance-id i-0e44bd4d11fa9f312 --region ap-southeast-2 --profile mlops-visionbridge --query '[Status,StandardOutputContent,StandardErrorContent]' --output text
 ```
 
-The API binds to the instance's localhost and has no public ingress. To call it from a local client, install the AWS Session Manager plugin and open a port-forwarding session to the instance:
+The API binds to the instance's localhost and has no public ingress. To call it from a local client, [install the AWS Session Manager plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html) and open a port-forwarding session to the instance:
 
 ```powershell
 aws ssm start-session --target i-0e44bd4d11fa9f312 --document-name AWS-StartPortForwardingSession --parameters '{"portNumber":["8000"],"localPortNumber":["8000"]}' --region ap-southeast-2 --profile mlops-visionbridge

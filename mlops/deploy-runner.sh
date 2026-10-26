@@ -17,17 +17,23 @@ run_api() {
   --log-opt awslogs-group=/visionbridge/mlops/api \
   "$1"
 }
-run_api "$image_uri"
+restore_previous() {
+  if [[ -n "$previous_image" ]]; then
+    docker rm -f visionbridge-mlops 2>/dev/null || true
+    run_api "$previous_image"
+    echo "Restored previous image $previous_image after failed health check" >&2
+  fi
+}
+if ! run_api "$image_uri"; then
+  restore_previous
+  exit 1
+fi
 for attempt in $(seq 1 60); do
   if curl -fsS http://127.0.0.1:8000/health; then
     exit 0
   fi
   sleep 10
 done
-docker logs --tail 100 visionbridge-mlops
-if [[ -n "$previous_image" ]]; then
-  docker rm -f visionbridge-mlops
-  run_api "$previous_image"
-  echo "Restored previous image $previous_image after failed health check" >&2
-fi
+docker logs --tail 100 visionbridge-mlops || true
+restore_previous
 exit 1
