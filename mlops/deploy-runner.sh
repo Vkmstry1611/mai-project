@@ -29,11 +29,31 @@ if ! run_api "$image_uri"; then
   exit 1
 fi
 for attempt in $(seq 1 60); do
-  if curl -fsS http://127.0.0.1:8000/health; then
-    exit 0
+  if curl -fsS http://127.0.0.1:8000/health >/dev/null; then
+    break
   fi
   sleep 10
 done
-docker logs --tail 100 visionbridge-mlops || true
-restore_previous
+if ! curl -fsS http://127.0.0.1:8000/health >/dev/null; then
+  docker logs --tail 100 visionbridge-mlops || true
+  restore_previous
+  exit 1
+fi
+install -m 644 mlops/aws/Caddyfile /opt/visionbridge/Caddyfile
+docker pull caddy:2.11.7-alpine
+docker run --rm -v /opt/visionbridge/Caddyfile:/etc/caddy/Caddyfile:ro \
+  caddy:2.11.7-alpine caddy validate --config /etc/caddy/Caddyfile
+docker rm -f visionbridge-proxy 2>/dev/null || true
+docker run -d --name visionbridge-proxy --restart unless-stopped --network host \
+  -v /opt/visionbridge/Caddyfile:/etc/caddy/Caddyfile:ro \
+  -v visionbridge-caddy-data:/data -v visionbridge-caddy-config:/config \
+  caddy:2.11.7-alpine
+for attempt in $(seq 1 60); do
+  if curl -fsS --resolve 15-135-22-228.sslip.io:443:127.0.0.1 \
+      https://15-135-22-228.sslip.io/health >/dev/null; then
+    exit 0
+  fi
+  sleep 5
+done
+docker logs --tail 100 visionbridge-proxy || true
 exit 1

@@ -7,9 +7,11 @@ import json
 import os
 import threading
 import time
+from collections import deque
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from PIL import Image, UnidentifiedImageError
 from pydantic import BaseModel
 
@@ -19,8 +21,12 @@ from mlops.model import load_model, model_sha256, predict
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024
 Image.MAX_IMAGE_PIXELS = 20_000_000
 MODEL_DIR = Path(os.environ.get("MODEL_DIR", "mlops/registry/champion"))
+UI_PATH = Path(__file__).with_name("ui.html")
 app = FastAPI(title="VisionBridge VQA API", version="1.0")
 _lock = threading.Lock()
+_rate_lock = threading.Lock()
+_recent_predictions = deque()
+MAX_PREDICTIONS_PER_MINUTE = 30
 _state = {"processor": None, "model": None, "metadata": None,
           "requests": 0, "errors": 0, "latency_total_seconds": 0.0}
 
@@ -28,6 +34,11 @@ _state = {"processor": None, "model": None, "metadata": None,
 class PredictionRequest(BaseModel):
     image_base64: str
     question: str
+
+
+@app.get("/", include_in_schema=False)
+def demo_page() -> FileResponse:
+    return FileResponse(UI_PATH, media_type="text/html", headers={"Cache-Control": "no-store"})
 
 
 @app.on_event("startup")
@@ -81,6 +92,13 @@ async def prediction(request: PredictionRequest) -> dict:
             rgb = opened.convert("RGB")
     except (UnidentifiedImageError, OSError, ValueError, Image.DecompressionBombError):
         raise HTTPException(400, "Invalid image") from None
+    now = time.monotonic()
+    with _rate_lock:
+        while _recent_predictions and now - _recent_predictions[0] >= 60:
+            _recent_predictions.popleft()
+        if len(_recent_predictions) >= MAX_PREDICTIONS_PER_MINUTE:
+            raise HTTPException(429, "Demo is busy; retry in a minute")
+        _recent_predictions.append(now)
     started = time.perf_counter()
     try:
         with _lock:

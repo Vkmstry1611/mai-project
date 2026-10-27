@@ -8,6 +8,7 @@ COPY .dvc .dvc
 RUN printf '[core]\n    no_scm = true\n' > .dvc/config.local
 COPY .dvcignore dvc.yaml dvc.lock ./
 COPY mlops/__init__.py mlops/model.py mlops/api.py mlops/serve.sh mlops/
+COPY mlops/ui.html mlops/
 RUN chmod +x mlops/serve.sh
 EXPOSE 8000
 CMD ["/app/mlops/serve.sh"]

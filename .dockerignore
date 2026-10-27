@@ -13,4 +13,5 @@
 !mlops/__init__.py
 !mlops/model.py
 !mlops/api.py
+!mlops/ui.html
 !mlops/serve.sh
