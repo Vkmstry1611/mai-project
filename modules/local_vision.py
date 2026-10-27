@@ -37,6 +37,20 @@ class LocalVisionError(RuntimeError):
     """An actionable local model failure that can be shown in the workspace."""
 
 
+def emit_cloud_metric(model, elapsed, errors):
+    """Publish timing and error counts through CloudWatch EMF without user content."""
+    if os.getenv('VISIONBRIDGE_CLOUD') != '1':
+        return
+    print(json.dumps({
+        '_aws': {'Timestamp': int(time.time() * 1000), 'CloudWatchMetrics': [{
+            'Namespace': 'VisionBridge/MLOps', 'Dimensions': [['Model']],
+            'Metrics': [{'Name': 'PredictionLatencySeconds', 'Unit': 'Seconds'},
+                        {'Name': 'PredictionErrors', 'Unit': 'Count'}]}]},
+        'Model': model, 'PredictionLatencySeconds': round(elapsed, 3),
+        'PredictionErrors': errors, 'event': 'cloud_vision_prediction'
+    }), flush=True)
+
+
 def post_json(path, payload, timeout=600):
     # A loopback request must not pass through system proxy configuration.
     request = Request(ENDPOINT + path, json.dumps(payload).encode('utf-8'),
@@ -104,17 +118,21 @@ class LocalVisionSession:
                            'options': {'temperature': 0,
                                        'num_ctx': int(os.getenv('VISIONBRIDGE_NUM_CTX', '8192')),
                                        'num_predict': int(os.getenv('VISIONBRIDGE_NUM_PREDICT', '2048'))}}
-        result = post_json('/api/chat', payload)
-        answer = result.get('message', {}).get('content', '').strip()
-        # Some local model templates still spend tokens on reasoning despite
-        # think=False. Never expose that reasoning as an answer. Give an
-        # exhausted generation room to produce its actual response.
-        if not answer and result.get('done_reason') == 'length':
-            payload['options']['num_predict'] = 4096
+        try:
             result = post_json('/api/chat', payload)
             answer = result.get('message', {}).get('content', '').strip()
-        if not answer:
-            raise LocalVisionError('The local vision model returned an empty response. Please retry.')
+            # Some local model templates still spend tokens on reasoning despite
+            # think=False. Never expose that reasoning as an answer. Give an
+            # exhausted generation room to produce its actual response.
+            if not answer and result.get('done_reason') == 'length':
+                payload['options']['num_predict'] = 768 if cloud else 4096
+                result = post_json('/api/chat', payload)
+                answer = result.get('message', {}).get('content', '').strip()
+            if not answer:
+                raise LocalVisionError('The vision model returned an empty response. Please retry.')
+        except Exception:
+            emit_cloud_metric(self.model, time.perf_counter() - start, 1)
+            raise
         if result.get('done_reason') == 'length':
             answer += '\n\n[Response reached its length limit. Ask me to continue for more.]'
         details = {'final_answer': answer, 'answer_source': 'local_vision_model',
@@ -134,6 +152,7 @@ class LocalVisionSession:
                    'experimental_reading_active': False,
                    'model_load_seconds': result.get('load_duration', 0) / 1e9,
                    'generation_seconds': result.get('eval_duration', 0) / 1e9}
+        emit_cloud_metric(self.model, timings['callback_seconds'], 0)
         audio = None
         if speak:
             from config import Config

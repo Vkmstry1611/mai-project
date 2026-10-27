@@ -1,6 +1,6 @@
 # VisionBridge MLOps course implementation
 
-This directory implements the professor's data → pipeline → experiments → selected model → DVC remote → Docker API → container registry → EC2 flow. The AWS project uses `ap-southeast-2`. The Agent Toolkit control service runs in `us-east-1`; application resources stay in `ap-southeast-2`.
+This directory implements the professor's data → pipeline → experiments → selected model → DVC remote → Docker API → container registry → EC2 flow. The public frontend is the VisionBridge workspace from the `mai-project` branch (source commit `eb1fc3d`), adapted so inference runs on EC2. The AWS project uses `ap-southeast-2`. The Agent Toolkit control service runs in `us-east-1`; application resources stay in `ap-southeast-2`.
 
 ## What is measured
 
@@ -20,10 +20,14 @@ flowchart TD
   I --> J[GitHub Container Registry image]
   J --> K[EC2 pulls image]
   G --> L[Container pulls pinned model]
-  K --> M[CPU VQA API]
+  K --> M[CPU BLIP VQA API]
   L --> M
-  M --> N[HTTPS Caddy proxy and public browser demo]
-  M --> O[CloudWatch logs and API metrics]
+  J --> P[MAI Gradio workspace on EC2]
+  Q[Ollama Qwen3-VL 2B on EC2] --> P
+  M --> P
+  P --> N[HTTPS Caddy proxy and public browser]
+  P --> O[CloudWatch logs]
+  M --> O
 ```
 
 ## Local reproduction
@@ -43,21 +47,21 @@ The selected artifact is `mlops/registry/champion`, including `registry.json`. I
 
 ## API
 
-Open the [public HTTPS demo](https://15-135-22-228.sslip.io/) to upload an image, ask a question, and see the answer. The CPU API also exposes `GET /health`, `POST /predict`, and `GET /metrics`. Prediction accepts JSON:
+Open the [public HTTPS workspace](https://15-135-22-228.sslip.io/) to upload or capture an image, ask a question, use follow-ups, and choose the cloud model. The default is the smaller Qwen3-VL 2B vision model on EC2; the DVC-selected BLIP v2 is a second EC2 option. Voice transcription uses Whisper tiny.en and speech output uses the Linux speech engine in the workspace container. The CPU BLIP API also exposes `GET /health`, `POST /predict`, and `GET /metrics`. Prediction accepts JSON:
 
 ```json
 {"question":"What word is on the sign?","image_base64":"<base64-encoded image>"}
 ```
 
-It returns the answer, selected model hash, and latency. The image and question are not logged; logs contain only result timing, model hash, and errors. The API binds to localhost on EC2; Caddy exposes the browser demo and API on HTTPS ports 80/443. SSM remains an operator access path. It is a BLIP-only VQA service; it does **not** claim to serve the frozen Phase 4 OCR, gating, voice, or Gradio workspace.
+It returns the answer, selected BLIP model hash, and latency. The image and question are not logged; logs contain only result timing, model hash, and errors. The API, workspace, and Ollama endpoints bind to localhost on EC2; Caddy exposes the workspace and BLIP API through HTTPS ports 80/443. SSM remains an operator access path. The private frozen Phase 4 OCR/gating bundle is not in this cloud deployment. Qwen answers reading questions directly; those answers have no independently verified OCR boxes or calibrated accuracy claim.
 
 ## AWS deployment
 
-The private S3 bucket `visionbridge-mlops-20261026-1a167b3` holds DVC objects. GitHub Container Registry holds immutable code image tags. One `m7i-flex.large` CPU EC2 instance hosts the demo in `ap-southeast-2` with 8 GiB RAM. It uses an instance profile for S3/SSM/CloudWatch access and IMDSv2 hop limit 2 so the container can retrieve temporary credentials. Public ingress is limited to ports 80 and 443 for the HTTPS proxy; the API's port 8000 stays local. The AWS Free Plan's managed policy blocks creating an ECR private repository, CodeBuild, CodePipeline, CloudFormation stacks, and IAM OIDC providers, so GitHub Actions and GHCR provide the CI and image registry.
+The private S3 bucket `visionbridge-mlops-20261026-1a167b3` holds DVC objects. GitHub Container Registry holds immutable code image tags for both the BLIP API and MAI workspace. One `m7i-flex.large` CPU EC2 instance hosts them and Ollama in `ap-southeast-2` with 8 GiB RAM. The Qwen3-VL 2B Ollama weights are downloaded to a persistent Docker volume on that EC2 host. The instance profile provides S3/SSM/CloudWatch access with IMDSv2 hop limit 2. Public ingress is limited to ports 80 and 443 for the HTTPS proxy; inference ports 8000, 7865, and 11434 stay local. The AWS Free Plan's managed policy blocks creating an ECR private repository, CodeBuild, CodePipeline, CloudFormation stacks, and IAM OIDC providers, so GitHub Actions and GHCR provide the CI and image registry.
 
 GitHub Actions validates on pushes to this branch, builds and pushes the image using its built-in GitHub token, then deploys on a narrowly labeled self-hosted runner on the EC2 demo instance. The container restarts automatically. Deployment waits for `/health` and can restore the previous local image after a failed health check. No static AWS keys are placed in GitHub. Pull requests do not run on the self-hosted runner because this is a public repository.
 
-For the presentation, open the public demo above and ask the supplied stop-sign image “What word is on the sign?” See the deployment guide for resource IDs, evidence, and operator access.
+For the presentation, open the MAI workspace above, upload the supplied stop-sign image, and ask “What word is on the sign?” Show both cloud model choices, the pipeline artifacts, and the latest successful deployment. See the deployment guide for resource IDs, evidence, and operator access.
 
 ## Rubric evidence
 
