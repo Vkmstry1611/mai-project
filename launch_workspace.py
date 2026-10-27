@@ -52,6 +52,8 @@ def build_app(run_dir,session=None,model_sessions=None,cloud_mode=False):
                 if model_sessions is not None:
                     with gr.Row(elem_id='vb-model-bar'):
                         model_choice=gr.Dropdown(model_sessions.choices,value=model_sessions.default,label='AI Model',interactive=True,elem_id='vb-model-choice',scale=0,min_width=230)
+                if cloud_mode:
+                    gr.Markdown('Models run on this AWS server. Qwen image answers can take 1–2 minutes on its CPU; keep this tab open.',elem_classes='vb-note')
                 with gr.Column(elem_id='vb-workspace'):
                     with gr.Column(elem_classes='vb-card',elem_id='vb-input-card'):
                         html('<h2 class="step-heading">Upload image</h2>')
@@ -130,7 +132,9 @@ def build_app(run_dir,session=None,model_sessions=None,cloud_mode=False):
             from image_conversation import prepare,history_html,task_quality
             active_session=model_sessions.get((previous or {}).get('workspace_model')) if model_sessions else session
             active_controller=WorkspaceController(active_session) if model_sessions else controller
-            state=prepare(previous,photo) if hasattr(active_session,'for_conversation') else previous
+            # The visible conversation panel belongs to the default workspace,
+            # even when the selected BLIP backend itself is single-turn.
+            state=prepare(previous,photo) if conversation is not None else previous
             if conversation is not None:
                 from uuid import uuid4
                 state['submission']={'id':uuid4().hex,'question':str(q or ''),'completed':False,

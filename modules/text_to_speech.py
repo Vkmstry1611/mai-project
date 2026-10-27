@@ -3,6 +3,7 @@ from pathlib import Path
 from threading import Lock
 from uuid import uuid4
 import sys
+import subprocess
 import wave
 import time
 
@@ -18,6 +19,18 @@ def synthesize(text, config):
                 old.unlink(missing_ok=True)
         path = config.output_dir / f'speech-{uuid4().hex}.wav'
         engine = None
+        if sys.platform != 'win32':
+            try:
+                subprocess.run(['espeak', '-s', '165', '-w', str(path), '--stdin'],
+                               input=text, text=True, capture_output=True,
+                               timeout=120, check=True)
+                with wave.open(str(path), 'rb') as audio:
+                    if audio.getnframes() == 0:
+                        raise RuntimeError('The cloud voice produced empty audio.')
+                return str(path)
+            except Exception:
+                path.unlink(missing_ok=True)
+                raise
         if sys.platform == 'win32':
             import pythoncom
             pythoncom.CoInitialize()

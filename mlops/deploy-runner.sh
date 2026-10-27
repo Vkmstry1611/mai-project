@@ -63,7 +63,7 @@ previous_workspace_image="$(docker inspect --format '{{.Image}}' visionbridge-wo
 docker rm -f visionbridge-workspace 2>/dev/null || true
 run_workspace() {
   docker run -d --name visionbridge-workspace --restart unless-stopped --network host \
-    --memory 1500m --cpus 2 \
+    --memory 1500m --cpus 2 -v visionbridge-whisper-cache:/app/models/cache \
     -e VISIONBRIDGE_CLOUD=1 -e VISIONBRIDGE_VISION_MODEL="$vision_model" \
     -e VISIONBRIDGE_NUM_CTX=2048 -e VISIONBRIDGE_NUM_PREDICT=384 \
     --log-driver awslogs --log-opt awslogs-region=ap-southeast-2 \
