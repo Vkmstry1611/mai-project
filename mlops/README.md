@@ -22,7 +22,7 @@ flowchart TD
   G --> L[Container pulls pinned model]
   K --> M[CPU VQA API]
   L --> M
-  M --> N[Client through SSM tunnel]
+  M --> N[HTTPS Caddy proxy and public browser demo]
   M --> O[CloudWatch logs and API metrics]
 ```
 
@@ -43,21 +43,21 @@ The selected artifact is `mlops/registry/champion`, including `registry.json`. I
 
 ## API
 
-The CPU API exposes `GET /health`, `POST /predict`, and `GET /metrics`. Prediction accepts JSON:
+Open the [public HTTPS demo](https://15-135-22-228.sslip.io/) to upload an image, ask a question, and see the answer. The CPU API also exposes `GET /health`, `POST /predict`, and `GET /metrics`. Prediction accepts JSON:
 
 ```json
 {"question":"What word is on the sign?","image_base64":"<base64-encoded image>"}
 ```
 
-It returns the answer, selected model hash, and latency. The image and question are not logged; logs contain only result timing, model hash, and errors. The API is bound to localhost on EC2 and is reached through Systems Manager port forwarding. It is a BLIP-only VQA service; it does **not** claim to serve the frozen Phase 4 OCR, gating, voice, or Gradio workspace.
+It returns the answer, selected model hash, and latency. The image and question are not logged; logs contain only result timing, model hash, and errors. The API binds to localhost on EC2; Caddy exposes the browser demo and API on HTTPS ports 80/443. SSM remains an operator access path. It is a BLIP-only VQA service; it does **not** claim to serve the frozen Phase 4 OCR, gating, voice, or Gradio workspace.
 
 ## AWS deployment
 
-The private S3 bucket `visionbridge-mlops-20261026-1a167b3` holds DVC objects. GitHub Container Registry holds immutable code image tags. One `m7i-flex.large` CPU EC2 instance is planned for the demo because `ap-southeast-2` offers it with 8 GiB RAM. It uses an instance profile for S3/SSM/CloudWatch access and IMDSv2 hop limit 2 so the container can retrieve temporary credentials. No inbound security group rule is needed for the API. The AWS Free Plan's managed policy blocks creating an ECR private repository, CodeBuild, CodePipeline, CloudFormation stacks, and IAM OIDC providers, so GitHub Actions and GHCR provide the CI and image registry.
+The private S3 bucket `visionbridge-mlops-20261026-1a167b3` holds DVC objects. GitHub Container Registry holds immutable code image tags. One `m7i-flex.large` CPU EC2 instance hosts the demo in `ap-southeast-2` with 8 GiB RAM. It uses an instance profile for S3/SSM/CloudWatch access and IMDSv2 hop limit 2 so the container can retrieve temporary credentials. Public ingress is limited to ports 80 and 443 for the HTTPS proxy; the API's port 8000 stays local. The AWS Free Plan's managed policy blocks creating an ECR private repository, CodeBuild, CodePipeline, CloudFormation stacks, and IAM OIDC providers, so GitHub Actions and GHCR provide the CI and image registry.
 
 GitHub Actions validates on pushes to this branch, builds and pushes the image using its built-in GitHub token, then deploys on a narrowly labeled self-hosted runner on the EC2 demo instance. The container restarts automatically. Deployment waits for `/health` and can restore the previous local image after a failed health check. No static AWS keys are placed in GitHub. Pull requests do not run on the self-hosted runner because this is a public repository.
 
-For a local client demo, start an SSM tunnel to the running instance and send a request to `http://127.0.0.1:8000/predict`. See the deployment guide for the exact instance ID, IAM role, and commands once provisioning is complete.
+For the presentation, open the public demo above and ask the supplied stop-sign image “What word is on the sign?” See the deployment guide for resource IDs, evidence, and operator access.
 
 ## Rubric evidence
 
@@ -71,4 +71,4 @@ For a local client demo, start an SSM tunnel to the running instance and send a 
 
 ## Cost and cleanup
 
-The AWS project has Free Plan credits, but EC2, its EBS volume, S3 storage/requests, public IPv4, and logs consume them. Stop the instance between demos; terminate it and delete its EBS volume when finished. Delete old unneeded GHCR images and S3 DVC objects only after confirming the artifacts are no longer required. Keep the private bucket blocked from public access. Review AWS Settings billing and Free Tier usage during the project.
+The AWS project has Free Plan credits, but EC2, its EBS volume, S3 storage/requests, public IPv4, and logs consume them. The public link works while the instance runs. Stop the instance between demos; the Elastic IP remains allocated and can still incur charges. Terminate the instance and release the Elastic IP when finished. Delete old unneeded GHCR images and S3 DVC objects only after confirming the artifacts are no longer required. Keep the private bucket blocked from public access. Review AWS Settings billing and Free Tier usage during the project.
