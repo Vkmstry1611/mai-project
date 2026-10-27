@@ -27,13 +27,34 @@ See the system architecture and known limitations directly below. Experimental f
 
 ## Launch on the configured laptop
 
+For this source checkout, the main workspace uses a local Ollama vision model.
+It accepts image questions across subjects, including printed labels, documents,
+charts, translation and calculations. It does not require the private Phase 4
+bundle. Answers are generated and can contain errors; verify important details.
+Install [Ollama](https://ollama.com/) and download the model once:
+
+```powershell
+ollama pull qwen3-vl:4b
+```
+
 From the project directory, use one workspace at a time:
 
 ```powershell
-.\.venv\Scripts\python.exe launch_workspace.py --port 7865
+.\.venv\Scripts\python.exe launch_workspace.py --backend local --port 7865
 ```
 
 Open `http://127.0.0.1:7865`. Stop an older workspace with Ctrl+C in its terminal before restarting; duplicate GPU workers can exhaust a 4 GB GTX 1650. Source guards must remain enabled.
+
+The model runs on this computer through `127.0.0.1:11434`; this path does not
+send images to a cloud API. Initial model loading and CPU inference can be slow.
+Follow-up questions retain the last six exchanges for the same image and browser;
+changing the image or clearing the session resets that context.
+
+`--backend frozen` selects the historical Phase 4 application and requires its
+private model/policy bundle plus `.venv-gpu`. `--backend auto` selects that
+backend only when its runtime files exist, otherwise it selects the local
+vision model. The historical feature/evaluation descriptions below refer to the
+Phase 4/experimental research pipeline, not measurements of the new local model.
 
 If that port is occupied, use `--port 7866` and open `http://127.0.0.1:7866/`. Run from the checkout root. Restart after source edits so initialized workers can reverify their protected files.
 
@@ -82,6 +103,14 @@ py -3.11 -m venv .venv-gpu
 .\.venv-gpu\Scripts\python.exe -m pip install -r requirements-final-gpu.txt
 .\.venv-gpu\Scripts\python.exe -c "import torch; print(torch.__version__); print(torch.cuda.is_available())"
 ```
+
+For an RTX 50-series GPU, use a separate Python 3.12 environment with
+`torch==2.7.1` and `torchvision==0.22.1` from
+`https://download.pytorch.org/whl/cu128`, then install the same
+`requirements-final-gpu.txt`. This laptop's RTX 5060 requires that newer CUDA
+build. The checkpoint, policies and source integrity checks remain the same;
+this hardware/runtime combination does not reproduce the recorded GTX 1650
+benchmark environment. OCR uses the separate `.venv-ocr` environment.
 
 ### Restore the private runtime assets
 

@@ -27,10 +27,35 @@ MICROPHONE_CHECK_JS="""async () => {
 }"""
 
 
+# Device enumeration does not request permission or start recording.
+MICROPHONE_AVAILABILITY_JS="""async () => {
+ try {
+   if(navigator.mediaDevices?.enumerateDevices){
+     const devices=await Promise.race([navigator.mediaDevices.enumerateDevices(),new Promise(resolve=>setTimeout(()=>resolve([]),2000))]);
+     if(devices.some(d=>d.kind==='audioinput'))return ['Allow microphone access when asked. Select Record, speak, then Stop.'];
+   }
+ } catch(e) {}
+ return ['This browser has not made a microphone available. Upload an audio file, or open this page in Chrome or Edge and allow microphone access.'];
+}"""
+
+
 def transcribe_local(recording):
-    from modules import speech_to_text
-    from config import Config
-    return speech_to_text.transcribe(recording,Config()),'Transcribed; review and edit your question.'
+    # Keep CTranslate2's native runtime out of the Gradio process on Windows.
+    # Loading both in one process can terminate Python without an exception.
+    import json
+    import subprocess
+    import sys
+    import os
+    root=Path(__file__).resolve().parent
+    result=subprocess.run([sys.executable,str(root/'workspace_speech_worker.py'),str(Path(recording).resolve())],
+        cwd=root,capture_output=True,text=True,encoding='utf-8',timeout=240,
+        env=dict(os.environ,PYTHONIOENCODING='utf-8'),
+        creationflags=0x08000000 if sys.platform=='win32' else 0)
+    if result.returncode:
+        raise RuntimeError('Local speech worker failed. Check the Whisper model installation and retry.')
+    payload=json.loads(result.stdout)
+    if not payload.get('text'):raise ValueError('No speech was recognized. Try again or type your question.')
+    return payload['text'],'Transcribed; review and edit your question.'
 
 
 def validate_audio(path):
@@ -55,8 +80,8 @@ def insert_transcript(current,snapshot,text):
     """Run after transcription, with the browser's latest question value."""
     if not text:return None,'No transcript was inserted. You can type your question.'
     if str(current or '')!=str(snapshot or ''):
-        return None,'Transcription ready below. Your newer typed draft was preserved; copy or edit the transcript if needed.'
-    return text,'Transcription ready. Review and edit the question, then select Analyze Image.'
+        return None,'Your newer typed question was preserved. Record again if you want to replace it.'
+    return text,'Question captured. Review it, then select Get Answer.'
 
 
 class VoiceReview:
@@ -86,45 +111,110 @@ class VoiceReview:
             return '', 'Speech processing failed. You can type your question. Diagnostic reference: '+ref,state
 
 
-def bind(recording,button,question,status,controller,gr,transcript,clear_button):
+def voice_job(audio=None,draft='',recording=False):
+    """A new recording/reset invalidates every older completion."""
+    from uuid import uuid4
+    return {'id':uuid4().hex,'audio':audio,'draft':str(draft or ''),'recording':recording}
+
+
+def current_completion(job,result):
+    return bool(job and result and job.get('id')==result.get('id'))
+
+
+def bind(recording,button,question,status,controller,gr,transcript,clear_button,voice_status,use_button,discard_button,record_toggle=None):
     from workspace_ui import status_html
     voice=VoiceReview(controller.transcriber)
-    draft=gr.State('',time_to_live=3600)
     cache=gr.State(None,time_to_live=3600)
+    job=gr.State(None,time_to_live=3600)
+    completion=gr.State(None,time_to_live=3600)
     jobs=[]
-    def capture(current):return str(current or '')
-    def run(audio,previous,request=None):
-        yield gr.skip(),status_html('Processing speech','Please wait. Your recording is processed locally.','working'),gr.skip()
-        text,message,new=voice.transcribe(audio,previous,getattr(request,'session_hash',None))
-        yield text,status_html('Transcription ready' if text else 'Speech input error',message,'done' if text else 'error'),new
+    local_outputs=[job,transcript,voice_status,use_button,button]
+
+    def begin(audio,current_question='',previous_job=None):
+        draft=(previous_job or {}).get('draft',current_question) if (previous_job or {}).get('recording') else current_question
+        return (voice_job(audio,draft),gr.update(value='',interactive=False),
+            (status_html('Transcribing your recording','This usually takes a few seconds. You can keep typing your question.','working') if audio else status_html('Ready for your recording','Select Record, or upload an audio file.')),
+            gr.update(interactive=False),gr.update(interactive=False))
+
+    def run(snapshot,previous,request=None):
+        if not (snapshot or {}).get('audio'):return {'id':(snapshot or {}).get('id'),'pending':True}
+        text,message,new=voice.transcribe((snapshot or {}).get('audio'),previous,getattr(request,'session_hash',None))
+        return {'id':(snapshot or {}).get('id'),'text':text,'message':message,'cache':new}
     run.__annotations__={'request':gr.Request}
-    def apply(current,snapshot,text):
-        if not text:return gr.skip(),gr.skip()  # Preserve the specific capture/decoder error from run.
-        value,message=insert_transcript(current,snapshot,text)
-        return (value if value is not None else gr.skip()),status_html('Review your question' if text else 'Speech input error',message,'done' if text else 'error')
+
+    def finish(current,result):
+        # Clear/re-record may happen while the isolated worker is still running.
+        if not current_completion(current,result) or result.get('pending'):return (gr.skip(),)*5
+        text=result['text']
+        return (gr.update(value=text,interactive=bool(text)),
+            status_html('Speech recognized' if text else 'Try recording again',
+                'Adding your words to the question box.' if text else result['message'],
+                'done' if text else 'error'),result['cache'],
+            gr.update(interactive=bool(text)),gr.update(interactive=bool(current.get('audio'))))
+
+    def auto_insert(current,result,current_question):
+        if not current_completion(current,result) or result.get('pending') or not result.get('text'):
+            return gr.skip(),gr.skip()
+        value,message=insert_transcript(current_question,current.get('draft'),result['text'])
+        return (value if value is not None else gr.skip()),status_html('Question ready' if value is not None else 'Typed question kept',message,'done')
+
     def attach(event):
-        job=event.then(run,[recording,cache],[transcript,status,cache],show_progress='minimal',concurrency_limit=1,concurrency_id='workspace-speech-input',api_name=False)
-        insertion=job.success(apply,[question,draft,transcript],[question,status],queue=False,api_name='insert_reviewed_transcript',api_visibility='undocumented')
-        jobs.append(job)  # Gradio may cancel queued jobs, not queue=False insertions.
-    # input fires when the completed recording/upload value arrives, rather
-    # than stop_recording, which can precede file conversion/upload completion.
-    attach(recording.input(capture,question,draft,queue=False,api_visibility='private'))
-    attach(button.click(capture,question,draft,queue=False,trigger_mode='once',api_visibility='private'))
-    # Backwards-compatible one-audio/two-output endpoint, not a second UI trigger.
+        work=event.then(run,[job,cache],completion,show_progress='hidden',concurrency_limit=1,
+            concurrency_id='workspace-speech-input',api_visibility='private')
+        work.success(finish,[job,completion],[transcript,voice_status,cache,use_button,button],queue=False,api_visibility='private').then(
+            auto_insert,[job,completion,question],[question,voice_status],queue=False,api_visibility='private')
+        jobs.append(work)
+
+    # Only the completed file triggers transcription. Stop never starts another job.
+    attach(recording.input(begin,[recording,question,job],local_outputs,queue=False,api_visibility='private'))
+    attach(button.click(begin,[recording,question,job],local_outputs,queue=False,trigger_mode='once',api_visibility='private'))
+
+    def use_question(text):
+        if not str(text or '').strip():
+            return gr.skip(),status_html('No question yet','Record a question first.','error')
+        return str(text).strip(),status_html('Question ready','Your question is in the question box. Select Get Answer when you are ready.','done')
+    use_button.click(use_question,transcript,[question,voice_status],queue=False,api_name='use_voice_question').then(
+        None,outputs=[],queue=False,api_visibility='private',
+        js="() => {const q=document.querySelector('#vb-question textarea');q?.focus();q?.scrollIntoView({block:'center'});return [];}")
+
+    def starting(current_question=''):
+        return (voice_job(draft=current_question,recording=True),gr.update(value='',interactive=False),
+            status_html('Recording…','Speak naturally. Select Stop when you finish.','working'),
+            gr.update(interactive=False),gr.update(interactive=False))
+    recording.start_recording(starting,inputs=question,outputs=local_outputs,queue=False,api_visibility='private',
+        js="() => {document.querySelector('#vb-playback audio')?.pause(); return []}")
+    recording.stop_recording(lambda:None,outputs=[],queue=False,api_visibility='private')
+    if record_toggle is not None:
+        recording.start_recording(lambda:gr.update(value='Stop recording'),outputs=record_toggle,queue=False,api_visibility='private')
+        recording.stop_recording(lambda:gr.update(value='Record question'),outputs=record_toggle,queue=False,api_visibility='private')
+        recording.clear(lambda:gr.update(value='Record question'),outputs=record_toggle,queue=False,api_visibility='private')
+        clear_button.click(lambda:gr.update(value='Record question'),outputs=record_toggle,queue=False,api_visibility='private')
+
+    def reset_voice(request=None):
+        session_id=getattr(request,'session_hash',None)
+        for key in list(voice.recent):
+            if key[0]==session_id:voice.recent.pop(key,None)
+        return (voice_job(),gr.update(value='',interactive=False),
+            status_html('Voice input','Select Record question, then Stop recording.'),
+            gr.update(interactive=False),gr.update(interactive=False),None)
+    reset_voice.__annotations__={'request':gr.Request}
+    recording.clear(reset_voice,outputs=[*local_outputs,cache],queue=False,api_visibility='private',cancels=jobs)
+    def discard(request=None):return (gr.update(value=None,recording=False),*reset_voice(request))
+    discard.__annotations__={'request':gr.Request}
+    for control in (discard_button,clear_button):
+        control.click(discard,outputs=[recording,*local_outputs,cache],queue=False,api_visibility='private',cancels=jobs)
+
+    # Keep existing speech APIs for integrations; the simple UI inserts completed speech automatically.
     legacy=gr.Button(visible=False)
     legacy.click(controller.transcribe,recording,[transcript,status],api_name='transcribe_question',api_visibility='undocumented')
     def checked(audio,previous,request=None):return voice.transcribe(audio,previous,getattr(request,'session_hash',None))
     checked.__annotations__={'request':gr.Request}
     api=gr.Button(visible=False)
     api.click(checked,[recording,cache],[transcript,status,cache],api_name='transcribe_validated',api_visibility='undocumented',concurrency_id='workspace-speech-input',concurrency_limit=1)
-    recording.start_recording(lambda:status_html('Recording','Speak your question, then stop recording. Transcription starts automatically.','working'),outputs=status,queue=False,api_visibility='private',
-        js="() => {document.querySelector('#vb-playback audio')?.pause(); return []}")
-    recording.stop_recording(lambda:status_html('Processing speech','Waiting for the completed audio file. If no transcript appears, check microphone permission or select Transcribe & review.','working'),outputs=status,queue=False,api_visibility='private')
-    recording.clear(lambda:('',None,status_html('Ready to record','Microphone recording starts only when you choose Record.')),[ ],[transcript,cache,status],queue=False,api_visibility='private',cancels=jobs)
-    def clear_voice(request=None):
-        session_id=getattr(request,'session_hash',None)
-        for key in list(voice.recent):
-            if key[0]==session_id:voice.recent.pop(key,None)
-        return None,'',None,''
-    clear_voice.__annotations__={'request':gr.Request}
-    clear_button.click(clear_voice,outputs=[recording,transcript,cache,draft],queue=False,api_visibility='private',cancels=jobs)
+    def apply(current,snapshot,text):
+        value,message=insert_transcript(current,snapshot,text)
+        return (value if value is not None else gr.skip()),status_html('Review your question',message,'done')
+    compatibility=gr.Button(visible=False)
+    draft=gr.State('',time_to_live=3600)
+    compatibility.click(apply,[question,draft,transcript],[question,status],queue=False,
+        api_name='insert_reviewed_transcript',api_visibility='undocumented')

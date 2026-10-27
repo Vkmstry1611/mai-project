@@ -102,7 +102,7 @@ class GradioContractTests(unittest.TestCase):
     def test_theme_and_launch_parameters_are_supported(self):
         import gradio as gr
         self.assertNotIn('input_text_color',inspect.signature(gr.themes.Base.set).parameters)
-        self.assertEqual(self.options['theme'].body_text_color,'#e4edf7')
+        self.assertEqual(self.options['theme'].body_text_color,'#232820')
         self.assertTrue(set(self.options)<=set(inspect.signature(gr.Blocks.launch).parameters))
 
     def test_modes_default_and_rotation_handler(self):
