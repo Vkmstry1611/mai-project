@@ -1,0 +1,6 @@
+gradio==6.13.0
+Pillow==12.3.0
+numpy==2.4.6
+faster-whisper==1.2.1
+pyttsx3==2.99
+static-ffmpeg==3.0

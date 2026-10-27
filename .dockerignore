@@ -15,3 +15,14 @@
 !mlops/api.py
 !mlops/ui.html
 !mlops/serve.sh
+!Dockerfile.workspace
+!requirements-workspace-cloud.txt
+!*.py
+!modules/
+!modules/**
+!utils/
+!utils/**
+!assets/
+!assets/workspace/
+!assets/workspace/**
+!mlops/cloud_workspace.py

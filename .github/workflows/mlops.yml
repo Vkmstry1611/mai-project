@@ -25,7 +25,9 @@ jobs:
           python-version: '3.11'
       - run: python -m pip install Pillow==11.2.1
       - run: python -m unittest discover -s tests -p test_mlops_pipeline.py -v
+      - run: python -m unittest discover -s tests -p test_cloud_workspace.py -v
       - run: python -m compileall -q mlops
+      - run: python -m compileall -q launch_workspace.py workspace_ui.py workspace_voice.py modules/local_vision.py
 
   publish:
     needs: validate
@@ -49,6 +51,14 @@ jobs:
         run: |
           image="ghcr.io/${OWNER,,}/visionbridge-mlops:$IMAGE_TAG"
           docker build -f Dockerfile.mlops -t "$image" .
+          docker push "$image"
+      - name: Build and push MAI workspace image
+        env:
+          OWNER: ${{ github.repository_owner }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          image="ghcr.io/${OWNER,,}/visionbridge-workspace:$IMAGE_TAG"
+          docker build -f Dockerfile.workspace -t "$image" .
           docker push "$image"
 
   deploy:

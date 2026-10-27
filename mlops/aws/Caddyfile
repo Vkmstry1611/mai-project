@@ -1,7 +1,7 @@
 15-135-22-228.sslip.io {
     encode zstd gzip
     request_body {
-        max_size 8MB
+        max_size 25MB
     }
     header {
         X-Content-Type-Options nosniff
@@ -9,5 +9,11 @@
         Referrer-Policy no-referrer
         Strict-Transport-Security "max-age=31536000"
     }
-    reverse_proxy 127.0.0.1:8000
+    @vqa_api path /health /predict /metrics /docs /openapi.json
+    handle @vqa_api {
+        reverse_proxy 127.0.0.1:8000
+    }
+    handle {
+        reverse_proxy 127.0.0.1:7865
+    }
 }

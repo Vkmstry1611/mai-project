@@ -1,0 +1,18 @@
+FROM python:3.11-slim
+WORKDIR /app
+ENV PYTHONUNBUFFERED=1 PYTHONPATH=/app GRADIO_ANALYTICS_ENABLED=False VISIONBRIDGE_CLOUD=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    espeak libespeak1 ffmpeg libsndfile1 libgomp1 && rm -rf /var/lib/apt/lists/*
+COPY requirements-workspace-cloud.txt .
+RUN pip install --no-cache-dir -r requirements-workspace-cloud.txt
+
+COPY *.py ./
+COPY modules/ modules/
+COPY utils/ utils/
+COPY assets/workspace/ assets/workspace/
+COPY mlops/__init__.py mlops/cloud_workspace.py mlops/
+RUN python -m compileall -q launch_workspace.py workspace_ui.py mlops/cloud_workspace.py
+
+EXPOSE 7865
+CMD ["python", "-m", "mlops.cloud_workspace"]

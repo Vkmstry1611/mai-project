@@ -13,8 +13,8 @@ from PIL import ImageOps
 
 from workspace_intent import Route
 
-DEFAULT_MODEL = 'qwen3-vl:4b'
-ENDPOINT = 'http://127.0.0.1:11434'
+DEFAULT_MODEL = 'qwen3-vl:2b-instruct-q4_K_M'
+ENDPOINT = os.getenv('VISIONBRIDGE_OLLAMA_URL', 'http://127.0.0.1:11434')
 
 SYSTEM_PROMPT = """You are VisionBridge, a visual assistant. Answer the user's
 question directly in plain language across subjects, using the supplied image
@@ -60,9 +60,9 @@ def post_json(path, payload, timeout=600):
 
 class LocalVisionSession:
     backend_label = 'Local vision assistant'
-    capability_text = ('Questions go directly to a local vision-language model. '
+    capability_text = ('Questions go directly to a vision-language model. '
                        'Ask about objects, labels, documents, charts, calculations, '
-                       'or other subjects in your own words. Images stay on this computer. '
+                       'or other subjects in your own words. '
                        'Generated answers can be wrong; check important numbers and dates. ')
 
     def __init__(self, model=None):
@@ -98,10 +98,12 @@ class LocalVisionSession:
                                  {'role': 'assistant', 'content': turn['answer']}])
         messages.append({'role': 'user', 'content': question.strip(),
                          'images': [base64.b64encode(stream.getvalue()).decode('ascii')]})
+        cloud = os.getenv('VISIONBRIDGE_CLOUD') == '1'
         payload = {'model': self.model, 'messages': messages,
-                           'stream': False, 'think': False,
-                           'keep_alive': os.getenv('VISIONBRIDGE_OLLAMA_KEEP_ALIVE', '15m'),
-                           'options': {'temperature': 0, 'num_ctx': 8192, 'num_predict': 2048}}
+                           'stream': False, 'think': False, 'keep_alive': '15m',
+                           'options': {'temperature': 0,
+                                       'num_ctx': int(os.getenv('VISIONBRIDGE_NUM_CTX', '8192')),
+                                       'num_predict': int(os.getenv('VISIONBRIDGE_NUM_PREDICT', '2048'))}}
         result = post_json('/api/chat', payload)
         answer = result.get('message', {}).get('content', '').strip()
         # Some local model templates still spend tokens on reasoning despite
@@ -116,9 +118,9 @@ class LocalVisionSession:
         if result.get('done_reason') == 'length':
             answer += '\n\n[Response reached its length limit. Ask me to continue for more.]'
         details = {'final_answer': answer, 'answer_source': 'local_vision_model',
-                   'model': self.model, 'backend': 'Ollama on this computer',
+                   'model': self.model, 'backend': 'Ollama on AWS EC2' if cloud else 'Ollama on this computer',
                    'decision': 'generated_visual_answer',
-                   'decision_reason': 'Image and question sent directly to the local vision model.',
+                   'decision_reason': 'Image and question sent to the vision model on AWS EC2.' if cloud else 'Image and question sent directly to the local vision model.',
                    'image_size': list(photo.size), 'selected_evidence': [], 'evidence': [],
                    'supporting_evidence_ids': [],
                    'limitation': 'Generated visual interpretation; no calibrated correctness score or independently verified OCR evidence.'}
@@ -137,7 +139,7 @@ class LocalVisionSession:
             from config import Config
             from modules.text_to_speech import synthesize
             audio = synthesize(answer, Config())
-        return answer, audio, 'Complete. Local vision model; verify important details.', details, None, details['decision_reason'], timings
+        return answer, audio, ('Complete. Vision model on AWS; verify important details.' if cloud else 'Complete. Local vision model; verify important details.'), details, None, details['decision_reason'], timings
 
     def close(self):
         pass
