@@ -10,7 +10,7 @@ import statistics
 import time
 import uuid
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[2]
 RUN = ROOT/'reports/phase4_policy/run-local-20261013-v1'
 FAILED = RUN/'application-requests/9079468924344f5eb70fbc42e8ba4f22'
 

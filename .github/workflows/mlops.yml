@@ -2,7 +2,7 @@ name: VisionBridge MLOps
 
 on:
   push:
-    branches: [codex/mlops-agent-toolkit]
+    branches: [mlops-ese]
   workflow_dispatch:
     inputs:
       deploy:

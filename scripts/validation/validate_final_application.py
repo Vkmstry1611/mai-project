@@ -4,7 +4,7 @@ from pathlib import Path
 import sys
 import time
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[2]
 
 
 def main():

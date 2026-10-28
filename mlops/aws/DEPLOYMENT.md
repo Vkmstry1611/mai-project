@@ -27,7 +27,7 @@ The public root page is the MAI branch VisionBridge workspace, adapted for EC2. 
 
 ## Reproduce or inspect
 
-The code, raw data DVC pointer, model pointer, and lock file are on branch `codex/mlops-agent-toolkit`. Locally, a Python environment with the dependencies described in [`../README.md`](../README.md) can run:
+The code, raw data DVC pointer, model pointer, and lock file are on branch `mlops-ese`. Locally, a Python environment with the dependencies described in [`../README.md`](../README.md) can run:
 
 ```powershell
 dvc repro

@@ -35,4 +35,4 @@ Fixed during verification: importing native Transformers dependencies for the fi
 
 Not verified: physical webcam/microphone capture, audible speaker playback, screen-reader and visual contrast audits, CUDA execution, meaningful object-detection accuracy on natural photos, general VQA accuracy or reliability calibration. No trained custom checkpoints exist, so enhanced model accuracy/grounding is not claimed. Automated gate fixtures are only contract tests, not a functioning trained classifier.
 
-Run tests with `.\.venv\Scripts\python.exe -m pytest -q`; real model smoke checks with `.\.venv\Scripts\python.exe smoke_test.py --speech --evidence`; Gradio upload/handler integration with `.\.venv\Scripts\python.exe integration_test.py`.
+Run tests with `.\.venv\Scripts\python.exe -m pytest -q`; real model smoke checks with `.\.venv\Scripts\python.exe -m scripts.validation.smoke_test --speech --evidence`; Gradio upload/handler integration with `.\.venv\Scripts\python.exe -m scripts.validation.integration_test`.
