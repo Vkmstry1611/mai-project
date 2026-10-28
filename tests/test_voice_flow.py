@@ -12,7 +12,7 @@ def setup_flow(tmp_path,monkeypatch):
     def transcribe(path):
         calls.append(path)
         return 'What is in the image?', 'Ready'
-    monkeypatch.setattr('workspace_voice.transcribe_local',transcribe)
+    monkeypatch.setattr('visionbridge.workspace_voice.transcribe_local',transcribe)
     base,_=fake_base(tmp_path,[])
     base.close=lambda:None
     demo,_=build_app(tmp_path,base)
