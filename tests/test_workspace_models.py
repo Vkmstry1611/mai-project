@@ -80,7 +80,7 @@ def test_selector_isolates_models_and_clears_context_but_preserves_inputs(tmp_pa
     models.close()
 
 
-def test_cloud_default_can_switch_to_single_turn_blip(tmp_path):
+def test_cloud_default_champion_can_switch_to_qwen(tmp_path):
     qwen = SimpleNamespace(close=lambda: None, backend_label='Cloud Qwen')
     qwen.for_conversation = lambda state, image: qwen
     qwen.classify = lambda question: Route('vqa', 'Cloud vision')
@@ -89,15 +89,18 @@ def test_cloud_default_can_switch_to_single_turn_blip(tmp_path):
     blip = SimpleNamespace(close=lambda: None)
     blip.classify = lambda question: Route('vqa', 'Cloud BLIP')
     blip.request = lambda *args: ('stop', None, 'Complete',
-        {'answer_source': 'dvc_blip_v2', 'evidence': []}, None, '', {})
+        {'answer_source': 'dvc_blip', 'evidence': []}, None, '', {})
     models = FrontendModels(lambda name: blip if name == BLIP else qwen,
-                            default=QWEN, initial=qwen)
+                            default=BLIP, initial=blip)
     demo, _ = build_app(tmp_path, qwen, models, cloud_mode=True)
     handlers = {f.api_name: f.fn for f in demo.fns.values() if f.fn}
-    selected = handlers['select_model'](BLIP)
     photo = Image.new('RGB', (320, 240), 'gray')
     result = list(handlers['analyze'](photo, 'What word is on the sign?',
-                        True, ASSISTANT, '0', selected[12]))[-1]
+                        True, ASSISTANT, '0', None))[-1]
     assert result[0] == 'stop'
     assert result[12]['conversation']['image_id']
+    selected = handlers['select_model'](QWEN)
+    switched = list(handlers['analyze'](photo, 'What word is on the sign?',
+                        True, ASSISTANT, '0', selected[12]))[-1]
+    assert switched[0] == 'Qwen answer'
     models.close()

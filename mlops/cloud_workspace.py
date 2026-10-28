@@ -19,7 +19,7 @@ from visionbridge.workspace_models import BLIP, QWEN, FrontendModels
 class CloudBlipSession:
     """The DVC-selected BLIP checkpoint served by the existing local API."""
 
-    backend_label = "BLIP v2 on AWS"
+    backend_label = "DVC-selected BLIP on AWS"
 
     def classify(self, question):
         return Route("vqa", "The DVC-selected BLIP model answers the image question.")
@@ -41,7 +41,9 @@ class CloudBlipSession:
         with build_opener(ProxyHandler({})).open(request, timeout=120) as response:
             result = json.load(response)
         answer = result["answer"]
-        details = {"final_answer": answer, "answer_source": "dvc_blip_v2",
+        candidate = result["candidate"]
+        details = {"final_answer": answer, "answer_source": "dvc_blip",
+                   "model_candidate": candidate,
                    "model_sha256": result["model_sha256"], "backend": "AWS EC2 CPU",
                    "decision": "generated_visual_answer", "selected_evidence": [],
                    "supporting_evidence_ids": [], "evidence": [],
@@ -50,10 +52,19 @@ class CloudBlipSession:
                    "model_inference_performed": True,
                    "model_latency_seconds": result["latency_seconds"],
                    "experimental_reading_active": False}
-        return answer, None, "Complete. BLIP v2 on AWS; verify important details.", details, None, "", timings
+        return answer, None, f"Complete. DVC champion ({candidate}) on AWS; verify important details.", details, None, "", timings
 
     def close(self):
         pass
+
+
+def create_cloud_models():
+    blip = CloudBlipSession()
+    qwen = LocalVisionSession()
+    models = FrontendModels(lambda name: blip if name == BLIP else qwen,
+                            default=BLIP, initial=blip)
+    models.sessions[QWEN] = qwen
+    return models, qwen
 
 
 def main():
@@ -61,9 +72,7 @@ def main():
     os.environ.setdefault("GRADIO_ANALYTICS_ENABLED", "False")
     os.environ.setdefault("GRADIO_TEMP_DIR", "/tmp/visionbridge-gradio")
     os.environ.setdefault("VISIONBRIDGE_VISION_MODEL", "qwen3-vl:2b-instruct-q4_K_M")
-    qwen = LocalVisionSession()
-    models = FrontendModels(lambda name: CloudBlipSession() if name == BLIP else LocalVisionSession(),
-                            default=QWEN, initial=qwen)
+    models, qwen = create_cloud_models()
     demo, _ = build_app(Path("/app"), session=qwen, model_sessions=models, cloud_mode=True)
     try:
         demo.queue(default_concurrency_limit=1).launch(server_port=7865,

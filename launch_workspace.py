@@ -53,7 +53,7 @@ def build_app(run_dir,session=None,model_sessions=None,cloud_mode=False):
                     with gr.Row(elem_id='vb-model-bar'):
                         model_choice=gr.Dropdown(model_sessions.choices,value=model_sessions.default,label='AI Model',interactive=True,elem_id='vb-model-choice',scale=0,min_width=230)
                 if cloud_mode:
-                    gr.Markdown('Models run on this AWS server. Qwen image answers can take 1–2 minutes on its CPU; keep this tab open.',elem_classes='vb-note')
+                    gr.Markdown('The DVC-selected BLIP model is the default on this AWS server. You can switch to Qwen for broader questions; Qwen image answers can take 1–2 minutes on this CPU.',elem_classes='vb-note')
                 with gr.Column(elem_id='vb-workspace'):
                     with gr.Column(elem_classes='vb-card',elem_id='vb-input-card'):
                         html('<h2 class="step-heading">Upload image</h2>')

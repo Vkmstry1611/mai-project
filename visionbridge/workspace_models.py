@@ -1,7 +1,7 @@
 """Frontend model choices; inference remains in the existing sessions."""
 from threading import Lock
 
-BLIP = 'BLIP v2'
+BLIP = 'BLIP VQA'
 QWEN = 'Qwen3-VL 2B'
 
 
@@ -17,7 +17,7 @@ class FrontendModels:
     def get(self, name=None):
         name = name or self.default
         if name not in self.choices:
-            raise ValueError('Select BLIP v2 or Qwen3-VL 2B.')
+            raise ValueError('Select BLIP VQA or Qwen3-VL 2B.')
         with self.lock:
             if name not in self.sessions:
                 self.sessions[name] = self.factory(name)

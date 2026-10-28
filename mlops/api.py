@@ -113,5 +113,6 @@ async def prediction(request: PredictionRequest) -> dict:
         raise
     print(json.dumps({"event": "prediction", "latency_seconds": round(elapsed, 3),
                       "model_sha256": _state["metadata"]["model_sha256"]}), flush=True)
-    return {"answer": answer, "model_sha256": _state["metadata"]["model_sha256"],
+    return {"answer": answer, "candidate": _state["metadata"]["candidate"],
+            "model_sha256": _state["metadata"]["model_sha256"],
             "latency_seconds": round(elapsed, 3)}

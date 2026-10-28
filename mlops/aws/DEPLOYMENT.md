@@ -80,7 +80,7 @@ In another terminal, send JSON to `http://127.0.0.1:8000/predict` with `question
 
 1. Show `dvc.yaml`, `dvc.lock`, candidate metric files, and `mlops/registry/selection.json`.
 2. Show the successful MAI workspace run `40696627943` `validate`, `publish`, and `deploy` jobs, the GHCR image tags, the private S3 remote, and the EC2 role/security group.
-3. Open the public MAI workspace, upload `sample/stop_sign.png`, ask “What word is on the sign?”, and show the Qwen answer. Switch to BLIP v2 and repeat. Show `/health`, `/metrics`, CloudWatch logs and both model metrics.
+3. Open the public MAI workspace, show BLIP VQA selected by default, upload `sample/stop_sign.png`, and ask “What word is on the sign?” Show the selected DVC candidate and hash in the answer details. Switch to Qwen for the optional second model. Show `/health`, `/metrics`, CloudWatch logs and both model metrics.
 4. Explain that Git versions source, DVC versions large inputs and champion output, GHCR versions the API image, and the Git SHA pins one deployment.
 5. For a manual rollback, rerun `bash mlops/deploy-runner.sh Vkmstry1611 <previous-successful-git-sha>` on the EC2 runner with GHCR login available. The deployment script also restores the prior local image on a failed health check.
 

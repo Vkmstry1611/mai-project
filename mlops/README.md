@@ -47,13 +47,13 @@ The selected artifact is `mlops/registry/champion`, including `registry.json`. I
 
 ## API
 
-Open the [public HTTPS workspace](https://15-135-22-228.sslip.io/) to upload or capture an image, ask a question, use follow-ups, and choose the cloud model. The default is the smaller Qwen3-VL 2B vision model on EC2; the DVC-selected BLIP v2 is a second EC2 option. Voice transcription uses Whisper tiny.en and speech output uses the Linux speech engine in the workspace container. The CPU BLIP API also exposes `GET /health`, `POST /predict`, and `GET /metrics`. Prediction accepts JSON:
+Open the [public HTTPS workspace](https://15-135-22-228.sslip.io/) to upload or capture an image, ask a question, use follow-ups, and choose the cloud model. The default is the DVC-selected BLIP champion on EC2; Qwen3-VL 2B is an optional model for broader questions. Choosing Qwen manually overrides the default for that browser session. Voice transcription uses Whisper tiny.en and speech output uses the Linux speech engine in the workspace container. The CPU BLIP API also exposes `GET /health`, `POST /predict`, and `GET /metrics`. Prediction accepts JSON:
 
 ```json
 {"question":"What word is on the sign?","image_base64":"<base64-encoded image>"}
 ```
 
-It returns the answer, selected BLIP model hash, and latency. The image and question are not logged; logs contain only result timing, model hash, and errors. The API, workspace, and Ollama endpoints bind to localhost on EC2; Caddy exposes the workspace and BLIP API through HTTPS ports 80/443. SSM remains an operator access path. The private frozen Phase 4 OCR/gating bundle is not in this cloud deployment. Qwen answers reading questions directly; those answers have no independently verified OCR boxes or calibrated accuracy claim.
+It returns the answer, selected BLIP candidate and model hash, and latency. The image and question are not logged; logs contain only result timing, model hash, and errors. The API, workspace, and Ollama endpoints bind to localhost on EC2; Caddy exposes the workspace and BLIP API through HTTPS ports 80/443. SSM remains an operator access path. The private frozen Phase 4 OCR/gating bundle is not in this cloud deployment. Qwen answers reading questions directly; those answers have no independently verified OCR boxes or calibrated accuracy claim.
 
 ## AWS deployment
 
