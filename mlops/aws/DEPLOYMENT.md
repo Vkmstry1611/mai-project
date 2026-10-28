@@ -37,17 +37,21 @@ dvc metrics show
 
 The data remote status was `Cache and remote 'aws' are in sync.` Both BLIP candidates scored 10/13 on the small manual demo set; this is an engineering demonstration, not an official VizWiz evaluation.
 
+## Current verified CI/CD deployment on 2026-10-28
+
+[GitHub Actions run 40696627943](https://github.com/Vkmstry1611/mai-project/actions/runs/40696627943) passed `validate`, `publish`, and `deploy` for commit `755b54c091edc24e64e33431a80b51b82c1c237f`. The public HTTPS workspace loaded after deployment. The deployment script checked the API, workspace, cloud vision model, and public HTTPS route. The CI and CD definitions live in separate YAML files; CD is called as a reusable workflow within this run.
+
 ## Verified MAI cloud workspace on 2026-10-27
 
-[GitHub Actions run 40555248709](https://github.com/Vkmstry1611/mai-project/actions/runs/40555248709) completed `validate`, `publish`, and `deploy` successfully for commit `1d26436c81154527cc59b3ee8318b5f323a7305e`. The public HTTPS root serves the MAI Gradio workspace with image upload, camera, question, model selector, conversation, accessibility, and voice controls. An external Gradio `/analyze` request with `sample/stop_sign.png` returned “The word on the sign is STOP.” from `qwen3-vl:2b-instruct-q4_K_M` on AWS EC2; the measured workspace callback took 86.8 seconds on the CPU host. After the final deployment, switching to BLIP v2 and repeating the question returned `stop` plus a generated WAV file. CloudWatch received model-dimensioned Qwen latency and error metrics. The EC2 Ollama volume reports model ID `afc393e3572c`. The 50 GiB EBS root volume has room for the Ollama runtime and model. Server-side Whisper tiny.en produced a transcript from synthetic speech, but its words were inaccurate; real microphone transcription quality still needs a user check.
+[Commit 1d26436](https://github.com/Vkmstry1611/mai-project/commit/1d26436c81154527cc59b3ee8318b5f323a7305e) completed `validate`, `publish`, and `deploy` successfully at the time. The public HTTPS root serves the MAI Gradio workspace with image upload, camera, question, model selector, conversation, accessibility, and voice controls. An external Gradio `/analyze` request with `sample/stop_sign.png` returned “The word on the sign is STOP.” from `qwen3-vl:2b-instruct-q4_K_M` on AWS EC2; the measured workspace callback took 86.8 seconds on the CPU host. After that deployment, switching to BLIP v2 and repeating the question returned `stop` plus a generated WAV file. CloudWatch received model-dimensioned Qwen latency and error metrics. The EC2 Ollama volume reports model ID `afc393e3572c`. The 50 GiB EBS root volume has room for the Ollama runtime and model. Server-side Whisper tiny.en produced a transcript from synthetic speech, but its words were inaccurate; real microphone transcription quality still needs a user check.
 
 ## Earlier BLIP API run on 2026-10-27
 
-[GitHub Actions run 6](https://github.com/Vkmstry1611/mai-project/actions/runs/40543121064) completed `validate`, `publish`, and `deploy` successfully for commit `21ebd9f80e5195316959e6abff393349981bd853`. The public HTTPS `/health` returned HTTP 200 and reported `blip_vizwiz_v2`. An external HTTPS `POST /predict` using `sample/stop_sign.png` and “What word is on the sign?” returned `stop` in 1.116 seconds. The page at the public URL returned HTTP 200. Caddy handles TLS and forwards to the API on instance localhost; the image and model are pulled separately from GHCR and private S3. The hostname is provided by third-party sslip.io DNS, so confirm it resolves before a presentation.
+[Commit 21ebd9f](https://github.com/Vkmstry1611/mai-project/commit/21ebd9f80e5195316959e6abff393349981bd853) completed `validate`, `publish`, and `deploy` successfully at the time. The public HTTPS `/health` returned HTTP 200 and reported `blip_vizwiz_v2`. An external HTTPS `POST /predict` using `sample/stop_sign.png` and “What word is on the sign?” returned `stop` in 1.116 seconds. The page at the public URL returned HTTP 200. Caddy handles TLS and forwards to the API on instance localhost; the image and model are pulled separately from GHCR and private S3. The hostname is provided by third-party sslip.io DNS, so confirm it resolves before a presentation.
 
 ## Earlier private smoke test on 2026-10-26
 
-[GitHub Actions run 3](https://github.com/Vkmstry1611/mai-project/actions/runs/40368682335) completed with `validate`, `publish`, and `deploy` all successful for source commit `353c05bc19b59d18ed821ea1c871bd4f9549ff9d`. The image pulled `mlops/registry/champion` from S3 at container startup; CloudWatch showed `9 files fetched and 8 files added`, application startup complete, and `/health` HTTP 200.
+[Commit 353c05b](https://github.com/Vkmstry1611/mai-project/commit/353c05bc19b59d18ed821ea1c871bd4f9549ff9d) completed with `validate`, `publish`, and `deploy` all successful at the time. The image pulled `mlops/registry/champion` from S3 at container startup; CloudWatch showed `9 files fetched and 8 files added`, application startup complete, and `/health` HTTP 200.
 
 The Systems Manager smoke test `mlops/aws/smoke-test.ps1` sent the tracked `sample/stop_sign.png` and asked “What word is on the sign?” The response was:
 
@@ -55,7 +59,7 @@ The Systems Manager smoke test `mlops/aws/smoke-test.ps1` sent the tracked `samp
 {"answer":"stop","model_sha256":"ed7f698a1c79043019ece5df9b3cbd073fc0f050e97196d123ab83950862cc34","latency_seconds":1.193}
 ```
 
-`GET /metrics` returned one request, zero errors, and mean latency 1.193 seconds. CloudWatch Logs received the JSON prediction event, and the `PredictionLatencySeconds` metric contained the 1.193 second datapoint. The bucket's four public-access blocks were true, and bucket encryption was AES256. Evidence screenshots are in `ss/`; the linked GitHub run and commands above provide the deployment record.
+`GET /metrics` returned one request, zero errors, and mean latency 1.193 seconds. CloudWatch Logs received the JSON prediction event, and the `PredictionLatencySeconds` metric contained the 1.193 second datapoint. The bucket's four public-access blocks were true, and bucket encryption was AES256. Evidence screenshots are in `ss/`; the current GitHub run and commands above provide the deployment record.
 
 To inspect the live container through Systems Manager:
 
@@ -75,7 +79,7 @@ In another terminal, send JSON to `http://127.0.0.1:8000/predict` with `question
 ## Demo and rollback
 
 1. Show `dvc.yaml`, `dvc.lock`, candidate metric files, and `mlops/registry/selection.json`.
-2. Show the successful MAI workspace run `40555248709` `validate`, `publish`, and `deploy` jobs, the GHCR image tags, the private S3 remote, and the EC2 role/security group.
+2. Show the successful MAI workspace run `40696627943` `validate`, `publish`, and `deploy` jobs, the GHCR image tags, the private S3 remote, and the EC2 role/security group.
 3. Open the public MAI workspace, upload `sample/stop_sign.png`, ask “What word is on the sign?”, and show the Qwen answer. Switch to BLIP v2 and repeat. Show `/health`, `/metrics`, CloudWatch logs and both model metrics.
 4. Explain that Git versions source, DVC versions large inputs and champion output, GHCR versions the API image, and the Git SHA pins one deployment.
 5. For a manual rollback, rerun `bash mlops/deploy-runner.sh Vkmstry1611 <previous-successful-git-sha>` on the EC2 runner with GHCR login available. The deployment script also restores the prior local image on a failed health check.
