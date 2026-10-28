@@ -8,7 +8,7 @@ from evaluate_vqa import OfficialScorer
 
 
 def main(folder):
-    root = Path(__file__).resolve().parent
+    root = Path(__file__).resolve().parents[2]
     folder = Path(folder)
     historical_path = folder / 'provenance/improved_blip_predictions.json'
     historical = json.loads(historical_path.read_text(encoding='utf-8'))

@@ -65,7 +65,7 @@ Commit/source snapshot: __________  Frozen run: `run-local-20261013-v1`
 
 Record Pass / Fail / Not supported / Not tested for every row. Do not mark a feature passed just because its control is visible. Use newly created synthetic signs or consented personal photos; never use training/development/holdout examples for this manual check. Do not change thresholds or checkpoints in response to a result.
 
-See [the user manual's accessibility checks](docs/USER_MANUAL.md#manual-accessibility-checks) for exact microphone, playback, keyboard, screen-reader and camera steps. All physical results remain Not tested until confirmed by the tester.
+See [the user manual's accessibility checks](../USER_MANUAL.md#manual-accessibility-checks) for exact microphone, playback, keyboard, screen-reader and camera steps. All physical results remain Not tested until confirmed by the tester.
 
 ## Start and record the environment
 
@@ -149,7 +149,7 @@ Manual sign-off for supervised demo: __________  Date: __________
 
 ## Optional automatic-orientation workspace — manual checks pending
 
-Use the [user manual's advanced controls](docs/USER_MANUAL.md#advanced-controls) for the current experimental workspace. The retained `launch_orientation_workspace.py --port 7866` is the earlier separate orientation demo. These checks are NOT marked passed by synthetic OCR or backend/API tests.
+Use the [user manual's advanced controls](../USER_MANUAL.md#advanced-controls) for the current experimental workspace. The retained `launch_orientation_workspace.py --port 7866` is the earlier separate orientation demo. These checks are NOT marked passed by synthetic OCR or backend/API tests.
 
 - [ ] Upload upright, sideways and upside-down HELLO images; ask “What is written in the image?” Confirm the answer and displayed corrected preview agree.
 - [ ] Inspect the automatic correction angle and original/corrected boxes in Advanced details. Confirm selected evidence corresponds to the visible words.

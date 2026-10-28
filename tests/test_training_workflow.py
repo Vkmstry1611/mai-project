@@ -457,7 +457,7 @@ class OptimizerTests(unittest.TestCase):
 
     def test_notebook_syntax_and_disabled_training(self):
         root = Path(__file__).resolve().parents[1]
-        notebook = read_json(root / "mai_model_train_improved.ipynb")
+        notebook = read_json(root / "notebooks/mai_model_train_improved.ipynb")
         self.assertEqual(notebook["nbformat"], 4)
         code = ""
         for cell in notebook["cells"]:

@@ -108,7 +108,7 @@ If an input is missing, supply the image/question and retry. If analysis fails, 
 
 ## Manual accessibility checks
 
-These steps consolidate the former physical walkthrough for the current workspace. They are **instructions, not newly passed tests**. Record Pass / Fail / Not supported / Not tested, browser/version, UI variant and observed behavior. Earlier results remain in the [manual checklist](../MANUAL_TEST_CHECKLIST.md). Backend tests cannot establish real-user accessibility.
+These steps consolidate the former physical walkthrough for the current workspace. They are **instructions, not newly passed tests**. Record Pass / Fail / Not supported / Not tested, browser/version, UI variant and observed behavior. Earlier results remain in the [manual checklist](research/MANUAL_TEST_CHECKLIST.md). Backend tests cannot establish real-user accessibility.
 
 ### Microphone and editable transcription
 

@@ -8,11 +8,11 @@ from pathlib import Path
 import subprocess
 from audit_submission import PATTERNS
 
-ROOT=Path(__file__).resolve().parent
-PUBLIC_DOCS={'README.md','docs/USER_MANUAL.md','ARTIFACT_BUNDLE_GUIDE.md',
- 'MANUAL_TEST_CHECKLIST.md','BASELINE_DISCREPANCY_UPDATE.md','TRAINING_GUIDE.md','COLAB_T4_GUIDE.md','DATASET_FIX_GUIDE.md',
- 'PHASE2_DEV_EVALUATION.md','PHASE2_LOCAL_WINDOWS.md','PHASE3_GUIDE.md','PHASE4_GUIDE.md',
- 'SAMPLE_PROVENANCE.md'}
+ROOT=Path(__file__).resolve().parents[2]
+PUBLIC_DOCS={'README.md','docs/USER_MANUAL.md','docs/research/ARTIFACT_BUNDLE_GUIDE.md',
+ 'docs/research/MANUAL_TEST_CHECKLIST.md','docs/research/BASELINE_DISCREPANCY_UPDATE.md','docs/research/TRAINING_GUIDE.md','docs/research/COLAB_T4_GUIDE.md','docs/research/DATASET_FIX_GUIDE.md',
+ 'docs/research/PHASE2_DEV_EVALUATION.md','docs/research/PHASE2_LOCAL_WINDOWS.md','docs/research/PHASE3_GUIDE.md','docs/research/PHASE4_GUIDE.md',
+ 'docs/research/SAMPLE_PROVENANCE.md'}
 PUBLIC_SUBMISSION={'submission/ARTIFACT_INDEX-20261016.json','submission/PLOT_PROVENANCE.json',
  'submission/RESULTS_AND_PROVENANCE.md','submission/notebooks/PROVENANCE.json',
  'submission/notebooks/mai_model_train_source.ipynb'}
@@ -32,7 +32,7 @@ def audit(output):
         if not p.is_file():
             rows.append({'path':name,'classification':'Review','reason':'Tracked file missing locally','bytes':0});continue
         category='Review';reason='Historical/local documentation or sample; explicit publication review'
-        if p.suffix=='.py' or p.suffix=='.ps1' or name.startswith(('modules/','utils/','tests/','assets/')):
+        if p.suffix=='.py' or p.suffix=='.ps1' or name.startswith(('modules/','utils/','scripts/','tests/','assets/')):
             category='Include';reason='Application, test or reproducibility/development source'
         if name in PUBLIC_DOCS or name in ('.gitignore','.gitattributes') or name.startswith('requirements'):
             category='Include';reason='Reviewed setup, dependency or public documentation source'
@@ -43,7 +43,7 @@ def audit(output):
         if p.suffix=='.ipynb':
             nb=json.loads(p.read_text(encoding='utf-8'));outputs=[o for c in nb.get('cells',[]) for o in c.get('outputs',[])]
             notebooks.append({'path':name,'outputs':len(outputs),'embedded_image_outputs':sum(any(k.startswith('image/') for k in o.get('data',{})) for o in outputs)})
-            category='Review' if outputs or name in ('mai_model_train.ipynb','VisionBridge_VizWiz_Baseline_VQA (2).ipynb') else 'Include'
+            category='Review' if outputs or name in ('mai_model_train.ipynb','notebooks/VisionBridge_VizWiz_Baseline_VQA (2).ipynb') else 'Include'
             reason='Preserve original/executed notebook; review outputs before publishing' if category=='Review' else 'Unexecuted improved workflow notebook'
         if name.startswith('models/blip_vizwiz/'):
             category='Review';reason='Previously tracked original checkpoint/config; unchanged, not new PR payload'

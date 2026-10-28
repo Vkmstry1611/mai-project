@@ -57,7 +57,7 @@ def build(run_dir: Path, profile: str):
         raise ValueError('Expected full 1,000-row CUDA/CPU evaluation identity.')
     if identity['rows_sha256'] != digest(rows) or set(identity['image_hashes']) != set(prepared['dev_ids']):
         raise ValueError('Full evaluation did not use exactly the saved development rows and images.')
-    checkpoint = verify_checkpoint(Path(__file__).resolve().parent / 'models' / 'blip_vizwiz_v2')
+    checkpoint = verify_checkpoint(Path(__file__).resolve().parents[2] / 'models' / 'blip_vizwiz_v2')
     required_hashes = prepared['checkpoint_hashes']
     if checkpoint != required_hashes or any(identity['checkpoint_hashes'].get(k) != v for k, v in required_hashes.items()):
         raise ValueError('Original improved BLIP v2 checkpoint hash changed; report stopped.')

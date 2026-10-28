@@ -2,6 +2,8 @@
 .deps/
 __pycache__/
 .pytest_cache/
+.ruff_cache/
+.mypy_cache/
 outputs/*
 !outputs/.gitkeep
 models/cache/
@@ -10,6 +12,7 @@ models/**/*.pth
 models/**/*.safetensors
 !models/blip_vizwiz/model.safetensors
 *.log
+*.pstats
 
 # Local credentials and editor state
 .env
@@ -46,6 +49,7 @@ Desktop.ini
 .venv-*/
 .pytest-*/
 reports/
+# Keep any pre-existing local BDA data private after removing BDA source from this branch.
 bda-data/
 private-artifacts/
 *.joblib

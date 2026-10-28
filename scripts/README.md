@@ -4,6 +4,7 @@ Run these modules from the repository root with `python -m` so imports and relat
 
 - `audits/`: source and submission checks.
 - `benchmarks/`: local performance and research measurements.
+- `research/`: historical training and report commands.
 - `validation/`: manual smoke and UI checks that require local models or services.
 
 For example, run `python -m scripts.validation.smoke_test --speech --evidence`. The automated CI checks remain in `tests/`.

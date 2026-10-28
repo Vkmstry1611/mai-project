@@ -10,10 +10,10 @@ a fresh run02 with the corrected uploaded code; completed local data is reusable
 
 ## Files to have ready
 
-Open `mai_model_train_improved.ipynb` through Colab's **File → Upload notebook**.
+Open `notebooks/mai_model_train_improved.ipynb` through Colab's **File → Upload notebook**.
 Keep these four files ready on your computer for the upload in notebook section 2:
 
-- `colab_train_t4.py`
+- `scripts/research/colab_train_t4.py` (upload it to Colab with the basename `colab_train_t4.py`)
 - `visionbridge_training.py`
 - `evaluate_vqa.py`
 - `requirements-training.txt`

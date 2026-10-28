@@ -113,7 +113,7 @@ directly compared with scores on a different split or evaluator.
 Follow [COLAB_T4_GUIDE.md](COLAB_T4_GUIDE.md) for the complete beginner guide,
 cell numbers, persistent output paths and disconnect recovery.
 
-1. Open `mai_model_train_improved.ipynb`; choose a T4 runtime.
+1. Open `notebooks/mai_model_train_improved.ipynb`; choose a T4 runtime.
 2. Run installation. Keep Colab's CUDA PyTorch; do not install application CPU
    requirements. Restart if dependencies had already been imported.
 3. Clone the fork and retrieve its existing LFS checkpoint. Upload the three
@@ -151,10 +151,10 @@ histories, prediction tables and PNG/PDF graphs are saved in the Drive run folde
 For a prepared run, the CLI supports:
 
 ```bash
-python colab_train_t4.py prepare --run-dir RUN_DIR --data-root DATA_ROOT
-python colab_train_t4.py train --run-dir RUN_DIR --data-root DATA_ROOT
-python colab_train_t4.py train --run-dir RUN_DIR --data-root DATA_ROOT --resume
-python colab_train_t4.py evaluate --run-dir RUN_DIR --data-root DATA_ROOT
+python -m scripts.research.colab_train_t4 prepare --run-dir RUN_DIR --data-root DATA_ROOT
+python -m scripts.research.colab_train_t4 train --run-dir RUN_DIR --data-root DATA_ROOT
+python -m scripts.research.colab_train_t4 train --run-dir RUN_DIR --data-root DATA_ROOT --resume
+python -m scripts.research.colab_train_t4 evaluate --run-dir RUN_DIR --data-root DATA_ROOT
 ```
 
 The old checkpoint provides weights, but no old optimizer state. Continuing

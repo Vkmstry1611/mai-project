@@ -11,6 +11,7 @@ def main():
     previous=Path('reports/full_text_reading/run-20261020-v1/PROPOSED_SOURCE_FILES_FINAL.txt')
     candidates=set(previous.read_text(encoding='utf-8').splitlines())
     candidates.update(p.as_posix() for p in Path('.').glob('*.py'))
+    candidates.update(p.as_posix() for p in Path('scripts').rglob('*.py'))
     candidates.update(p.as_posix() for p in Path('.').glob('*.md'))
     candidates.update(p.as_posix() for p in Path('tests').glob('*.py'))
     candidates=sorted(p for p in candidates if p and Path(p).is_file())

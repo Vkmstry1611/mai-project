@@ -143,7 +143,7 @@ try {
 }
 if ($Mode -eq 'Pilot') { Write-Host "Pilot integrity checks passed. Full evaluation not requested. Run name: $RunName"; exit 0 }
 $reportDir = Join-Path $RunRoot 'report'
-& $Python -B build_phase2_local_report.py --run-dir $RunRoot --profile $profile
+& $Python -B -m scripts.research.build_phase2_local_report --run-dir $RunRoot --profile $profile
 if ($LASTEXITCODE -ne 0) { throw "Report generation failed; evaluation files are preserved in $RunRoot" }
 $progress.full_complete=$true; $progress.active_profile=$profile; $progress.updated=(Get-Date -Format o)
 $progress | ConvertTo-Json | Set-Content -Encoding UTF8 $StatePath

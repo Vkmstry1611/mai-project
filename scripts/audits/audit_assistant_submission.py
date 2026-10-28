@@ -15,7 +15,7 @@ def main():
     out=Path('reports/assistant_followup')/('audit-'+uuid.uuid4().hex[:8]);out.mkdir(parents=True,exist_ok=False)
     old=Path('reports/reading_upgrade/run-20261020-v1/final-source-audit/PROPOSED_SOURCE_FILES.txt')
     files=set(old.read_text().splitlines()) if old.exists() else set()
-    for folder,patterns in [(Path('.'),('*.py','*.md','requirements*.txt','*.ps1','*.ipynb')),(Path('tests'),('*.py',)),(Path('assets/workspace'),('*.css','*.svg'))]:
+    for folder,patterns in [(Path('.'),('*.py','*.md','requirements*.txt','*.ps1','*.ipynb')),(Path('scripts'),('**/*.py',)),(Path('tests'),('*.py',)),(Path('assets/workspace'),('*.css','*.svg'))]:
         for pattern in patterns:files.update(p.as_posix() for p in folder.glob(pattern))
     files.update(['.gitignore','.gitattributes']);files=sorted(n for n in files if Path(n).is_file())
     findings=[];large=[];hashes={};notebooks=[];deferred=[]

@@ -12,7 +12,7 @@ def main():
     from launch_workspace import build_app,launch_options
     from workspace_ui import ASSISTANT
     from workspace_speech import ResponseSpeech
-    from validate_image_conversation import OUT,ROOT
+    from scripts.validation.validate_image_conversation import OUT,ROOT
     session=FullTextSession('reports/phase4_policy/run-local-20261013-v1');demo,_=build_app(session.run_dir,session)
     calls=[];original=session.reader.read
     def observed(*args,**kwargs):calls.append(True);return original(*args,**kwargs)

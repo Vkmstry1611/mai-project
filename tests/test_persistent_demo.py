@@ -73,7 +73,7 @@ def test_ocr_cache_reuse_image_identity_and_corruption(tmp_path):
 
 
 def test_repeat_statistics_are_exact():
-    from benchmark_persistent_demo import summarize
+    from scripts.benchmarks.benchmark_persistent_demo import summarize
     assert summarize([2,4,3])==dict(individual_seconds=[2,4,3],mean_seconds=3,median_seconds=3)
 
 

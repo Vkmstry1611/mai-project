@@ -1,7 +1,4 @@
 *
-!requirements-bda-dashboard.txt
-!bda/
-!bda/**
 !Dockerfile.mlops
 !requirements-mlops-serving.txt
 !.dvc/

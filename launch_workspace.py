@@ -4,7 +4,7 @@ import atexit
 from pathlib import Path
 
 from workspace_ui import (WorkspaceController,HTML_CSS,BRAND,EMPTY_RESPONSE,EMPTY_EVIDENCE,
-                          ASSISTANT,VISUAL,READING,MODES,section,status_html,reading_mode)
+                          ASSISTANT,MODES,section,status_html,reading_mode)
 
 ROOT=Path(__file__).resolve().parent
 ASSETS=ROOT/'assets/workspace'

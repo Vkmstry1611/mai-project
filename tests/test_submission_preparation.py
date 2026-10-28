@@ -2,7 +2,7 @@ import copy
 
 import pytest
 
-from benchmark_warm_requests import stats
+from scripts.benchmarks.benchmark_warm_requests import stats
 from submission_ui_helpers import evidence_text, input_error, with_evidence_text
 
 
