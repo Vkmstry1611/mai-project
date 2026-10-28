@@ -19,7 +19,7 @@ All regional resources are in `ap-southeast-2` under AWS CLI profile `mlops-visi
 | CI image | `ghcr.io/vkmstry1611/visionbridge-mlops:<full-git-sha>` |
 | MAI workspace image | `ghcr.io/vkmstry1611/visionbridge-workspace:<full-git-sha>` |
 | Cloud model | Ollama `qwen3-vl:2b-instruct-q4_K_M`, model ID `afc393e3572c`, stored in an EC2 Docker volume |
-| CI/CD | [VisionBridge MLOps GitHub Actions](https://github.com/Vkmstry1611/mai-project/actions/workflows/mlops.yml) |
+| CI/CD | [VisionBridge CI GitHub Actions](https://github.com/Vkmstry1611/mai-project/actions/workflows/ci.yml) calls `.github/workflows/cd.yml` after validation and image publishing |
 
 The [AWS Free Plan managed policy](https://docs.aws.amazon.com/accounts/latest/reference/scps-and-rcps-for-projects.html) blocks ECR repository creation and IAM OIDC providers. GitHub Actions builds the image and GitHub Container Registry holds it. An EC2 self-hosted runner deploys it using the workflow's short-lived GitHub token. The container pulls the selected model from S3 using temporary instance-role credentials. No static AWS keys are stored in GitHub.
 

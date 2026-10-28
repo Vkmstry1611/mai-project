@@ -43,7 +43,7 @@ python -m unittest discover -s tests -p test_mlops_pipeline.py -v
 python -m unittest discover -s tests -p test_cloud_workspace.py -v
 ```
 
-The CI workflow is [`.github/workflows/mlops.yml`](.github/workflows/mlops.yml). It triggers on pushes to `mlops-ese`, runs validation, publishes Docker images, then deploys to EC2. The deployment script health checks the new services and attempts to restore the previous image if startup fails. The [latest verified deployment](https://github.com/Vkmstry1611/mai-project/actions/runs/40689647257) passed all three jobs before this cleanup.
+The [CI workflow](.github/workflows/ci.yml) triggers on pushes to `mlops-ese`, validates the code, and publishes Docker images. After publishing succeeds, it calls the separate [CD workflow](.github/workflows/cd.yml) for EC2 deployment. The deployment script health checks the new services and attempts to restore the previous image if startup fails. The [latest verified deployment](https://github.com/Vkmstry1611/mai-project/actions/runs/40689647257) passed all three jobs before this cleanup and workflow split.
 
 For the local MAI research workspace and private Phase 4 setup, read [the preserved original guide](docs/research/MAI_REFERENCE.md). That workflow has separate dependencies and assets. The public cloud deployment described here does not require them.
 
