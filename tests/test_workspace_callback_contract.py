@@ -3,7 +3,7 @@ import json
 import pytest
 from PIL import Image
 from test_image_conversation import fake_base
-from workspace_ui import ASSISTANT, VISUAL
+from visionbridge.workspace_ui import ASSISTANT, VISUAL
 from launch_workspace import build_app
 
 
@@ -80,7 +80,7 @@ def test_reset_and_manual_mode_callback_contracts(tmp_path):
 @pytest.mark.parametrize('reading,abstain', [(True,False),(True,True),(False,False),(False,True)])
 def test_success_abstention_cache_and_speech_failure(tmp_path,monkeypatch,caplog,reading,abstain):
     from test_image_conversation import row
-    from workspace_speech import ResponseSpeech
+    from visionbridge.workspace_speech import ResponseSpeech
     f,base,calls=callbacks(tmp_path, [] if abstain else [row('HELLO')])
     if not reading and not abstain:
         base.legacy.request=lambda *a:('A cup',None,'Complete',{'baseline_answer':'cup','final_answer':'cup','answer_source':'blip','evidence':[]},None,'',{'callback_seconds':0.})
@@ -102,7 +102,7 @@ def test_success_abstention_cache_and_speech_failure(tmp_path,monkeypatch,caplog
 
 
 def test_outer_callback_failure_is_logged_not_abstention(tmp_path,monkeypatch,caplog):
-    import image_conversation
+    from visionbridge import image_conversation
     f,_,_=callbacks(tmp_path)
     def fail(*a):raise ValueError('PRIVATE IMAGE CONTENT')
     monkeypatch.setattr(image_conversation,'prepare',fail)

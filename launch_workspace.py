@@ -3,7 +3,7 @@ import argparse
 import atexit
 from pathlib import Path
 
-from workspace_ui import (WorkspaceController,HTML_CSS,BRAND,EMPTY_RESPONSE,EMPTY_EVIDENCE,
+from visionbridge.workspace_ui import (WorkspaceController,HTML_CSS,BRAND,EMPTY_RESPONSE,EMPTY_EVIDENCE,
                           ASSISTANT,MODES,section,status_html,reading_mode)
 
 ROOT=Path(__file__).resolve().parent
@@ -36,7 +36,7 @@ def build_app(run_dir,session=None,model_sessions=None,cloud_mode=False):
         session=create_session(run_dir)
     controller=WorkspaceController(session)
     if model_sessions is not None:
-        from workspace_models import BLIP
+        from visionbridge.workspace_models import BLIP
     def html(value,**kwargs):return gr.HTML(value,css_template=HTML_CSS,**kwargs)
     with gr.Blocks(title='VisionBridge — visual assistant workspace',analytics_enabled=False,delete_cache=(3600,3600)) as demo:
         prior=gr.State({'workspace_model':model_sessions.default} if model_sessions else None,time_to_live=3600)
@@ -127,9 +127,9 @@ def build_app(run_dir,session=None,model_sessions=None,cloud_mode=False):
         def analyze_browser_values(photo,q,muted,override,angle,previous):
             import time
             callback_start=time.perf_counter()
-            from assistive_tools import quality,compare
+            from visionbridge.assistive_tools import quality,compare
             from modules.evidence_store import image_identity
-            from image_conversation import prepare,history_html,task_quality
+            from visionbridge.image_conversation import prepare,history_html,task_quality
             active_session=model_sessions.get((previous or {}).get('workspace_model')) if model_sessions else session
             active_controller=WorkspaceController(active_session) if model_sessions else controller
             # The visible conversation panel belongs to the default workspace,
@@ -158,7 +158,7 @@ def build_app(run_dir,session=None,model_sessions=None,cloud_mode=False):
         def analyze_browser(photo,q,muted,override,angle,previous):
             # Catch UI/state/routing failures outside the controller as well.
             # This is an application error, never a fabricated model abstention.
-            from workspace_diagnostics import report_failure
+            from visionbridge.workspace_diagnostics import report_failure
             latest=None
             try:
                 for value in analyze_browser_values(photo,q,muted,override,angle,previous):
@@ -171,7 +171,7 @@ def build_app(run_dir,session=None,model_sessions=None,cloud_mode=False):
                     values=list(latest);values[2]+=message;values[8]=gr.update(interactive=True)
                     yield tuple(values)
                 else:
-                    from image_conversation import history_html
+                    from visionbridge.image_conversation import history_html
                     kept=previous if isinstance(previous,dict) else None
                     try:history=history_html(kept)
                     except Exception:history='<p>Earlier context could not be displayed. You can clear the session and retry.</p>'
@@ -182,7 +182,7 @@ def build_app(run_dir,session=None,model_sessions=None,cloud_mode=False):
         event=analyze.click(analyze_browser,[image,question,mute,mode,rotation,prior],outputs,api_name='analyze',show_progress='minimal',concurrency_limit=1,concurrency_id='workspace-inference',trigger_mode='once')
         if conversation is not None:
             def clear_submitted_question(current,state):
-                from workspace_turns import question_after_submission
+                from visionbridge.workspace_turns import question_after_submission
                 value=question_after_submission(current,state)
                 return (gr.update(value='') if value=='' else gr.skip(),
                     '<p role="status" aria-live="polite">Response complete. Enter a new question or a follow-up; the previous question is in Recent questions.</p>' if value=='' else gr.skip())
@@ -230,12 +230,12 @@ def build_app(run_dir,session=None,model_sessions=None,cloud_mode=False):
         def reset(photo=None):return (*original_reset(photo),{},gr.skip(),*(['<p>Context will reset for a changed image on the next question.</p>'] if conversation is not None else []))
         if conversation is not None:
             def upload_reset(photo,previous):
-                from image_conversation import prepare,history_html
+                from visionbridge.image_conversation import prepare,history_html
                 try:
                     fresh=prepare(previous,photo)
                     return (*original_reset(photo),{},fresh,history_html(fresh))
                 except Exception as error:
-                    from workspace_diagnostics import report_failure
+                    from visionbridge.workspace_diagnostics import report_failure
                     reference=report_failure('image-upload-state',error)
                     values=list(original_reset(photo))
                     values[2]=status_html('Session state error','Conversation context was cleared. Try Analyze again. Diagnostic reference: '+reference,'error')
@@ -244,7 +244,7 @@ def build_app(run_dir,session=None,model_sessions=None,cloud_mode=False):
             image.change(upload_reset,[image,prior],outputs,cancels=[event],queue=False,api_visibility='private')
         else:image.change(reset,image,outputs,cancels=[event],queue=False,api_visibility='private')
         def reuse_last_question(current,state):
-            from workspace_turns import question_for_retake
+            from visionbridge.workspace_turns import question_for_retake
             return question_for_retake(current,state)
         retake.click(reuse_last_question,[question,prior],question,queue=False,api_name='reuse_last_question',api_visibility='undocumented').then(None,[],[],
             js="() => {const el=document.querySelector('#vb-photo');el?.scrollIntoView({block:'center'});el?.querySelector('input')?.focus();return [];}",queue=False,api_visibility='private')
@@ -266,7 +266,7 @@ def build_app(run_dir,session=None,model_sessions=None,cloud_mode=False):
             reading=value=='Full Text Reading (experimental)' or reading_mode(value)
             return (gr.update(visible=reading),gr.update(placeholder='What words are written in this image?' if reading else 'What would you like to know about this image?'),*reset())
         mode.change(switch_mode,mode,[rotation_group,question,*outputs],cancels=[event],queue=False,api_name='set_mode')
-        from workspace_voice import bind as bind_voice
+        from visionbridge.workspace_voice import bind as bind_voice
         bind_voice(recording,transcribe,question,status,controller,gr,speech_transcript,clear,voice_status,use_voice,discard_voice,record_toggle)
         record_toggle.click(None,inputs=[],outputs=[],js="""() => {
           const root=document.getElementById('vb-recording');if(!root)return [];
@@ -365,7 +365,7 @@ def create_session(run_dir,backend='auto',model=None):
         return LocalVisionSession(model)
     if not all(p.is_file() for p in required):
         raise RuntimeError('Frozen backend is incomplete. Restore the private runtime bundle or use --backend local.')
-    from full_text_session import FullTextSession
+    from visionbridge.full_text_session import FullTextSession
     return FullTextSession(run_dir)
 
 
@@ -388,13 +388,13 @@ if __name__=='__main__':
     ssl=None
     if args.local_https:
         if not args.lan_ip:p.error('--local-https needs --lan-ip (this laptop’s Wi-Fi address).')
-        from workspace_tls import local_certificates
+        from visionbridge.workspace_tls import local_certificates
         ca_file,cert_file,key_file=local_certificates(ROOT/'outputs/local-https',args.lan_ip)
         ssl={'ssl_certfile':str(cert_file),'ssl_keyfile':str(key_file),'ssl_verify':False}
         print('Private phone URL: https://'+args.lan_ip+':'+str(args.port),flush=True)
         print('Install and trust this local CA certificate on your phone: '+str(ca_file.with_name(ca_file.name.replace('-ca.pem','-phone-ca.crt'))),flush=True)
     session=create_session(Path(args.run_dir).resolve(),args.backend,args.vision_model)
-    from workspace_models import FrontendModels,BLIP,QWEN
+    from visionbridge.workspace_models import FrontendModels,BLIP,QWEN
     default_model=QWEN if hasattr(session,'backend_label') else BLIP
     models=FrontendModels(lambda name:create_session(Path(args.run_dir).resolve(),'frozen' if name==BLIP else 'local',args.vision_model),default_model,session)
     # Build both sets of existing controls; model weights still load on demand.

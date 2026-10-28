@@ -9,7 +9,7 @@ from uuid import uuid4
 
 def main(out):
     from PIL import Image
-    from full_text_session import FullTextSession
+    from visionbridge.full_text_session import FullTextSession
     out=Path(out);out.mkdir(parents=True,exist_ok=False)
     root=Path('reports/phase4_policy/run-local-20261013-v1/application-requests')
     fixtures=[('cooking',Path('reports/phase2_local_dev_evaluation/run-local-20261011-193140-9b32cf49/data/images/VizWiz_val_00002603.jpg'),'Tell me the cooking instructions mentioned in the image?'),

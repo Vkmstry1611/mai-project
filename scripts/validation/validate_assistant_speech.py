@@ -13,9 +13,9 @@ def main():
     from PIL import Image,ImageDraw,ImageFont
     from gradio_client import Client,handle_file
     from launch_workspace import build_app,launch_options
-    from full_text_session import FullTextSession
-    from workspace_ui import ASSISTANT,READING
-    from workspace_speech import ResponseSpeech
+    from visionbridge.full_text_session import FullTextSession
+    from visionbridge.workspace_ui import ASSISTANT,READING
+    from visionbridge.workspace_speech import ResponseSpeech
     out=Path('reports/full_text_reading')/('api-'+uuid.uuid4().hex[:8]);out.mkdir(parents=True,exist_ok=False)
     base=Path('reports/full_text_reading/fixtures-83eeca7a')
     label=Image.new('RGB',(900,400),'white')

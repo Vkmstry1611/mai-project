@@ -6,8 +6,8 @@ from pathlib import Path
 import subprocess
 
 def main():
-    from investigate_reading_upgrade import OUT
-    from audit_submission import PATTERNS
+    from visionbridge.investigate_reading_upgrade import OUT
+    from visionbridge.audit_submission import PATTERNS
     previous=Path('reports/full_text_reading/run-20261020-v1/PROPOSED_SOURCE_FILES_FINAL.txt')
     candidates=set(previous.read_text(encoding='utf-8').splitlines())
     candidates.update(p.as_posix() for p in Path('.').glob('*.py'))

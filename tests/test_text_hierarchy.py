@@ -1,7 +1,7 @@
 import copy
 import pytest
-from reading_relevance import compose
-from text_hierarchy import request
+from visionbridge.reading_relevance import compose
+from visionbridge.text_hierarchy import request
 from test_reading_relevance import row
 
 
@@ -61,7 +61,7 @@ def test_missing_printed_number_does_not_renumber():
 
 
 def test_history_has_roles_spacing_full_text_and_escaping():
-    from image_conversation import history_html
+    from visionbridge.image_conversation import history_html
     answer='a'*700+'\n<b>tail</b>'
     h=history_html({'conversation':{'turns':[{'question':'<q>','answer':answer}]}})
     assert 'User:' in h and 'VisionBridge:' in h and 'tabindex="0"' in h
@@ -70,7 +70,7 @@ def test_history_has_roles_spacing_full_text_and_escaping():
 
 def test_followup_reuses_cache_and_scopes_paragraph(tmp_path):
     from test_image_conversation import fake_base,turn
-    from image_conversation import prepare
+    from visionbridge.image_conversation import prepare
     from PIL import Image
     base,calls=fake_base(tmp_path,evidence());im=Image.new('RGB',(800,600));state=prepare(None,im)
     turn(base,state,im,'Read the cooking instructions')

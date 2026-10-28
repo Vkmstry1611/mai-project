@@ -1,10 +1,10 @@
 import pytest
 from PIL import Image
-from reading_relevance import compose,intent
-from full_text_session import FullTextSession
+from visionbridge.reading_relevance import compose,intent
+from visionbridge.full_text_session import FullTextSession
 from test_reading_relevance import row
 from test_workspace_callback_contract import callbacks,contract
-from workspace_ui import ASSISTANT
+from visionbridge.workspace_ui import ASSISTANT
 
 
 @pytest.mark.parametrize('q',['What is the passage about?','What is this article about?','What is that document about?'])
@@ -22,7 +22,7 @@ def test_summary_no_evidence_uncertainty():
 
 
 def test_outer_error_preserves_history_and_clears_audio(tmp_path,monkeypatch):
-    import image_conversation
+    from visionbridge import image_conversation
     f,_,_=callbacks(tmp_path)
     state={'conversation':{'turns':[{'question':'Earlier question','answer':'First line\nSecond line'}]}}
     monkeypatch.setattr(image_conversation,'prepare',lambda *a:(_ for _ in ()).throw(ValueError('private')))
@@ -40,7 +40,7 @@ def test_worker_guard_error_not_hidden(tmp_path):
 
 
 def test_explicit_microphone_probe_releases_tracks():
-    from workspace_voice import MICROPHONE_CHECK_JS
+    from visionbridge.workspace_voice import MICROPHONE_CHECK_JS
     assert 'getUserMedia' in MICROPHONE_CHECK_JS and 'track.stop()' in MICROPHONE_CHECK_JS
     for code in ('NotAllowedError','NotFoundError','NotReadableError'):assert code in MICROPHONE_CHECK_JS
     assert 'video:false' in MICROPHONE_CHECK_JS and 'MediaRecorder' not in MICROPHONE_CHECK_JS

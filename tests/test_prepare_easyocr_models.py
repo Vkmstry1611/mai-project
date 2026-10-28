@@ -2,7 +2,7 @@ import hashlib
 
 import pytest
 
-from prepare_easyocr_models import ensure_model, file_md5
+from visionbridge.prepare_easyocr_models import ensure_model, file_md5
 
 
 def test_reuses_only_verified_existing_easyocr_weight(tmp_path):

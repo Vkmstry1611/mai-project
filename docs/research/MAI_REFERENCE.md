@@ -219,43 +219,20 @@ The [16 October discrepancy update](../../docs/research/BASELINE_DISCREPANCY_UPD
 
 ## Repository structure
 
-```text
-VisionBridge/
-├── launch_workspace.py           # unified opt-in assistant
-├── workspace_ui.py               # Gradio presentation and safe response handling
-├── workspace_intent.py          # deterministic task routing
-├── image_conversation.py        # per-image context and cache reuse
-├── conversation_recall.py       # earlier question/answer retrieval
-├── text_hierarchy.py            # paragraphs, detected steps and navigation
-├── reading_relevance.py         # OCR region selection and bounded overviews
-├── ingredient_reading.py        # literal ingredient/word mentions
-├── assistive_tools.py           # quality hints and explicit printed fields
-├── experimental_scene*.py       # existing CPU YOLO candidate supplement
-├── full_text_session.py         # persistent OCR orchestration
-├── workspace_voice.py           # microphone payload checks/transcription review
-├── workspace_speech.py          # automatic speech and long-text chunking
-├── modules/                     # model, evidence and classifier components
-├── utils/                       # checkpoint loading and image utilities
-├── docs/USER_MANUAL.md          # detailed end-user instructions
-├── assets/workspace/            # CSS and SVG UI assets
-├── tests/                       # unit, regression and integration checks
-├── submission/                  # reviewed public provenance/preparation materials
-├── models/                      # local checkpoints; source alone is insufficient
-└── reports/                     # private local runs/data/cache, ignored by Git
-```
+The current MLOps checkout keeps frozen, hash-pinned Phase 2–4 sources at the repository root. The MAI workspace, experimental adapters, workers, and other unpinned helpers live in `visionbridge/`. The shared model components remain in `modules/` and `utils/`. Manual commands are under `scripts/`, historical notebooks under `notebooks/`, and the AWS deployment under `mlops/`.
 
 | Files | Purpose |
 |---|---|
-| `launch_workspace.py`, `workspace_ui.py` | Unified Gradio presentation |
-| `image_conversation.py`, `website_evidence.py` | Session follow-ups and qualified website retrieval |
-| `reading_relevance.py`, `assistive_tools.py` | Experimental selection, quality and labeled fields |
-| `full_text_session.py`, `full_text_worker.py`, `easy_reading_worker.py` | Isolated persistent OCR workers and adapters |
-| `persistent_demo_worker.py`, `persistent_demo_client.py` | Preserved frozen GPU transport |
-| `phase4_pipeline.py`, `phase4_gpu_infer.py`, `app_phase4.py` | Frozen application/policy integration |
+| `launch_workspace.py`, `visionbridge/workspace_ui.py` | Unified Gradio presentation |
+| `visionbridge/image_conversation.py`, `visionbridge/website_evidence.py` | Session follow-ups and qualified website retrieval |
+| `visionbridge/reading_relevance.py`, `visionbridge/assistive_tools.py` | Experimental selection, quality and labeled fields |
+| `visionbridge/full_text_session.py`, `visionbridge/full_text_worker.py` | Isolated persistent OCR adapters and worker |
+| `visionbridge/persistent_demo_worker.py`, `visionbridge/persistent_demo_client.py` | Preserved frozen GPU transport |
+| `phase4_pipeline.py`, `phase4_gpu_infer.py`, `app_phase4.py` | Frozen application and policy integration; remain at root for source hashes |
 | `modules/`, `utils/` | Original model loading, inference, evidence and gates |
-| `notebooks/mai_model_train_improved.ipynb`, `visionbridge_training.py` | Preserved training workflow; not run during assistant development |
-| `tests/`, `submission/` | Regression tests and small curated submission materials |
-| `models/`, `reports/` | Local/private runtime artifacts; not a source-only setup |
+| `notebooks/mai_model_train_improved.ipynb`, `visionbridge_training.py` | Preserved training workflow |
+| `tests/`, `submission/` | Regression tests and public provenance |
+| `models/`, ignored `reports/` | Local/private runtime artifacts; source alone is insufficient |
 
 ## Testing and performance
 
@@ -278,7 +255,7 @@ The recorded copied-tree check passed 27 tests and 40 subtests. Artifact tests u
 
 API latency is not browser rendering or audio duration. Cold initialization, CPU OCR fallback and speech can substantially increase end-to-end response time. Cached recall often takes around 1–4 seconds over HTTP in the recorded local checks, but different tasks and mute settings are not comparable benchmarks. Persistent initialization/caching is enabled in the experimental workspace, while original frozen launchers remain unchanged.
 
-Other retained entry points: `launch_phase4.py`, `launch_submission.py`, `launch_reading_demo.py`, `launch_persistent_demo.py`, `launch_orientation_workspace.py` and `launch_full_text_workspace.py`. Run them with the documented `.venv` interpreter, one GPU interface at a time.
+Other retained entry points: `launch_phase4.py`, `launch_submission.py`, and the `visionbridge.launch_reading_demo`, `visionbridge.launch_persistent_demo`, `visionbridge.launch_orientation_workspace`, and `visionbridge.launch_full_text_workspace` modules. Run the modules with `python -m`, using the documented `.venv` interpreter, one GPU interface at a time.
 
 ## Known limitations, privacy and responsible use
 

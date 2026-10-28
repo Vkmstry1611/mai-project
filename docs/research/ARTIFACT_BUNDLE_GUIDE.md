@@ -60,4 +60,4 @@ The installer accepts only the 21 reviewed relative paths, rejects traversal/dup
 
 This task built and verified the archive against the current project. It did not run a clean-machine GUI or any holdout evaluation. Keep the bundle outside Git; sharing/uploading it requires your approval.
 
-This is a runtime subset, not the complete historical evaluation archive. Do not invoke training, `phase4_holdout.py` or `run_phase4_completion.py` on a restored runtime-only checkout; it deliberately excludes historical evaluation completion/result files. Use only the documented application launch and safe verification commands.
+This is a runtime subset, not the complete historical evaluation archive. Do not invoke training, `phase4_holdout.py` or `visionbridge.run_phase4_completion` on a restored runtime-only checkout; it deliberately excludes historical evaluation completion/result files. Use only the documented application launch and safe verification commands.

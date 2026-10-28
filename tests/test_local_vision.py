@@ -4,7 +4,7 @@ from io import BytesIO
 from PIL import Image
 import pytest
 
-from image_conversation import prepare
+from visionbridge.image_conversation import prepare
 from modules import local_vision
 
 

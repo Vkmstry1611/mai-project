@@ -2,12 +2,12 @@ import json
 from pathlib import Path
 import pytest
 from PIL import Image
-from image_conversation import prepare,ConversationSession,resolve
-from reading_relevance import compose
+from visionbridge.image_conversation import prepare,ConversationSession,resolve
+from visionbridge.reading_relevance import compose
 from test_image_conversation import fake_base,turn
 from test_text_hierarchy import evidence
 from test_reading_relevance import row
-from workspace_voice import VoiceReview,insert_transcript
+from visionbridge.workspace_voice import VoiceReview,insert_transcript
 
 
 def test_acceptance_navigation(tmp_path):
@@ -43,7 +43,7 @@ def test_continue_and_all(tmp_path):
 @pytest.mark.parametrize('q',['What ingredients are mentioned?','Which ingredients are listed?','What do I need to prepare this?',
     'What ingredients are used in the instructions?','Read the ingredient list.','Does it mention milk?','Is pasta mentioned?'])
 def test_ingredient_route(q):
-    from full_text_session import FullTextSession
+    from visionbridge.full_text_session import FullTextSession
     assert object.__new__(FullTextSession).classify(q).task=='reading'
 
 

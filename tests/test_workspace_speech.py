@@ -3,8 +3,8 @@ from pathlib import Path
 from types import SimpleNamespace
 import pytest
 from PIL import Image
-from workspace_speech import chunks,ResponseSpeech
-from workspace_ui import WorkspaceController,ASSISTANT
+from visionbridge.workspace_speech import chunks,ResponseSpeech
+from visionbridge.workspace_ui import WorkspaceController,ASSISTANT
 
 
 def test_chunks_preserve_nonwhitespace_and_limit():

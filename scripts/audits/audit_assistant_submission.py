@@ -10,7 +10,7 @@ from urllib.parse import urlsplit
 def git(*args):return subprocess.check_output(['git',*args],text=True,encoding='utf-8').strip()
 
 def main():
-    from audit_submission import PATTERNS
+    from visionbridge.audit_submission import PATTERNS
     from artifact_bundle import source_pins
     out=Path('reports/assistant_followup')/('audit-'+uuid.uuid4().hex[:8]);out.mkdir(parents=True,exist_ok=False)
     old=Path('reports/reading_upgrade/run-20261020-v1/final-source-audit/PROPOSED_SOURCE_FILES.txt')

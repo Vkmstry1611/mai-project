@@ -29,7 +29,7 @@ def main(args):
     draw.rectangle((45,95,680,290),outline='black',width=3)
     draw.text((80,140),'WELCOME',font=ImageFont.truetype('C:/Windows/Fonts/arialbd.ttf',80),fill='black')
     fixture=out/'synthetic-sign.png';image.save(fixture)
-    import launch_reading_demo as ui
+    from visionbridge import launch_reading_demo as ui
     original_request=ui.request
     from gradio_client import Client,handle_file
     rows=[];summaries=[]
@@ -40,7 +40,7 @@ def main(args):
             for route in routes:
                 session=None;ui.request=original_request
                 if backend=='persistent':
-                    from launch_persistent_demo import build_app
+                    from visionbridge.launch_persistent_demo import build_app
                     demo,session=build_app(Path(args.run_dir).resolve())
                 else:demo=ui.build_app(Path(args.run_dir).resolve())
                 with socket.socket() as sock:sock.bind(('127.0.0.1',0));port=sock.getsockname()[1]

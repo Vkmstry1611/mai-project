@@ -6,8 +6,8 @@ import time
 
 def main():
     from PIL import Image
-    from full_text_session import FullTextSession
-    from reading_relevance import compose
+    from visionbridge.full_text_session import FullTextSession
+    from visionbridge.reading_relevance import compose
     out=Path('reports/reading_sequences/run-20261020-v1')
     name='VizWiz_val_00002603.jpg'
     manifest=json.loads(Path('reports/phase2_local_dev_evaluation/drive_inputs/split_manifest.json').read_text())

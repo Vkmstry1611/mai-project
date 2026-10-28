@@ -5,7 +5,7 @@ import unittest
 from types import SimpleNamespace
 
 from PIL import Image
-from workspace_ui import WorkspaceController,ASSISTANT,VISUAL,READING,evidence_html,status_html,response_meta
+from visionbridge.workspace_ui import WorkspaceController,ASSISTANT,VISUAL,READING,evidence_html,status_html,response_meta
 
 
 class WorkspaceTests(unittest.TestCase):

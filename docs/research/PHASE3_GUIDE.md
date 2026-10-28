@@ -27,7 +27,7 @@ never overwritten. Interrupted temporary files are retained for diagnosis.
 ## Execute or resume
 
 ```powershell
-& .\.venv-gpu\Scripts\python.exe -u .\run_phase3_local.py `
+& .\.venv-gpu\Scripts\python.exe -u -m visionbridge.run_phase3_local `
   --run-dir .\reports\phase3_answerability\run-local-20261012-v1
 ```
 
@@ -79,7 +79,7 @@ either environment. It applies the development-selected policy after the
 unchanged Phase 2 candidate, with no silent model fallback:
 
 ```powershell
-& .\.venv-gpu\Scripts\python.exe .\phase3_infer.py `
+& .\.venv-gpu\Scripts\python.exe -m visionbridge.phase3_infer `
   --run-dir .\reports\phase3_answerability\run-local-20261012-v1 `
   --image C:\path\to\your-photo.jpg --question "What is written here?"
 ```
@@ -93,7 +93,7 @@ A separate optional UI can reuse the existing Gradio installation in the
 original environment while running all model work in `.venv-gpu` subprocesses:
 
 ```powershell
-& .\.venv\Scripts\python.exe .\app_phase3.py `
+& .\.venv\Scripts\python.exe -m visionbridge.app_phase3 `
   --run-dir .\reports\phase3_answerability\run-local-20261012-v1
 ```
 
@@ -105,7 +105,7 @@ Use your own photos; do not use the reserved holdout for tuning.
 ## Verify again without model inference
 
 ```powershell
-& .\.venv-gpu\Scripts\python.exe .\check_phase3.py `
+& .\.venv-gpu\Scripts\python.exe -m visionbridge.check_phase3 `
   --run-dir .\reports\phase3_answerability\run-local-20261012-v1
 ```
 

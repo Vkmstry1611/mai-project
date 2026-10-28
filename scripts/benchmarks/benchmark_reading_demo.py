@@ -17,7 +17,7 @@ def main(args):
     draw.rectangle((45,95,680,290),outline='black',width=3)
     draw.text((80,140),'WELCOME',font=ImageFont.truetype('C:/Windows/Fonts/arialbd.ttf',80),fill='black')
     fixture=out/'synthetic-sign.png';photo.save(fixture)
-    from launch_reading_demo import build_app
+    from visionbridge.launch_reading_demo import build_app
     demo=build_app(Path(args.run_dir).resolve())
     with socket.socket() as s:s.bind(('127.0.0.1',0));port=s.getsockname()[1]
     records=[]

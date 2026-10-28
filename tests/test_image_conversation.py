@@ -3,10 +3,10 @@ from pathlib import Path
 from types import SimpleNamespace
 import pytest
 from PIL import Image
-from website_evidence import candidates,decide
-from reading_relevance import compose
-from full_text_session import FullTextSession
-from image_conversation import prepare,resolve,task_quality,MAX_TURNS
+from visionbridge.website_evidence import candidates,decide
+from visionbridge.reading_relevance import compose
+from visionbridge.full_text_session import FullTextSession
+from visionbridge.image_conversation import prepare,resolve,task_quality,MAX_TURNS
 
 def row(text,y=0,confidence=.99):
     return {'id':text+str(y),'text':text,'confidence':confidence,'box':[0,y,500,y+25],'corrected_box':[0,y,500,y+25],
@@ -87,7 +87,7 @@ def test_visual_cache_preserves_frozen_abstention_and_no_ocr(tmp_path):
     assert 'person holding' not in a[0]
 
 def test_visual_cache_invalidates_if_artifact_changes(tmp_path,monkeypatch):
-    import image_conversation
+    from visionbridge import image_conversation
     monkeypatch.setattr(image_conversation,'ARTIFACT_ROOT',tmp_path)
     folder=tmp_path/'models/blip_vizwiz_v2';folder.mkdir(parents=True)
     fixture=folder/'model.safetensors';fixture.write_bytes(b'synthetic fixture, not a model')
@@ -138,7 +138,7 @@ def test_exact_product_needs_printed_label(tmp_path):
 
 def test_verified_bundled_weights_are_reused_without_download(tmp_path,monkeypatch):
     import hashlib
-    import assistant_runtime
+    from visionbridge import assistant_runtime
     folder=tmp_path/'reports/phase2_local_dev_evaluation/run-local-20261011-193140-9b32cf49/model-cache/easyocr';folder.mkdir(parents=True)
     p=folder/'fixture.pth';p.write_bytes(b'fixture')
     monkeypatch.setattr(assistant_runtime,'WEIGHTS',{'fixture.pth':hashlib.sha256(b'fixture').hexdigest()})

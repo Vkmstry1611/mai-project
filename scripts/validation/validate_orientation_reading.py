@@ -42,7 +42,7 @@ def cpu():
     from config import Config
     from modules.ocr import load_reader
     from modules.evidence_store import descriptor
-    from experimental_orientation import read,THRESHOLD,process_memory_mib
+    from visionbridge.experimental_orientation import read,THRESHOLD,process_memory_mib
     out=ROOT/'reports/experimental_reading'/('orientation-validation-'+time.strftime('%Y%m%d-%H%M%S')+'-'+uuid.uuid4().hex[:8])
     out.mkdir(parents=True,exist_ok=False)
     print('REPORT_DIRECTORY',out,flush=True)
@@ -96,8 +96,8 @@ def api(out):
     os.environ['GRADIO_ANALYTICS_ENABLED']='False'
     from PIL import Image
     from launch_workspace import build_app,launch_options
-    from orientation_workspace_session import OrientationSession
-    from workspace_ui import ASSISTANT,READING
+    from visionbridge.orientation_workspace_session import OrientationSession
+    from visionbridge.workspace_ui import ASSISTANT,READING
     from gradio_client import Client,handle_file
     prior=json.loads((out/'CPU_RESULTS.json').read_text(encoding='utf-8'))
     if not all(prior['checks'].values()):raise ValueError('CPU fixture checks must pass first')

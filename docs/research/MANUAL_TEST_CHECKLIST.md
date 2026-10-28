@@ -4,7 +4,7 @@
 
 Automated API checks confirm text/audio generation, not browser playback or accessibility. Do not mark the following passed without a person testing them.
 
-- [ ] Launch `launch_workspace.py` or `launch_full_text_workspace.py`. Confirm Mute Spoken Answers starts unchecked and no Generate Spoken Answer checkbox is needed.
+- [ ] Launch `launch_workspace.py` or `python -m visionbridge.launch_full_text_workspace`. Confirm Mute Spoken Answers starts unchecked and no Generate Spoken Answer checkbox is needed.
 - [ ] Analyze one visual question and one reading request. Text should appear first and speech should become available without a second analysis.
 - [ ] After clicking Analyze, check whether Chrome autoplays. If blocked, use Play Answer/native Play and confirm the existing audio plays without re-analysis.
 - [ ] Mute during playback; confirm audio stops. Submit while muted; confirm no new speech is generated. Unmute and submit another request.
@@ -40,7 +40,7 @@ The bottle/container results confirm manual use of the updated grouping mode. Ti
 - [x] User confirms spoken-answer audio generation for those two tests.
 - [ ] Separately verify audible playback in the updated experimental mode.
 - [ ] Manually verify the new optional persistent-worker launcher; earlier confirmations do not automatically pass a new launcher.
-- [ ] Run `.\.venv\Scripts\python.exe launch_persistent_demo.py`, repeat reading/frozen-mode inputs, then use Ctrl+C in its terminal and confirm the worker stops. Cached requests should reuse models; a new photo can still require CPU OCR.
+- [ ] Run `.\.venv\Scripts\python.exe -m visionbridge.launch_persistent_demo`, repeat reading/frozen-mode inputs, then use Ctrl+C in its terminal and confirm the worker stops. Cached requests should reuse models; a new photo can still require CPU OCR.
 
 ## Experimental OCR results reported 19 October 2026
 
@@ -52,7 +52,7 @@ The bottle/container results confirm manual use of the updated grouping mode. Ti
 
 These earlier results apply to the previously tested experimental application. Browser/source snapshot and actual test date were not recorded. The subsequent updated-grouping confirmation is recorded above; the exact HELLO output is also covered by an automated regression. Persistent-worker work is now authorized as a separate opt-in prototype. Existing unconfirmed accessibility checks remain untested.
 
-- [ ] Launch the updated `launch_reading_demo.py`, enable experimental reading, and repeat HELLO; expect the exact same sentence.
+- [ ] Launch `python -m visionbridge.launch_reading_demo`, enable experimental reading, and repeat HELLO; expect the exact same sentence.
 - [ ] Repeat the bottle and upright container; record the complete answer, omitted text, rotation and evidence panel. Partial success must not be reported as complete transcription.
 - [ ] Test separate lines/columns and an unclear word between readable words; expect separated regions or an explicit gap, never invented text.
 - [ ] Disable experimental mode; verify the familiar frozen answer/details, with experimental rotation ignored.
@@ -149,7 +149,7 @@ Manual sign-off for supervised demo: __________  Date: __________
 
 ## Optional automatic-orientation workspace — manual checks pending
 
-Use the [user manual's advanced controls](../USER_MANUAL.md#advanced-controls) for the current experimental workspace. The retained `launch_orientation_workspace.py --port 7866` is the earlier separate orientation demo. These checks are NOT marked passed by synthetic OCR or backend/API tests.
+Use the [user manual's advanced controls](../USER_MANUAL.md#advanced-controls) for the current experimental workspace. The retained `python -m visionbridge.launch_orientation_workspace --port 7866` is the earlier separate orientation demo. These checks are NOT marked passed by synthetic OCR or backend/API tests.
 
 - [ ] Upload upright, sideways and upside-down HELLO images; ask “What is written in the image?” Confirm the answer and displayed corrected preview agree.
 - [ ] Inspect the automatic correction angle and original/corrected boxes in Advanced details. Confirm selected evidence corresponds to the visible words.

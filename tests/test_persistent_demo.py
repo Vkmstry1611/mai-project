@@ -5,8 +5,8 @@ from pathlib import Path
 import pytest
 from PIL import Image
 
-from persistent_demo_worker import FileGuard
-from persistent_demo_client import PersistentTransport,ROOT
+from visionbridge.persistent_demo_worker import FileGuard
+from visionbridge.persistent_demo_client import PersistentTransport,ROOT
 
 
 def test_guard_refuses_changed_and_missing_artifacts(tmp_path):
@@ -34,7 +34,7 @@ def test_transport_preserves_worker_response(tmp_path):
 @pytest.mark.parametrize('reading',[False,True])
 def test_session_preserves_frozen_response_and_rotation_routing(monkeypatch,tmp_path,reading):
     import app_phase4
-    from launch_persistent_demo import Session
+    from visionbridge.launch_persistent_demo import Session
     received=[]
     class Client:
         def close(self):received.append('closed')
@@ -78,7 +78,7 @@ def test_repeat_statistics_are_exact():
 
 
 def test_shutdown_targets_only_owned_worker():
-    from persistent_demo_client import WorkerClient
+    from visionbridge.persistent_demo_client import WorkerClient
     class Pipe:
         def __init__(self):self.messages=[];self.closed=False
         def write(self,text):self.messages.append(text)
@@ -96,7 +96,7 @@ def test_shutdown_targets_only_owned_worker():
 
 def test_each_route_preserves_its_original_cpu_thread_configuration(tmp_path):
     from types import SimpleNamespace
-    from persistent_demo_worker import Engine
+    from visionbridge.persistent_demo_worker import Engine
     seen=[]
     cuda=SimpleNamespace(reset_peak_memory_stats=lambda:None,manual_seed_all=lambda seed:None,
         max_memory_allocated=lambda:0,max_memory_reserved=lambda:0,get_device_name=lambda index:'test GPU')

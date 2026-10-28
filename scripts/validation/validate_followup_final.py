@@ -8,10 +8,10 @@ import wave
 
 def main():
     from gradio_client import Client,handle_file
-    from full_text_session import FullTextSession
+    from visionbridge.full_text_session import FullTextSession
     from launch_workspace import build_app,launch_options
-    from workspace_ui import ASSISTANT
-    from workspace_speech import ResponseSpeech
+    from visionbridge.workspace_ui import ASSISTANT
+    from visionbridge.workspace_speech import ResponseSpeech
     from scripts.validation.validate_image_conversation import OUT,ROOT
     session=FullTextSession('reports/phase4_policy/run-local-20261013-v1');demo,_=build_app(session.run_dir,session)
     calls=[];original=session.reader.read

@@ -6,7 +6,7 @@ from pathlib import Path
 from PIL import Image
 import pytest
 
-from experimental_orientation import (ANGLES, THRESHOLD, assess, bounds, mapped_items, matrices,
+from visionbridge.experimental_orientation import (ANGLES, THRESHOLD, assess, bounds, mapped_items, matrices,
     rank, read, transform, VERSION)
 
 
@@ -97,7 +97,7 @@ def test_verification_failure_never_uses_blip_or_guesses(tmp_path):
 
 
 def test_optional_workspace_hook_only_used_for_automatic_reading():
-    from workspace_ui import WorkspaceController,ASSISTANT,VISUAL,READING
+    from visionbridge.workspace_ui import WorkspaceController,ASSISTANT,VISUAL,READING
     calls=[]
     class Session:
         def request(self,*a):calls.append(('old',a));return ('HELLO',None,'Complete',{},None,'',{})
@@ -110,8 +110,8 @@ def test_optional_workspace_hook_only_used_for_automatic_reading():
 
 
 def test_session_manual_and_disabled_routes_return_identical_values(monkeypatch):
-    from launch_persistent_demo import Session
-    from orientation_workspace_session import OrientationSession
+    from visionbridge.launch_persistent_demo import Session
+    from visionbridge.orientation_workspace_session import OrientationSession
     from types import SimpleNamespace
     original=('original',None,'Complete',{},None,'',{})
     seen=[]

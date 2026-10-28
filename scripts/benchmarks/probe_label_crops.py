@@ -6,8 +6,8 @@ import time
 def main():
     import numpy as np
     from PIL import Image,ImageEnhance
-    from full_text_ocr import FullTextEngine
-    from investigate_reading_upgrade import OUT
+    from visionbridge.full_text_ocr import FullTextEngine
+    from visionbridge.investigate_reading_upgrade import OUT
     baseline=json.loads((OUT/'rapid-baseline.json').read_text(encoding='utf-8'))['wine']
     image=Image.open(baseline['path']).convert('RGB');engine=FullTextEngine()
     rows=baseline['result']['evidence'];polygons=np.asarray([r['corrected_polygon'] for r in rows],dtype=np.float32)

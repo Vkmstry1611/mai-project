@@ -10,7 +10,7 @@ from test_phase2_dev import payload, row, captured, rules
 from evaluate_vqa import OfficialScorer
 from evaluate_phase2_dev import replay
 from prepare_phase2_local import prepare, download_archive
-from local_phase2_runner import verify_results
+from visionbridge.local_phase2_runner import verify_results
 
 
 def test_extract_exact_dev_only_and_preserve_completed_run(tmp_path,monkeypatch):

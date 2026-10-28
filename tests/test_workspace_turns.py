@@ -1,9 +1,9 @@
 """Current text/transcript editing must not become conversation history."""
 from pathlib import Path
 from PIL import Image
-from workspace_turns import question_after_submission,question_for_retake
+from visionbridge.workspace_turns import question_after_submission,question_for_retake
 from test_workspace_callback_contract import callbacks,contract
-from workspace_ui import ASSISTANT,WorkspaceController
+from visionbridge.workspace_ui import ASSISTANT,WorkspaceController
 
 
 def test_clear_completed_only_and_preserve_new_edits():

@@ -7,11 +7,11 @@ import wave
 
 
 def main():
-    from full_text_session import FullTextSession
+    from visionbridge.full_text_session import FullTextSession
     from launch_workspace import build_app,launch_options
     from gradio_client import Client,handle_file
-    from workspace_ui import ASSISTANT,VISUAL
-    from workspace_speech import ResponseSpeech
+    from visionbridge.workspace_ui import ASSISTANT,VISUAL
+    from visionbridge.workspace_speech import ResponseSpeech
     out=Path('reports/ocr_purpose/run-20261021-v1/api');out.mkdir(exist_ok=False)
     photo=Path('reports/phase2_local_dev_evaluation/run-local-20261011-193140-9b32cf49/data/images/VizWiz_val_00002603.jpg')
     manifest=json.loads(Path('reports/phase2_local_dev_evaluation/drive_inputs/split_manifest.json').read_text())

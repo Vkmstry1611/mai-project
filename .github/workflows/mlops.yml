@@ -28,7 +28,7 @@ jobs:
       - run: python -m unittest discover -s tests -p test_cloud_workspace.py -v
       - run: python -m pytest tests/test_workspace_models.py tests/test_voice_flow.py -q
       - run: python -m compileall -q mlops
-      - run: python -m compileall -q launch_workspace.py workspace_ui.py workspace_voice.py modules/local_vision.py
+      - run: python -m compileall -q launch_workspace.py visionbridge modules/local_vision.py
 
   publish:
     needs: validate

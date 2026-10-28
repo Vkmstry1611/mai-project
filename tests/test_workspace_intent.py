@@ -2,7 +2,7 @@
 import unittest
 from types import SimpleNamespace
 from PIL import Image
-from workspace_intent import classify
+from visionbridge.workspace_intent import classify
 
 
 class IntentTests(unittest.TestCase):
@@ -45,7 +45,7 @@ class IntentTests(unittest.TestCase):
 
 class AssistantControllerTests(unittest.TestCase):
     def setUp(self):
-        from workspace_ui import WorkspaceController
+        from visionbridge.workspace_ui import WorkspaceController
         self.calls=[];self.spoken=[];self.photo=Image.new('RGB',(120,60),'white')
         self.details={'final_answer':'HELLO','baseline_answer':'hello','answer_source':'ocr','selected_evidence':[]}
         self.timings={'callback_seconds':1,'experimental_reading_active':True}
@@ -54,7 +54,7 @@ class AssistantControllerTests(unittest.TestCase):
         self.controller=WorkspaceController(SimpleNamespace(request=request),lambda p:('Read this','Review'),speaker)
 
     def test_both_automatic_routes_preserve_outputs(self):
-        from workspace_ui import ASSISTANT
+        from visionbridge.workspace_ui import ASSISTANT
         for question,reading in [('What color is this?',False),('Read this',True)]:
             with self.subTest(question=question):
                 result=list(self.controller.analyze(self.photo,question,False,ASSISTANT,'180'))[-1]
@@ -64,7 +64,7 @@ class AssistantControllerTests(unittest.TestCase):
                 self.assertNotIn('workspace_routing',self.details)
 
     def test_limitation_and_clarification_do_not_run_inference(self):
-        from workspace_ui import ASSISTANT
+        from visionbridge.workspace_ui import ASSISTANT
         for question,task in [('What is the expiry date?','unsupported_field'),('Help','clarify')]:
             result=list(self.controller.analyze(self.photo,question,True,ASSISTANT,'0'))[-1]
             self.assertFalse(self.calls);self.assertEqual(result[1],'notice.wav')
@@ -74,14 +74,14 @@ class AssistantControllerTests(unittest.TestCase):
             self.assertEqual(self.spoken[-1],result[0])
 
     def test_manual_override_keeps_existing_frozen_behavior(self):
-        from workspace_ui import VISUAL,READING
+        from visionbridge.workspace_ui import VISUAL,READING
         for mode,question,reading,rotation in [(VISUAL,'What is the expiry date?',False,'0'),(READING,'Read this',True,'180')]:
             result=list(self.controller.analyze(self.photo,question,False,mode,'180'))[-1]
             self.assertEqual(self.calls[-1],(self.photo,question,False,reading,rotation))
             self.assertIs(result[3],self.details);self.assertIn('developer override',result[10])
 
     def test_notice_voice_failure_preserves_text(self):
-        from workspace_ui import ASSISTANT
+        from visionbridge.workspace_ui import ASSISTANT
         def fail(text):raise RuntimeError('voice unavailable')
         self.controller.speaker=fail
         result=list(self.controller.analyze(self.photo,'Help',True,ASSISTANT,'0'))[-1]

@@ -12,8 +12,8 @@ from PIL import ImageOps
 
 from launch_workspace import build_app, launch_options
 from modules.local_vision import LocalVisionSession
-from workspace_intent import Route
-from workspace_models import BLIP, QWEN, FrontendModels
+from visionbridge.workspace_intent import Route
+from visionbridge.workspace_models import BLIP, QWEN, FrontendModels
 
 
 class CloudBlipSession:

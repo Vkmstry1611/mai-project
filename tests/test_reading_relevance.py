@@ -3,8 +3,8 @@ import copy
 import pytest
 from types import SimpleNamespace
 from PIL import Image
-from reading_relevance import compose,intent,group_regions
-from full_text_session import FullTextSession
+from visionbridge.reading_relevance import compose,intent,group_regions
+from visionbridge.full_text_session import FullTextSession
 
 def row(text,x,y,w=400,h=25,score=.99,engine='RapidOCR'):
     return dict(id=text+str(y),text=text,confidence=score,box=[x,y,x+w,y+h],corrected_box=[x,y,x+w,y+h],source={'engine':engine})
@@ -72,7 +72,7 @@ def test_orchestration_is_selective_and_keeps_primary_evidence():
     assert result[3]['engine_selection']['selected']=='EasyOCR'
 
 def test_raw_cache_verified_and_question_independent(tmp_path):
-    from full_text_ocr import FullTextEngine
+    from visionbridge.full_text_ocr import FullTextEngine
     engine=object.__new__(FullTextEngine);engine.source={'engine':'fixture'}
     calls=[]
     def fake(*args,**kwargs):calls.append(True);return [([[0,0],[60,0],[60,20],[0,20]],'HELLO',.99)],[]

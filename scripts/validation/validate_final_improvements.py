@@ -9,8 +9,8 @@ import time
 def main(out,replay_from=None):
     from gradio_client import Client,handle_file
     from launch_workspace import build_app,launch_options
-    from full_text_session import FullTextSession
-    from workspace_ui import ASSISTANT
+    from visionbridge.full_text_session import FullTextSession
+    from visionbridge.workspace_ui import ASSISTANT
     out=Path(out);out.mkdir(parents=True,exist_ok=False)
     sources=json.loads(Path('reports/final_improvements/run-20261021-v1/candidate-paths.json').read_text())
     fixtures={

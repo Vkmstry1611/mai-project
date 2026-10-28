@@ -1,10 +1,10 @@
 """Synthetic evidence regressions; manual expectations are never model labels."""
 import pytest
 from PIL import Image
-from conversation_recall import recall
-from assistive_tools import targeted,field_intent
-from full_text_session import FullTextSession
-from image_conversation import prepare
+from visionbridge.conversation_recall import recall
+from visionbridge.assistive_tools import targeted,field_intent
+from visionbridge.full_text_session import FullTextSession
+from visionbridge.image_conversation import prepare
 from test_image_conversation import fake_base,turn,row
 from test_text_hierarchy import evidence
 
@@ -55,14 +55,14 @@ def test_quantity_is_not_serving_and_calories_conflict():
 
 @pytest.mark.parametrize('q',['Does the label mention the word sugar?','Does it contain sugar?'])
 def test_literal_presence_not_safety(q):
-    from reading_relevance import compose
+    from visionbridge.reading_relevance import compose
     assert object.__new__(FullTextSession).classify(q).task=='reading'
     assert 'Yes.' in compose(q,{'evidence':[row('Ingredients: oats, sugar')]})['answer']
     assert 'does not establish' in compose(q,{'evidence':[]})['answer']
 
 
 def test_heating_heading_not_complete_directions():
-    from reading_relevance import compose
+    from visionbridge.reading_relevance import compose
     assert object.__new__(FullTextSession).classify('How do I heat this?').task=='reading'
     r=compose('How do I heat this?',{'evidence':[row('HEATING INSTRUCTIONS')]})
     assert r['answer_source']=='abstention' and 'heading alone' in r['answer']
@@ -81,7 +81,7 @@ def test_early_question_survives_recent_display_limit(tmp_path):
 
 
 def test_scene_candidates_are_explicit_and_do_not_override_abstention():
-    from experimental_scene import describe
+    from visionbridge.experimental_scene import describe
     rows=[dict(kind='object',id='o1',text='chair',confidence=.9,box=[0,0,50,50])]
     frozen={'final_answer':'room'}
     r=describe('Could you describe this image?',frozen,rows)
@@ -92,7 +92,7 @@ def test_scene_candidates_are_explicit_and_do_not_override_abstention():
 
 
 def test_short_wrapped_passage_not_cut_after_three_lines():
-    from reading_relevance import compose
+    from visionbridge.reading_relevance import compose
     rows=[row(s,n*30) for n,s in enumerate(['A visitor describes a journey.', 'They travelled by bus.', 'The journey continued', 'through the town.', 'They reached a station.', 'The account ends there.'])]
     r=compose('Explain the passage.',{'evidence':rows})
     assert 'The account ends there.' in r['answer'] and len(r['supporting_evidence_ids'])==6

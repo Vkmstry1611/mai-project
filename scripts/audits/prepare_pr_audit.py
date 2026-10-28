@@ -6,7 +6,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
-from audit_submission import PATTERNS
+from visionbridge.audit_submission import PATTERNS
 
 ROOT=Path(__file__).resolve().parents[2]
 PUBLIC_DOCS={'README.md','docs/USER_MANUAL.md','docs/research/ARTIFACT_BUNDLE_GUIDE.md',

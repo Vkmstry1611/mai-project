@@ -8,11 +8,12 @@ COPY requirements-workspace-cloud.txt .
 RUN pip install --no-cache-dir -r requirements-workspace-cloud.txt
 
 COPY *.py ./
+COPY visionbridge/ visionbridge/
 COPY modules/ modules/
 COPY utils/ utils/
 COPY assets/workspace/ assets/workspace/
 COPY mlops/__init__.py mlops/cloud_workspace.py mlops/
-RUN python -m compileall -q launch_workspace.py workspace_ui.py mlops/cloud_workspace.py
+RUN python -m compileall -q launch_workspace.py visionbridge mlops/cloud_workspace.py
 
 EXPOSE 7865
 CMD ["python", "-m", "mlops.cloud_workspace"]

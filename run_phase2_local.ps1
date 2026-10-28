@@ -61,7 +61,7 @@ New-Item -ItemType Directory -Force -Path $LogRoot,$ModelCache,$EvidenceCache | 
 if (-not (Test-Path -LiteralPath $V2)) { throw "Improved BLIP v2 checkpoint missing: $V2" }
 if (-not (Test-Path -LiteralPath $Dev) -or -not (Test-Path -LiteralPath $Images)) { throw 'Prepared dev input/images missing. Preserve the run; inspect prepare.log.' }
 $oldPreference = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
-& $Python -B prepare_easyocr_models.py --directory (Join-Path $ModelCache 'easyocr') 2>&1 | Tee-Object -FilePath (Join-Path $RunRoot 'easyocr-models.log') | Out-Host
+& $Python -B -m visionbridge.prepare_easyocr_models --directory (Join-Path $ModelCache 'easyocr') 2>&1 | Tee-Object -FilePath (Join-Path $RunRoot 'easyocr-models.log') | Out-Host
 $pythonExit = $LASTEXITCODE; $ErrorActionPreference = $oldPreference
 if ($pythonExit -ne 0) { throw "EasyOCR model preparation failed (exit $pythonExit). Log: $RunRoot\easyocr-models.log" }
 

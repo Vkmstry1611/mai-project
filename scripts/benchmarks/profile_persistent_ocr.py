@@ -7,7 +7,7 @@ import uuid
 
 def main():
     from PIL import Image,ImageDraw,ImageFont
-    from launch_persistent_demo import Session
+    from visionbridge.launch_persistent_demo import Session
     out=Path('reports/persistent_demo')/('ocr-profile-'+uuid.uuid4().hex);out.mkdir(parents=True,exist_ok=False)
     images=[]
     for index in range(2):

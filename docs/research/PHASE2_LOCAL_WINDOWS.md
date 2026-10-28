@@ -47,7 +47,7 @@ remain at `data/val.zip.download`; rerunning preparation resumes when the
 server accepts byte ranges. A server refusing resume or a corrupt final ZIP
 causes an error; preserve the files and select a new data folder.
 
-The evaluator remains `evaluate_phase2_dev.py`. `local_phase2_runner.py` adds
+The evaluator remains `evaluate_phase2_dev.py`. `visionbridge/local_phase2_runner.py` adds
 local environment checks, post-run reference/ID checks and immutable verification
 files. CUDA BLIP uses batch size 1, EXIF-corrected RGB images without a thumbnail,
 128 question tokens, greedy generation and 20 new tokens. OCR and object

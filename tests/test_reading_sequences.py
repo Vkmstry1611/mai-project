@@ -4,9 +4,9 @@ import pytest
 from PIL import Image
 from test_reading_relevance import row
 from test_image_conversation import fake_base,turn
-from reading_relevance import compose,intent
-from full_text_session import FullTextSession
-from image_conversation import prepare
+from visionbridge.reading_relevance import compose,intent
+from visionbridge.full_text_session import FullTextSession
+from visionbridge.image_conversation import prepare
 
 
 def cooking():

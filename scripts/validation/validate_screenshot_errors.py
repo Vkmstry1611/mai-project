@@ -12,10 +12,10 @@ import wave
 def main(out):
     from PIL import Image,ImageDraw,ImageFont
     from gradio_client import Client,handle_file
-    from full_text_session import FullTextSession
+    from visionbridge.full_text_session import FullTextSession
     from launch_workspace import build_app,launch_options
-    from workspace_ui import ASSISTANT
-    from workspace_speech import ResponseSpeech
+    from visionbridge.workspace_ui import ASSISTANT
+    from visionbridge.workspace_speech import ResponseSpeech
     out=Path(out);out.mkdir(parents=True,exist_ok=False)
     image_path=Path('reports/phase4_policy/run-local-20261013-v1/application-requests/071b6d6407ff4814ab6a6b46b08404e2/input.png')
     # Large, separated source paragraphs without instruction keywords.

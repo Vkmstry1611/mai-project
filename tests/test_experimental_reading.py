@@ -1,7 +1,7 @@
 import copy
 import pytest
 
-from experimental_reading import is_reading_request, reconstruct, route_request
+from visionbridge.experimental_reading import is_reading_request, reconstruct, route_request
 
 
 def item(text, box, confidence=.99, identity=None):
@@ -71,7 +71,7 @@ def test_explicit_opt_in_can_read_despite_blip_abstention():
 def test_controller_off_preserves_frozen_values_and_ignores_rotation(monkeypatch,tmp_path):
     from PIL import Image
     import app_phase4
-    from launch_reading_demo import request
+    from visionbridge.launch_reading_demo import request
     original=('unanswerable',None,'Complete',{'baseline_answer':'unanswerable'},None)
     photo=Image.new('RGB',(120,60),'white');seen=[]
     def ask(image,question,speak,run_dir):
@@ -86,7 +86,7 @@ def test_controller_off_preserves_frozen_values_and_ignores_rotation(monkeypatch
 def test_explicit_rotation_uses_rotated_image_coordinates(monkeypatch,tmp_path):
     from PIL import Image
     import app_phase4
-    from launch_reading_demo import request
+    from visionbridge.launch_reading_demo import request
     seen=[]
     def ask(image,*args):
         seen.append(image.size);return ('text',None,'Experimental',{},None)
@@ -129,7 +129,7 @@ def test_sloping_chain_does_not_bridge_to_a_different_line():
 def test_worker_uses_utf8_and_only_opt_in_selects_reading(monkeypatch,tmp_path,enabled):
     from PIL import Image
     import app_phase4
-    import launch_reading_demo as demo
+    from visionbridge import launch_reading_demo as demo
     calls=[]
     def process(command,**options):
         calls.append((command,options))
@@ -143,4 +143,4 @@ def test_worker_uses_utf8_and_only_opt_in_selects_reading(monkeypatch,tmp_path,e
     out=demo.request(Image.new('RGB',(20,10)),'Read this',False,enabled,'0',tmp_path)
     assert out[0]=='Sautéed'
     assert ('--reading' in calls[0][0]) is enabled
-    assert calls[0][0][1]==str(demo.ROOT/'reading_demo_worker.py')
+    assert calls[0][0][1]==str(demo.ROOT/'visionbridge/reading_demo_worker.py')

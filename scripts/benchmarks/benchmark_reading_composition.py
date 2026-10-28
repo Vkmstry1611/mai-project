@@ -5,9 +5,9 @@ import time
 import wave
 
 def main():
-    from workspace_speech import ResponseSpeech
-    from reading_relevance import compose
-    from investigate_reading_upgrade import OUT
+    from visionbridge.workspace_speech import ResponseSpeech
+    from visionbridge.reading_relevance import compose
+    from visionbridge.investigate_reading_upgrade import OUT
     source=json.loads((OUT/'rapid-baseline.json').read_text(encoding='utf-8'));speaker=ResponseSpeech();records={}
     for label,value in source.items():
         result=value['result'];new=compose('What is written in this image?',result);pairs={}

@@ -9,8 +9,8 @@ def main(folder):
     from PIL import Image
     from config import Config
     from modules import ocr,evidence_store
-    from experimental_reading import reconstruct
-    from evaluate_full_text import errors
+    from visionbridge.experimental_reading import reconstruct
+    from visionbridge.evaluate_full_text import errors
     source=json.loads((folder/'RESULTS.json').read_text(encoding='utf-8'))
     cfg=replace(Config(),device='cpu',ocr_device='cpu');records={}
     for label in ('paragraph-0','paragraph-90','paragraph-180','paragraph-270','small-text'):

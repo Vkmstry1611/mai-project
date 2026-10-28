@@ -14,10 +14,10 @@ import wave
 def main():
     from gradio_client import Client,handle_file
     from launch_workspace import build_app,launch_options
-    from full_text_session import FullTextSession
-    from workspace_speech import ResponseSpeech
-    from workspace_ui import ASSISTANT
-    from investigate_reading_upgrade import OUT,PHOTOS
+    from visionbridge.full_text_session import FullTextSession
+    from visionbridge.workspace_speech import ResponseSpeech
+    from visionbridge.workspace_ui import ASSISTANT
+    from visionbridge.investigate_reading_upgrade import OUT,PHOTOS
     out=OUT/('api-'+uuid.uuid4().hex[:8]);out.mkdir(parents=True,exist_ok=False)
     session=FullTextSession('reports/phase4_policy/run-local-20261013-v1');demo,_=build_app(session.run_dir,session)
     original=ResponseSpeech.__call__;spoken=[];checks={};records=[];fail=[False]

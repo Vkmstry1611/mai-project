@@ -6,9 +6,9 @@ import pytest
 
 from launch_workspace import build_app
 from test_image_conversation import fake_base
-from workspace_intent import Route
-from workspace_models import BLIP, QWEN, FrontendModels
-from workspace_ui import ASSISTANT
+from visionbridge.workspace_intent import Route
+from visionbridge.workspace_models import BLIP, QWEN, FrontendModels
+from visionbridge.workspace_ui import ASSISTANT
 
 
 def test_lazy_models_validate_choices_and_close_once():

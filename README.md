@@ -20,8 +20,8 @@ All model inference and speech processing for the public app run on EC2 in the s
 | Path | Purpose |
 |---|---|
 | `mlops/` | DVC stages, model selection, API, cloud workspace adapter, AWS deployment scripts and evidence. |
-| `modules/`, `utils/`, `workspace_*.py`, `launch_workspace.py` | MAI frontend and runtime code used by the cloud workspace. |
-| Other root Python modules | Historical MAI research modules and entry points retained at their original paths for source hashes and local compatibility. |
+| `visionbridge/`, `modules/`, `utils/`, `launch_workspace.py` | MAI frontend, cloud workspace, and retained research helpers. |
+| Other root Python modules | Frozen MAI research files retained at their original paths for source hashes and local compatibility. |
 | `scripts/` | Manual audits, benchmarks, validation and research commands; run with `python -m` from the repository root. |
 | `tests/` | Maintained automated tests. CI selects the cloud and MLOps tests. |
 | `docs/research/` | Older MAI methodology, training guides, reports and the full original local setup reference. |
@@ -29,7 +29,7 @@ All model inference and speech processing for the public app run on EC2 in the s
 | `submission/`, `sample/`, `models/` | Evaluation provenance, attributed demo inputs, and model pointers/checkpoint files. |
 | `ss/` | Dated screenshots for the course demonstration. |
 
-The root Python modules are intentionally retained where moving them would invalidate the frozen research bundle's source hashes or break historical local entry points. The separate BDA project and its VM files are not part of this branch.
+The remaining root Python modules are intentionally retained where moving them would invalidate the frozen research bundle's source hashes or break historical local entry points. The separate BDA project and its VM files are not part of this branch.
 
 ## Reproduce and verify
 

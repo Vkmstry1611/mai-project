@@ -14,9 +14,9 @@ def main(notices_only=False):
     out=Path('reports/workspace_ui')/('validation-'+time.strftime('%Y%m%d-%H%M%S')+'-'+uuid.uuid4().hex[:8])
     out.mkdir(parents=True,exist_ok=False)
     from PIL import Image,ImageDraw,ImageFont
-    from launch_persistent_demo import Session
+    from visionbridge.launch_persistent_demo import Session
     from launch_workspace import build_app,launch_options
-    from workspace_ui import ASSISTANT,VISUAL,READING
+    from visionbridge.workspace_ui import ASSISTANT,VISUAL,READING
     from gradio_client import Client,handle_file
     from urllib.request import urlopen
     image=Image.new('RGB',(600,250),'white')

@@ -1,5 +1,5 @@
 import pytest
-from verify_phase3_completion import reference_identity, risk_points, same
+from visionbridge.verify_phase3_completion import reference_identity, risk_points, same
 
 
 def test_reference_frequency_and_order_must_be_preserved():

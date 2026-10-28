@@ -4,7 +4,7 @@ from types import SimpleNamespace
 import numpy as np
 from PIL import Image
 import pytest
-from complete_phase2_ocr import missing_indices,apply_ocr,reader_rows
+from visionbridge.complete_phase2_ocr import missing_indices,apply_ocr,reader_rows
 from test_phase2_dev import row,captured,item,rules
 from replay_phase2_dev import reselect_capture
 from evaluate_phase2_dev import replay

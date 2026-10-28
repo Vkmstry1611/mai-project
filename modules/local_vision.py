@@ -11,7 +11,7 @@ from urllib.request import Request, build_opener, ProxyHandler
 
 from PIL import ImageOps
 
-from workspace_intent import Route
+from visionbridge.workspace_intent import Route
 
 DEFAULT_MODEL = 'qwen3-vl:2b-instruct-q4_K_M'
 ENDPOINT = os.getenv('VISIONBRIDGE_OLLAMA_URL', 'http://127.0.0.1:11434')

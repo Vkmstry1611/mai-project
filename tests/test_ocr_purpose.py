@@ -2,10 +2,10 @@
 import copy
 import pytest
 from PIL import Image
-from ocr_purpose import describe,purpose_question
+from visionbridge.ocr_purpose import describe,purpose_question
 from test_reading_relevance import row
 from test_image_conversation import fake_base,turn
-from image_conversation import prepare
+from visionbridge.image_conversation import prepare
 from modules.evidence_store import image_identity
 
 

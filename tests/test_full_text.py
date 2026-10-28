@@ -1,7 +1,7 @@
 from PIL import Image
-from assistive_tools import quality,targeted,compare
-from full_text_ocr import assemble
-from full_text_session import FullTextSession
+from visionbridge.assistive_tools import quality,targeted,compare
+from visionbridge.full_text_ocr import assemble
+from visionbridge.full_text_session import FullTextSession
 from types import SimpleNamespace
 import pytest
 

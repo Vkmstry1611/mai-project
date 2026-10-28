@@ -12,10 +12,10 @@ import wave
 def main():
     from PIL import Image
     from gradio_client import Client,handle_file
-    from full_text_session import FullTextSession
+    from visionbridge.full_text_session import FullTextSession
     from launch_workspace import build_app,launch_options
-    from workspace_ui import ASSISTANT
-    from investigate_reading_upgrade import OUT,PHOTOS
+    from visionbridge.workspace_ui import ASSISTANT
+    from visionbridge.investigate_reading_upgrade import OUT,PHOTOS
     raw=json.loads((OUT/'rapid-baseline.json').read_text(encoding='utf-8'))
     session=FullTextSession('reports/phase4_policy/run-local-20261013-v1')
     original=session.reader.read
